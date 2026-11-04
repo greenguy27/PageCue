@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — in testing
+
+Stage 3: camera and recording.
+
+- Turn on camera and mic from the Record screen; pick the camera and microphone; live mic level
+- Your camera appears in the face bubble of the "Viewers see" preview (mirrored there only; the recording is not mirrored)
+- Record with a 3-2-1 countdown (Esc cancels); every tap is logged against the recording's clock
+- Stop recording to get a take: play it back, download the video (MP4 where the browser supports it, otherwise WebM), or retake
+- The last take is kept in the browser, so a reload doesn't lose it; if the browser can't store it, PageCue says so and warns before you close the tab
+- Warns when the prompter lines change after a take, since its timing may no longer match
+- Project file (.pagecue.json): save and open your story, lines and take timing (the video stays a separate file)
+- Screen stays awake while recording, where the browser allows it
+- Phone mode: front camera, vertical framing, and a nudge on takes longer than 15 minutes
+
 ## 0.1.0 — 2026-11-04
 
 First build: stage 2 of the plan (story + prompter).

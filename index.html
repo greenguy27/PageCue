@@ -6,7 +6,7 @@
 <title>PageCue</title>
 <meta name="theme-color" content="#f6f1e7">
 <style>
-/* PageCue v0.1 (stage 2: story + prompter). Direction B "Studio".
+/* PageCue v0.2 (stage 3: camera + recording). Direction B "Studio".
    One file, no network requests, nothing leaves the device. */
 :root{
   --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
@@ -118,6 +118,29 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 
+/* ---------- Camera, recording, takes (v0.2) ---------- */
+.vid .face video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+.panel{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.panel h3{margin:0;font-size:14px;font-weight:600}
+.panel select{height:38px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--ground);min-width:0;width:100%}
+.panel .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.panel .btns{display:flex;flex-wrap:wrap;gap:8px}
+.panel .btn{height:40px;font-size:14px}
+.meter{height:6px;border-radius:99px;background:var(--meter);overflow:hidden}
+.meter i{display:block;height:6px;width:0;background:var(--accent);transition:width .08s}
+.take-player{width:100%;border-radius:8px;background:#000;max-height:260px}
+.warn{font-size:13px;color:#8a4b00}
+.status.rec{color:var(--rec)}
+.status.rec .dot{background:var(--rec);animation:blink 1.2s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.btn.rec{border-color:var(--rec);color:var(--rec);font-weight:600}
+.btn.rec .rdot{width:10px;height:10px;border-radius:50%;background:var(--rec)}
+.btn.recon{background:var(--rec);border-color:var(--rec);color:#fff}
+.btn.recon .rdot{background:#fff;border-radius:2px}
+.countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,253,248,.86);font-family:var(--sans);font-size:120px;font-weight:600;color:var(--accent);z-index:2}
+.countdown small{display:block;font-size:15px;font-weight:400;color:var(--ink2);text-align:center}
+.projrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid var(--rule)}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
 body.phone .brand span{display:none}
@@ -127,6 +150,10 @@ body.phone .prompter{padding:20px 20px;min-height:0;flex:1 1 auto;--fs:28px}
 body.phone .record{flex-direction:column;flex-wrap:nowrap}
 body.phone .side{flex:0 0 auto;flex-direction:row;align-items:center}
 body.phone .side .head,body.phone .side .stats,body.phone .side .hint{display:none}
+body.phone .side{flex-wrap:wrap;gap:10px}
+body.phone .panel{flex:1 1 100%;padding:10px 12px}
+body.phone #camPanel .row2,body.phone #camPanel h3{display:none}
+body.phone .take-player{max-height:200px}
 body.phone .vid{width:72px;flex:0 0 72px;aspect-ratio:9/16;border-radius:8px}
 body.phone .vid .meta{display:none}
 body.phone .phoneinfo{display:flex}
@@ -194,12 +221,19 @@ body.phone .toast{top:16px;bottom:auto}
         <span class="count" id="count">0 lines</span>
         <button type="button" class="btn primary" id="toRecord">Go to the prompter</button>
       </div>
+      <div class="projrow">
+        <span class="hint" style="flex-grow:1">Project file: your story, lines and timing (the video is saved separately).</span>
+        <button type="button" class="btn" id="projSave">Save project file</button>
+        <label class="btn" for="projOpen" style="cursor:pointer">Open project file</label>
+        <input id="projOpen" type="file" accept=".json,application/json" class="sr">
+      </div>
     </section>
   </main>
 
   <!-- ================= RECORD (prompter) ================= -->
   <main id="recordView" class="record" hidden>
     <section class="prompter" id="prompter" aria-label="Prompter" aria-live="polite">
+      <div class="countdown" id="countdown" hidden><div><span id="cdNum">3</span><small>Get ready to read · Esc cancels</small></div></div>
       <span class="label">You read</span>
       <div id="plines" style="display:flex;flex-direction:column;gap:inherit"></div>
     </section>
@@ -214,13 +248,44 @@ body.phone .toast{top:16px;bottom:auto}
       <div class="vid wide" id="vid" aria-hidden="true">
         <div class="meta" id="vMeta"></div>
         <div class="txt"><span class="prev" id="vPrev"></span><span class="now" id="vNow"></span></div>
-        <div class="face"><svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="40" r="17" fill="var(--face-fig)"/><path d="M18 100c3-24 16-34 32-34s29 10 32 34z" fill="var(--face-fig)"/></svg></div>
+        <div class="face"><svg id="faceIcon" viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="40" r="17" fill="var(--face-fig)"/><path d="M18 100c3-24 16-34 32-34s29 10 32 34z" fill="var(--face-fig)"/></svg><video id="cam" muted playsinline autoplay hidden></video></div>
       </div>
       <div class="phoneinfo">
         <span class="status" id="pStatus"><span class="dot"></span><span>Ready</span></span>
         <span class="count" id="pWhere"></span>
       </div>
-      <p class="hint" style="margin:0">A preview of the export look. Camera and recording arrive in the next stage; for now a practice run logs your tap timing.</p>
+      <p class="hint" style="margin:0">A preview of the export look. The camera image is mirrored here so it feels natural; the recording is not.</p>
+
+      <div class="panel" id="camPanel">
+        <h3>Camera and mic</h3>
+        <div id="camOff" class="btns">
+          <button type="button" class="btn primary" id="camOn">Turn on camera and mic</button>
+          <span class="hint">Your browser will ask first. Nothing is uploaded.</span>
+        </div>
+        <div id="camLive" hidden>
+          <div class="row2">
+            <label class="sr" for="camSel">Camera</label><select id="camSel" aria-label="Camera"></select>
+            <label class="sr" for="micSel">Microphone</label><select id="micSel" aria-label="Microphone"></select>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <span class="hint">Mic</span><div class="meter" style="flex-grow:1"><i id="meter"></i></div>
+            <button type="button" class="btn" id="camStop" style="height:34px;font-size:13px">Turn off</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="takePanel" hidden>
+        <h3 id="takeTitle">Take 1</h3>
+        <span class="count" id="takeInfo"></span>
+        <span class="warn" id="takeWarn" hidden></span>
+        <video class="take-player" id="takePlayer" controls playsinline hidden></video>
+        <div class="btns">
+          <button type="button" class="btn" id="takePlay">Play take</button>
+          <button type="button" class="btn" id="takeSave">Download video</button>
+          <button type="button" class="btn" id="takeDiscard">Retake</button>
+        </div>
+      </div>
+
       <div class="stats">
         <div class="stat"><b id="sTaps">0</b><span>taps logged</span></div>
         <div class="stat"><b id="sLast">–</b><span>last tap</span></div>
@@ -234,7 +299,8 @@ body.phone .toast{top:16px;bottom:auto}
     <div class="size"><button type="button" class="btn" id="smaller" aria-label="Smaller text">A−</button><button type="button" class="btn" id="bigger" aria-label="Larger text">A+</button></div>
     <button type="button" class="btn" id="backBtn">Back a line <kbd>←</kbd></button>
     <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd></button>
-    <button type="button" class="btn" id="runBtn">Start practice run</button>
+    <button type="button" class="btn" id="runBtn">Practice run</button>
+    <button type="button" class="btn rec" id="recBtn" disabled title="Turn on the camera first"><span class="rdot"></span><span>Record</span></button>
   </footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -255,8 +321,8 @@ const state = {
 
 function save(){
   try{
-    const {title,author,raw,split,lines,linesEdited,fs,device,fmt} = state;
-    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt}));
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId}));
   }catch(e){ /* private mode or storage blocked: the app still works */ }
 }
 function load(){
@@ -379,6 +445,7 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 /* ---------- steps and device ---------- */
 function setStep(step){
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
+  if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
   state.step = step;
   document.querySelectorAll("nav.steps [data-step]").forEach(b => {
     if (b.dataset.step === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
@@ -386,7 +453,7 @@ function setStep(step){
   $("storyView").hidden = step !== "story";
   $("recordView").hidden = step !== "record";
   $("bar").hidden = step !== "record";
-  if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); }
+  if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); }
 }
 document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
 
@@ -447,57 +514,284 @@ function back(){
   renderPrompter();
 }
 
-/* ---------- practice run (timing log) ---------- */
-let tick = null;
+/* ---------- runs: practice and recording share one timing log ---------- */
+let tick = null, cd = null;
 function fmtT(ms){
   const s = ms / 1000, m = Math.floor(s / 60), r = s - m * 60;
   return m + ":" + (r < 10 ? "0" : "") + r.toFixed(1);
 }
-function resetRun(){ state.run = null; clearInterval(tick); }
-function startRun(){
+function fmtClock(ms){ const s = Math.round(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+const live = () => !!(state.run && !state.run.done);
+const recording = () => live() && state.run.mode === "rec";
+function resetRun(){ if (recording()) return; state.run = null; clearInterval(tick); }
+function beginRun(mode){
   state.idx = 0;
-  state.run = { t0: performance.now(), starts: [0], done: false };
-  clearInterval(tick); tick = setInterval(renderRun, 200);
+  state.run = { mode, t0: performance.now(), starts: [0], done: false, warned: false };
+  clearInterval(tick); tick = setInterval(renderRun, 250);
   renderPrompter();
 }
 function stopRun(){
-  if (!state.run) return;
-  state.run.done = true; state.run.total = performance.now() - state.run.t0;
+  const r = state.run; if (!r || r.done) return;
+  r.done = true; r.total = performance.now() - r.t0;
   clearInterval(tick);
-  const n = state.run.starts.length;
-  toast(`Practice run: ${n} of ${state.lines.length} lines timed in ${fmtT(state.run.total)}`);
+  if (r.mode === "rec") stopRecording();
+  else toast(`Practice run: ${r.starts.length} of ${state.lines.length} lines timed in ${fmtT(r.total)}`);
   renderPrompter();
 }
 function renderRun(){
-  const r = state.run, live = r && !r.done;
-  const label = live ? "Practice " + fmtT(performance.now() - r.t0) : r ? "Run finished" : "Ready";
+  const r = state.run, on = live(), rec = recording();
+  const el = on ? fmtClock(performance.now() - r.t0) : "";
+  const label = cd ? "Get ready" : on ? (rec ? "REC " : "Practice ") + el : r ? (r.mode === "rec" ? "Take saved" : "Run finished") : (stream ? "Camera on" : "Ready");
   for (const id of ["status","pStatus"]){
-    $(id).classList.toggle("live", !!live);
+    $(id).classList.toggle("live", on && !rec);
+    $(id).classList.toggle("rec", rec);
     $(id).lastElementChild.textContent = label;
   }
-  $("runBtn").textContent = live ? "Stop" : (r ? "New practice run" : "Start practice run");
-  $("runBtn").classList.toggle("danger", !!live);
+  $("runBtn").textContent = on && !rec ? "Stop practice" : "Practice run";
+  $("runBtn").classList.toggle("danger", on && !rec);
+  $("runBtn").disabled = rec || !!cd;
+  const rb = $("recBtn");
+  rb.lastElementChild.textContent = cd ? "Cancel" : rec ? "Stop recording" : "Record";
+  rb.classList.toggle("recon", rec);
+  rb.disabled = !cd && !rec && (!stream || on);
+  rb.title = stream ? "" : "Turn on the camera first";
   $("sTaps").textContent = r ? Math.max(0, r.starts.length - 1) : 0;
   const last = r && r.starts.length > 1 ? r.starts[r.starts.length - 1] : null;
   $("sLast").textContent = last == null ? "–" : fmtT(last);
+  // Phones hold the raw take in memory: nudge past 15 minutes.
+  if (rec && !r.warned && state.device === "phone" && performance.now() - r.t0 > 15 * 60000){
+    r.warned = true; toast("Long take on a phone: consider stopping soon so the video saves safely.");
+  }
 }
-$("runBtn").addEventListener("click", () => (state.run && !state.run.done) ? stopRun() : startRun());
+
+/* ---------- camera and mic ---------- */
+let stream = null, actx = null, meterRAF = 0;
+async function camStart(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    toast("The camera isn't available here. Try Chrome or Edge, or open PageCue from its web address."); return;
+  }
+  const phone = state.device === "phone";
+  const v = { width: { ideal: phone ? 1080 : 1920 }, height: { ideal: phone ? 1920 : 1080 }, frameRate: { ideal: 30 } };
+  if (state.camId) v.deviceId = { exact: state.camId }; else if (phone) v.facingMode = "user";
+  const a = { echoCancellation: false, noiseSuppression: true, autoGainControl: true };
+  if (state.micId) a.deviceId = { exact: state.micId };
+  let s;
+  try{ s = await navigator.mediaDevices.getUserMedia({ video: v, audio: a }); }
+  catch(e){
+    if (state.camId || state.micId){ state.camId = state.micId = ""; save(); return camStart(); } // a saved device went away
+    const n = e && e.name;
+    toast(n === "NotAllowedError" ? "Camera or mic blocked. Allow them in the address bar, then try again."
+      : n === "NotFoundError" ? "No camera or microphone found."
+      : n === "NotReadableError" ? "The camera is busy in another app. Close that app and try again."
+      : "Couldn't start the camera: " + ((e && e.message) || n));
+    return;
+  }
+  camStopTracks(); stream = s;
+  const vid = $("cam"); vid.srcObject = stream; vid.hidden = false; $("faceIcon").style.display = "none";
+  $("camOff").hidden = true; $("camLive").hidden = false;
+  await fillDevices(); startMeter(); renderRun();
+}
+function camStopTracks(){ if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; stopMeter(); }
+function camOff(){
+  if (recording() || cd) return;
+  camStopTracks();
+  $("cam").srcObject = null; $("cam").hidden = true; $("faceIcon").style.display = "";
+  $("camOff").hidden = false; $("camLive").hidden = true;
+  renderRun();
+}
+async function fillDevices(){
+  try{
+    const list = await navigator.mediaDevices.enumerateDevices();
+    const curV = stream.getVideoTracks()[0]?.getSettings().deviceId, curA = stream.getAudioTracks()[0]?.getSettings().deviceId;
+    const fill = (sel, kind, cur, word) => {
+      const ds = list.filter(d => d.kind === kind);
+      sel.innerHTML = ds.map((d, i) => `<option value="${esc(d.deviceId)}"${d.deviceId === cur ? " selected" : ""}>${esc(d.label || word + " " + (i + 1))}</option>`).join("");
+    };
+    fill($("camSel"), "videoinput", curV, "Camera"); fill($("micSel"), "audioinput", curA, "Microphone");
+  }catch(e){}
+}
+function startMeter(){
+  stopMeter();
+  try{
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = actx.createAnalyser(); an.fftSize = 1024;
+    actx.createMediaStreamSource(stream).connect(an);
+    const buf = new Float32Array(an.fftSize);
+    const loop = () => {
+      an.getFloatTimeDomainData(buf);
+      let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+      $("meter").style.width = Math.min(100, Math.round(Math.sqrt(s / buf.length) * 400)) + "%";
+      meterRAF = requestAnimationFrame(loop);
+    };
+    loop();
+  }catch(e){ /* meter is a nicety */ }
+}
+function stopMeter(){
+  cancelAnimationFrame(meterRAF);
+  if (actx){ try{ actx.close(); }catch(e){} actx = null; }
+  $("meter").style.width = "0";
+}
+$("camOn").addEventListener("click", camStart);
+$("camStop").addEventListener("click", camOff);
+$("camSel").addEventListener("change", e => { state.camId = e.target.value; save(); camStart(); });
+$("micSel").addEventListener("change", e => { state.micId = e.target.value; save(); camStart(); });
+
+/* ---------- recording ---------- */
+let recorder = null, chunks = [], wake = null, take = null, takeURL = null;
+function pickMime(){
+  const c = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  for (const m of c) if (MediaRecorder.isTypeSupported(m)) return m;
+  return "";
+}
+function startCountdown(){
+  if (!stream){ toast("Turn on the camera first"); return; }
+  if (!window.MediaRecorder){ toast("This browser can't record video. Try Chrome or Edge."); return; }
+  if (take && !confirm(`Record a new take? Take ${take.n} will be replaced. Download it first if you want to keep it.`)) return;
+  state.run = null; state.idx = 0; renderPrompter();
+  let n = 3; $("cdNum").textContent = n; $("countdown").hidden = false;
+  cd = setInterval(() => {
+    n--;
+    if (n > 0){ $("cdNum").textContent = n; return; }
+    clearInterval(cd); cd = null; $("countdown").hidden = true; startRecording();
+  }, 1000);
+  renderRun();
+}
+function cancelCountdown(){ clearInterval(cd); cd = null; $("countdown").hidden = true; renderRun(); }
+function startRecording(){
+  const mime = pickMime(), opts = { videoBitsPerSecond: 5000000 };
+  if (mime) opts.mimeType = mime;
+  try{ recorder = new MediaRecorder(stream, opts); }
+  catch(e){ toast("Couldn't start recording: " + e.message); renderRun(); return; }
+  chunks = [];
+  recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  recorder.onstart = () => beginRun("rec");      // tap times are measured from here
+  recorder.onstop = finishTake;
+  recorder.onerror = e => toast("Recording error: " + ((e.error && e.error.message) || "unknown"));
+  recorder.start(1000);
+  $("camSel").disabled = $("micSel").disabled = $("camStop").disabled = true;
+  try{ navigator.wakeLock && navigator.wakeLock.request("screen").then(w => wake = w).catch(() => {}); }catch(e){}
+}
+function stopRecording(){
+  if (recorder && recorder.state !== "inactive") recorder.stop();
+  try{ wake && wake.release(); }catch(e){} wake = null;
+}
+async function finishTake(){
+  const r = state.run;
+  const type = (recorder && recorder.mimeType) || (chunks[0] && chunks[0].type) || "video/webm";
+  const blob = new Blob(chunks, { type }); chunks = []; recorder = null;
+  $("camSel").disabled = $("micSel").disabled = $("camStop").disabled = false;
+  const n = take ? take.n + 1 : 1;
+  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
+  take.unsafe = !(await idbPut(take));
+  renderTake();
+  toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
+}
+function setTake(t){
+  if (takeURL) URL.revokeObjectURL(takeURL);
+  take = t; takeURL = t ? URL.createObjectURL(t.blob) : null;
+  const p = $("takePlayer"); p.pause(); p.removeAttribute("src"); p.load(); p.hidden = true;
+  renderTake();
+}
+const extOf = type => /mp4/.test(type) ? "mp4" : "webm";
+const sameLines = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+function renderTake(){
+  $("takePanel").hidden = !take;
+  if (!take) return;
+  $("takeTitle").textContent = "Take " + take.n;
+  $("takeInfo").textContent = `${fmtClock(take.duration)} · ${take.starts.length} of ${take.lines.length} lines timed · ${(take.blob.size / 1048576).toFixed(1)} MB ${extOf(take.type).toUpperCase()}`
+    + (take.unsafe ? " · not stored in this browser, download it" : " · kept in this browser");
+  const changed = !sameLines(take.lines, state.lines);
+  $("takeWarn").hidden = !changed;
+  $("takeWarn").textContent = changed ? "Your prompter lines changed after this take, so its timing may not match them. Undo the edit, or record a new take." : "";
+}
+function fileBase(){ return (state.title.trim() || "pagecue").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "pagecue"; }
+function download(blob, name){
+  const a = document.createElement("a"), url = URL.createObjectURL(blob);
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+$("takePlay").addEventListener("click", () => {
+  const p = $("takePlayer"); if (!take) return;
+  if (p.hidden){ p.src = takeURL; p.hidden = false; p.play().catch(() => {}); }
+  else { p.pause(); p.hidden = true; }
+});
+$("takeSave").addEventListener("click", () => { if (!take) return; download(take.blob, `${fileBase()}-take${take.n}.${extOf(take.type)}`); take.downloaded = true; });
+$("takeDiscard").addEventListener("click", () => {
+  if (!take || !confirm(`Delete take ${take.n} from this browser and record again?`)) return;
+  setTake(null); idbDel(); startCountdown();
+});
+
+/* ---------- take storage (IndexedDB keeps one take across reloads) ---------- */
+function idbOpen(){
+  return new Promise((res, rej) => {
+    if (!window.indexedDB) return rej(new Error("no IndexedDB"));
+    const q = indexedDB.open("pagecue", 1);
+    q.onupgradeneeded = () => q.result.createObjectStore("takes");
+    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+  });
+}
+async function idbTx(mode, fn){
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("takes", mode), q = fn(tx.objectStore("takes"));
+    tx.oncomplete = () => { db.close(); res(q && q.result); };
+    tx.onerror = tx.onabort = () => { db.close(); rej(tx.error); };
+  });
+}
+async function idbPut(t){
+  try{ const { n, blob, type, duration, starts, lines, when } = t; await idbTx("readwrite", st => st.put({ n, blob, type, duration, starts, lines, when }, "current")); return true; }
+  catch(e){ return false; }
+}
+async function idbGet(){ try{ return await idbTx("readonly", st => st.get("current")); }catch(e){ return null; } }
+async function idbDel(){ try{ await idbTx("readwrite", st => st.delete("current")); }catch(e){} }
+
+/* ---------- project file (story, lines, timing; never the video) ---------- */
+$("projSave").addEventListener("click", () => {
+  const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
+    title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+  download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
+});
+$("projOpen").addEventListener("change", e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let p; try{ p = JSON.parse(String(r.result)); }catch(err){ toast("That isn't a PageCue project file."); return; }
+    if (!p || p.app !== "PageCue" || !Array.isArray(p.lines)){ toast("That isn't a PageCue project file."); return; }
+    state.title = String(p.title || ""); state.author = String(p.author || ""); state.raw = String(p.story || "");
+    state.split = p.split === "line" ? "line" : "sentence";
+    state.lines = p.lines.map(String); state.linesEdited = true; state.importedTiming = p.timing || null;
+    $("title").value = state.title; $("author").value = state.author; $("raw").value = state.raw;
+    $("split").value = state.split; $("linesBox").value = state.lines.join("\n");
+    state.idx = 0; resetRun(); renderByline(); renderCount(); renderTake(); save();
+    toast(p.timing ? `Project opened. It includes timing for take ${p.timing.take}; keep its video file (${p.timing.video}) with it.` : "Project opened.");
+  };
+  r.readAsText(f);
+});
+
+/* ---------- controls and keys ---------- */
+$("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
+$("recBtn").addEventListener("click", () => cd ? cancelCountdown() : recording() ? stopRun() : startCountdown());
 $("nextBtn").addEventListener("click", next);
 $("backBtn").addEventListener("click", back);
-$("prompter").addEventListener("click", next);   // tap anywhere on the prompter
+$("prompter").addEventListener("click", e => { if (!cd) next(); });   // tap anywhere on the prompter
 $("smaller").addEventListener("click", () => { state.fs = Math.max(24, state.fs - 4); renderPrompter(); save(); });
 $("bigger").addEventListener("click", () => { state.fs = Math.min(80, state.fs + 4); renderPrompter(); save(); });
 
-// Keys. Presentation clickers send PageDown/PageUp or arrow keys.
+// Presentation clickers send PageDown/PageUp or arrow keys.
 document.addEventListener("keydown", e => {
   if (state.step !== "record") return;
   const t = e.target;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
+  if (k === "Escape"){ if (cd){ e.preventDefault(); cancelCountdown(); } else if (live()){ e.preventDefault(); stopRun(); } return; }
+  if (cd) { if (k === " ") e.preventDefault(); return; }
   if (k === " " || k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === "Enter"){ e.preventDefault(); next(); }
   else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace"){ e.preventDefault(); back(); }
-  else if (k === "Escape" && state.run && !state.run.done){ e.preventDefault(); stopRun(); }
+});
+window.addEventListener("beforeunload", e => {
+  if (recording() || cd || (take && take.unsafe && !take.downloaded)){ e.preventDefault(); e.returnValue = ""; }
 });
 
 /* ---------- misc ---------- */
@@ -513,7 +807,8 @@ $("title").value = state.title; $("author").value = state.author;
 $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
-renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device);
+renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
+idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
 window.__rp = { state, splitStory, md };
 })();
