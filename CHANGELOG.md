@@ -1,6 +1,50 @@
 # Changelog
 
-## 0.3.0 — in testing
+## 0.5.0 — 2026-11-04
+
+Stage 6: retake mode.
+
+- Press the retake key (R by default, changeable on the Record screen) or the Retake button when you stumble; the prompter goes back to the start of that line and counts down 3-2-1 before you read it again
+- Recording never stops: the failed attempt becomes a cut marker, and the line's timing restarts after the countdown
+- Retake the same line as many times as you need; pressing the key again during a countdown restarts the countdown without adding another cut
+- Review lists every cut with its line and length; play a cut, restore it to keep that part, or cut it again. "Reset timing to the take" also brings back the original cuts
+- Cuts show on the timeline, and the preview skips them during playback
+- Export and captions leave out every active cut; the exported length is the take minus the cuts
+- Audio and picture stay in sync across cuts: export switches between two players that are already waiting at the next section, so nothing pauses or seeks mid-recording
+- Cuts are saved while you record; after a crash, recovered takes keep their cuts, and a retake that was still counting down becomes a cut to the end of the take
+
+**New look**
+- Warmer Studio design: a compact one-line header with the logo, icon tabs, a project menu (edit title and author, save or open a project file), and redesigned Story and Prompter Setup cards
+- Footer with an About PageCue box and the support link
+- Optional desk scene on the Story screen (books, mug, plants); drop your own images into `assets/`, or PageCue draws placeholders
+
+## 0.4.0 — 2026-11-04
+
+Stage 5: export and captions, plus recording recovery.
+
+**Export**
+- Export the take as a wide 16:9 (1920×1080) and/or vertical 9:16 (1080×1920) video, with the story text and face bubble exactly as previewed
+- Optional 3-second title card with the title and author
+- MP4 with H.264/AAC where the browser supports it; the download button shows the codec used
+- Runs in real time with a progress bar and Cancel; keep PageCue in front while it exports
+- The Export step is now active (it opens the export settings)
+
+**Captions**
+- Download captions as SRT or VTT, built from your script and timing (no speech recognition; names are always spelled right)
+- Fix a caption's text per line in Review, or mark a line as not spoken so it's left off the video and the captions
+- Captions shift automatically when the title card is on
+
+**Recording recovery**
+- Every second of a take, and every tap, is saved in the browser while you record
+- If the browser crashes, the computer freezes, or the tab closes mid-take, PageCue offers to recover the take next time it opens; recovered takes play back and export normally
+- Takes are recorded as WebM where possible, because Chrome's MP4 recorder holds the whole take in memory until Stop and can't be saved as it goes; if a browser can only record that way, PageCue says crash protection is off instead of pretending
+- Shows how many minutes of crash-protected recording the browser has room for; if storage fills up mid-take, it warns you, keeps recording, and the take still finishes
+
+**Fixes**
+- Timing and caption edits no longer rewrite the whole video in storage, and the last edit is kept even on a quick reload
+- The Windows launcher no longer freezes when the browser opens a spare connection
+
+## 0.3.0 — 2026-11-04
 
 Stage 4: review and timeline.
 
@@ -16,7 +60,7 @@ Stage 4: review and timeline.
 - Local launchers (`Start-PageCue.bat` for Windows, `Start-PageCue.command` for Mac) serve PageCue at http://localhost:8765 so the camera and mic work without uploading anything
 - When PageCue is opened straight from its folder, the Record screen explains how to start it with the launcher instead
 
-## 0.2.0 — in testing
+## 0.2.0 — 2026-11-04
 
 Stage 3: camera and recording.
 

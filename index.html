@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PageCue</title>
-<meta name="theme-color" content="#f6f1e7">
+<meta name="theme-color" content="#f6efe3">
 <style>
-/* PageCue v0.3 (stage 4: review + timeline; local launcher). Direction B "Studio".
+/* PageCue v0.5 (retake mode). Direction B "Studio", warm desk look.
    One file, no network requests, nothing leaves the device. */
 :root{
-  --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
+  --ground:#f6efe3; --paper:#fffcf6; --band:#efe7d8; --field:#f4ede1; --gold:#b98a3e; --gold-wash:#f6ecda;
+  --shadow:0 1px 2px rgba(80,60,30,.06),0 10px 28px rgba(80,60,30,.08);
   --ink:#22201b; --ink2:#5e584c; --past:#8b8475; --rule:#ddd4c3; --rule2:#cfc5b2;
   --accent:#1f5f5b; --accent-ink:#ffffff; --accent-wash:rgba(31,95,91,.08);
   --rec:#b3261e; --meter:#e7dfcf;
@@ -139,7 +140,9 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .btn.recon .rdot{background:#fff;border-radius:2px}
 .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,253,248,.86);font-family:var(--sans);font-size:120px;font-weight:600;color:var(--accent);z-index:2}
 .countdown small{display:block;font-size:15px;font-weight:400;color:var(--ink2);text-align:center}
-.credit{flex:1 1 100%;margin:0;text-align:center;font-size:13px;color:var(--ink2)}
+.recover{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:16px 24px 0;padding:14px 18px;border:1px solid #d9b37a;border-radius:12px;background:#fbf1de;color:var(--ink);font-size:14px}
+.recover span{flex:1 1 320px}
+body.phone .recover{margin:10px 12px 0}
 .projrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid var(--rule)}
 
 /* ---------- Review + timeline (v0.3) ---------- */
@@ -185,9 +188,123 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .vid.tall.c-tl .meta{bottom:7%}
 .vid.one .prev{display:none}
 
+.capedit{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.capedit input[type=text]{flex:1 1 320px;height:38px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.capedit .skipl{display:flex;align-items:center;gap:6px;font-size:14px}
+.capedit .btn{height:38px;font-size:13px}
+.cut{position:absolute;top:2px;bottom:2px;border:1px dashed var(--rec);border-radius:4px;z-index:1;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(179,38,30,.20) 0 6px,rgba(179,38,30,.06) 6px 12px)}
+.cut.off{background:none;border-style:dotted;opacity:.55}
+.cutlist{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.cutchip{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 10px;border:1px dashed var(--rec);border-radius:10px;background:var(--paper);font-size:13px}
+.cutchip.off{border-style:dotted;opacity:.75}
+.cutchip .btn{height:30px;padding:0 10px;font-size:12px}
+.blk.skip{text-decoration:line-through;opacity:.55}
+#exportBox label{display:flex;align-items:center;gap:10px;font-size:14px}
+#exportBox input{width:18px;height:18px;accent-color:var(--accent)}
+#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
+
+
+/* ---------- Studio look (warm desk) ---------- */
+body{background:radial-gradient(1200px 700px at 50% 30%,#fbf6ee 0,var(--ground) 70%) fixed,var(--ground)}
+.ic{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic.fill{fill:currentColor;stroke:none}
+.ic.gold{color:var(--gold)}
+header.top{padding:8px 28px;gap:8px 18px;background:rgba(255,252,246,.72);border-bottom:1px solid var(--rule);box-shadow:0 1px 0 rgba(255,255,255,.7) inset}
+.brand{flex-grow:0;align-items:center;gap:10px;padding-right:18px;border-right:1px solid var(--rule)}
+.logo{width:28px;height:31px;flex:0 0 auto}
+.bname{display:flex;flex-direction:column;line-height:1.1}
+.bname b{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.005em}
+.bname i{font-family:var(--serif);font-size:15px;color:var(--gold);margin-top:2px}
+.projwrap{position:relative;flex-grow:1;min-width:0}
+.projchip{display:inline-flex;align-items:center;gap:10px;max-width:100%;height:36px;padding:0 12px;border:1px solid var(--rule2);border-radius:10px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.projchip .ic{color:var(--gold)}
+.projchip .chev{color:var(--ink2);width:18px;height:18px}
+.projchip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.projmenu{position:absolute;top:42px;left:0;z-index:20;min-width:240px;padding:6px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.projmenu button{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border:0;border-radius:8px;background:none;text-align:left;font-size:14px}
+.projmenu button:hover,.projmenu button:focus-visible{background:var(--gold-wash)}
+.projmenu .ic{color:var(--gold);width:18px;height:18px}
+nav.steps{gap:4px;align-self:stretch;margin:-8px 0}
+nav.steps button{display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-bottom:3px solid transparent;font-family:var(--serif);font-size:16px;color:var(--ink2)}
+nav.steps button .ic{width:19px;height:19px}
+nav.steps button[aria-current="step"]{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
+nav.steps button:not(:disabled):hover{color:var(--ink)}
+.seg{padding:3px;border-color:var(--rule2);background:var(--paper);margin-left:8px}
+.seg button{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 16px;font-family:var(--serif);font-size:14px}
+.seg button .ic{width:19px;height:19px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 6px rgba(31,95,91,.25)}
+
+.btn{border-radius:10px;font-family:var(--serif);font-size:16px;color:var(--ink)}
+.btn.primary{box-shadow:0 2px 8px rgba(31,95,91,.25)}
+.btn:not(.primary):not(:disabled):hover{background:#fffaf0;border-color:var(--gold)}
+.btn .ic{width:19px;height:19px}
+.card,.panel,.prompter,.stat{box-shadow:var(--shadow)}
+.card{border-radius:18px;border-color:#e6dccb}
+.field input,.field select,textarea,.panel select{background:var(--field)}
+
+.story{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;gap:28px;padding:30px 36px 0}
+#raw,#linesBox{flex-grow:1}
+.story .card{position:relative;z-index:1;padding:26px 30px}
+.chead{display:flex;align-items:flex-start;gap:16px;margin-bottom:6px}
+.tile{width:54px;height:54px;border-radius:14px;background:var(--gold-wash);border:1px solid #efe0c4;display:flex;align-items:center;justify-content:center;color:var(--gold);flex:0 0 auto}
+.tile .ic{width:30px;height:30px;stroke-width:1.6}
+.chead h2{margin:2px 0 2px;font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.15;color:var(--ink)}
+.chead p{margin:0;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--ink2)}
+.story .field label{font-family:var(--serif);font-size:16px;font-weight:600}
+.story .field input,.story .field select{height:46px;font-family:var(--serif);font-size:16px;border-radius:10px}
+.drop{border:1.5px dashed #d8c39b;border-radius:12px;padding:16px 18px;gap:18px;background:rgba(255,250,240,.6);flex-wrap:nowrap}
+.drop .btn{flex:0 0 auto;height:48px;padding:0 20px;font-weight:600;color:var(--accent)}
+.drop .btn .ic{color:var(--accent)}
+.drop .hint{border-left:1px solid var(--rule);padding-left:18px;font-size:14px;line-height:1.6}
+.drop .hint em{color:var(--ink2);font-size:13px}
+#raw{min-height:290px;padding:16px 22px;font-size:17px;line-height:1.6}
+#linesBox{min-height:250px;padding:16px 18px;font-size:15px;line-height:1.6}
+#resplit{height:46px;color:var(--accent);font-weight:600}
+#resplit .ic{color:var(--accent)}
+.gorow{justify-content:space-between;align-items:center}
+.count{display:inline-flex;align-items:center;gap:10px;font-family:var(--serif);font-size:16px;color:var(--ink2)}
+.btn.go{height:54px;min-width:300px;padding:0 26px;font-size:21px;border-radius:12px;justify-content:space-between}
+.btn.go .ic{width:24px;height:24px}
+.projrow{padding-top:16px;gap:12px;border-top-color:var(--rule)}
+.projrow .ic.gold{width:30px;height:30px}
+.projrow .hint{flex:1 1 150px!important;min-width:0}
+.projrow .btn{height:46px}
+.storyfoot{position:relative;z-index:1;grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;margin:4px auto 0;padding:10px 18px;border-radius:99px;font-family:var(--serif);font-size:15px;color:var(--ink2)}
+.storyfoot b{color:var(--ink)}
+.storyfoot .sep{width:1px;height:18px;background:var(--rule2);margin:0 8px}
+.storyfoot a,.storyfoot .link{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.link{border:0;background:none;padding:0;font:inherit;cursor:pointer}
+
+/* desk scene: optional images in assets/, drawn placeholders otherwise */
+.desk{grid-column:1/-1;position:relative;height:56px;margin:0 -36px;background:linear-gradient(180deg,#d9b48a 0,#c99c6e 18%,#b98a5d 60%,#a87a50 100%);box-shadow:0 -1px 0 #e9cfae inset}
+.desk::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 90px),repeating-linear-gradient(90deg,rgba(90,55,25,.06) 0 1px,transparent 1px 37px)}
+.deco{position:absolute;pointer-events:none;user-select:none;z-index:0}
+.deco img,.deco .dph{display:block;width:100%;height:auto}
+.deco img ~ .dph{display:none}
+.books{left:24px;bottom:30px;width:230px}
+.mug{right:60px;bottom:30px;width:140px}
+.plant-l{left:-28px;bottom:150px;width:120px;opacity:.95}
+.plant-r{right:-30px;bottom:170px;width:120px;opacity:.95}
+@media (max-width:1180px){.plant-l,.plant-r{display:none}.books{width:170px}.mug{width:100px}}
+@media (max-width:900px){.story{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.desk{display:none}.drop{flex-wrap:wrap}.drop .hint{border-left:0;padding-left:0}.btn.go{min-width:0;flex:1 1 100%}}
+
+.about{max-width:440px;border:1px solid var(--rule);border-radius:16px;padding:24px 26px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow);font-family:var(--serif)}
+.about::backdrop{background:rgba(34,32,27,.35)}
+.about h2{margin:0 0 8px;font-size:24px;color:var(--accent)}
+.about small{font-family:var(--sans);font-size:13px;color:var(--ink2);font-weight:400}
+.about form{display:flex;justify-content:flex-end;margin-top:8px}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
-body.phone .brand span{display:none}
+body.phone .bname i,body.phone .projwrap,body.phone .desk,body.phone .deco,body.phone .storyfoot .sep{display:none}
+body.phone .brand{border-right:0;padding-right:0;flex-grow:1}
+body.phone .bname b{font-size:20px}
+body.phone nav.steps button{padding:0 6px;font-size:15px}
+body.phone nav.steps button .ic{display:none}
+body.phone .seg button{padding:0 10px}
+body.phone .chead h2{font-size:24px}
+body.phone .story{padding:12px 12px 0;gap:12px;grid-template-columns:minmax(0,1fr);grid-template-rows:none}
+body.phone .story .card{padding:18px}
 body.phone nav.steps{gap:12px}
 body.phone .story,body.phone .record{padding:12px;gap:12px}
 body.phone .prompter{padding:20px 20px;min-height:0;flex:1 1 auto;--fs:28px}
@@ -211,47 +328,94 @@ body.phone footer.bar .where,body.phone footer.bar .status,body.phone .size{disp
 body.phone footer.bar .btn:not(#nextBtn){flex:1 1 0}
 body.phone footer.bar kbd{display:none}
 body.phone .toast{top:16px;bottom:auto}
+@media (max-width:1240px){ nav.steps button .ic{display:none} nav.steps button{padding:0 10px} }
+@media (max-width:1060px){ nav.steps{order:3;width:100%;margin:0;justify-content:center} nav.steps button{height:42px} .projwrap{flex-grow:1} }
 @media (max-width:700px){
   .prompter{padding:22px;--fs:28px}
-  nav.steps{order:3;width:100%}
+  .bname i,.brand{border-right:0}
+  .story{padding:16px 12px 0}
+  .seg button .ic{display:none}
 }
 </style>
 </head>
 <body>
 <div class="app">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5c2.6-1 5.6-1 9 1 3.4-2 6.4-2 9-1v13c-2.6-1-5.6-1-9 1-3.4-2-6.4-2-9-1z"/><path d="M12 6.5v13"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 4.8v14.4L19 12z"/></symbol>
+      <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 13.5V19h14v-5.5"/></symbol>
+      <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.8" width="10" height="18.4" rx="2"/><path d="M11 17.8h2"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A2 2 0 0 1 5 5.5h4l2 2h8a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11M4 6.5h1.5M4 12h1.5M4 17.5h1.5"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 11a3.75 3.75 0 0 1-.5 7.5"/><path d="M12 12.5v7M9.2 15.2 12 12.5l2.8 2.7"/></symbol>
+      <symbol id="i-redo" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.5H15"/></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8.5 4v4.5h6V4M8 20v-6h8v6"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
+    </defs>
+  </svg>
   <header class="top">
-    <div class="brand"><b>PageCue</b><span id="byline">Untitled story</span></div>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 4h19l9 9v27a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linejoin="round"/><path d="M27 4v9h9" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linejoin="round"/><path d="M11 18h14M11 24h17M11 30h9" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/><path d="M26 30v15l13-7.5z" fill="var(--accent)" stroke="var(--paper)" stroke-width="2" stroke-linejoin="round"/></svg>
+      <div class="bname"><b>PageCue</b></div>
+    </div>
+    <div class="projwrap">
+      <button type="button" class="projchip" id="projChip" aria-haspopup="true" aria-expanded="false" title="Story and project file">
+        <svg class="ic"><use href="#i-folder"/></svg><span id="byline">Untitled story</span><svg class="ic chev"><use href="#i-chev"/></svg>
+      </button>
+      <div class="projmenu" id="projMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-pm="edit"><svg class="ic"><use href="#i-pen"/></svg>Edit title and author</button>
+        <button type="button" role="menuitem" data-pm="save"><svg class="ic"><use href="#i-save"/></svg>Save project file</button>
+        <button type="button" role="menuitem" data-pm="open"><svg class="ic"><use href="#i-folder"/></svg>Open project file</button>
+      </div>
+    </div>
     <nav class="steps" aria-label="Steps">
-      <button type="button" data-step="story" aria-current="step">Story</button>
-      <button type="button" data-step="record">Record</button>
-      <button type="button" data-step="review" disabled title="Record a take first">Review</button>
-      <button type="button" disabled title="Coming in stage 5">Export</button>
+      <button type="button" data-step="story" aria-current="step"><svg class="ic"><use href="#i-book"/></svg>Story</button>
+      <button type="button" data-step="record"><svg class="ic"><use href="#i-mic"/></svg>Record</button>
+      <button type="button" data-step="review" disabled title="Record a take first"><svg class="ic"><use href="#i-play"/></svg>Review</button>
+      <button type="button" data-step="export" disabled title="Record a take first"><svg class="ic"><use href="#i-export"/></svg>Export</button>
     </nav>
     <div class="seg" role="group" aria-label="Device mode">
-      <button type="button" data-device="laptop" aria-pressed="true">Laptop</button>
-      <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+      <button type="button" data-device="laptop" aria-pressed="true"><svg class="ic"><use href="#i-laptop"/></svg>Laptop</button>
+      <button type="button" data-device="phone" aria-pressed="false"><svg class="ic"><use href="#i-phone"/></svg>Phone</button>
     </div>
   </header>
 
+  <div class="recover" id="recoverBar" role="alert" hidden>
+    <span id="recoverText">PageCue found a recording that didn't finish.</span>
+    <button type="button" class="btn primary" id="recoverGo">Recover it</button>
+    <button type="button" class="btn" id="recoverDrop">Delete it</button>
+  </div>
+
   <!-- ================= STORY ================= -->
   <main id="storyView" class="story">
+    <div class="deco plant-l" aria-hidden="true"><img src="assets/scene-plant-left.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M10 220C30 170 40 120 30 60c25 40 30 100 0 160z"/><path d="M18 200C55 170 85 150 115 140c-25 30-55 50-97 60z"/><path d="M14 160C40 120 70 100 100 92c-18 30-45 52-86 68z" fill="#a3b77c"/><path d="M8 120C20 90 40 60 70 40c-5 35-25 60-62 80z" fill="#9db374"/></g></svg></div>
+    <div class="deco plant-r" aria-hidden="true"><img src="assets/scene-plant-right.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M110 220C90 170 80 120 90 60c-25 40-30 100 0 160z"/><path d="M102 200C65 170 35 150 5 140c25 30 55 50 97 60z"/><path d="M106 150C80 115 50 98 20 90c18 30 45 50 86 60z" fill="#a3b77c"/></g></svg></div>
+
     <section class="card src" aria-labelledby="srcH">
-      <h2 id="srcH" class="label" style="margin:0">Your story</h2>
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
+        <div><h2 id="srcH">Story Setup</h2><p>Add your story, or import a text or Markdown file to get started.</p></div></div>
       <div class="row">
         <div class="field"><label for="title">Title</label><input id="title" placeholder="The Twelfth Storm"></div>
         <div class="field"><label for="author">Author</label><input id="author" placeholder="Your name"></div>
       </div>
       <div class="drop" id="drop">
-        <label class="btn" for="file" style="cursor:pointer">Load .txt or .md</label>
+        <label class="btn" for="file" style="cursor:pointer"><svg class="ic"><use href="#i-cloud"/></svg>Import File</label>
         <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" class="sr">
-        <span class="hint">or drop a file here, or paste below. Markdown <b>**bold**</b> and <i>*italics*</i> are kept.</span>
+        <span class="hint">Or drag and drop a .txt or .md file here, or paste your text below.<br><em>Markdown supported (**bold**, *italic*, etc.).</em></span>
       </div>
       <label for="raw" class="sr">Story text</label>
       <textarea id="raw" spellcheck="true" placeholder="Paste your story here…"></textarea>
     </section>
 
     <section class="card lines" aria-labelledby="linesH">
-      <h2 id="linesH" class="label" style="margin:0">Prompter lines</h2>
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-list"/></svg></span>
+        <div><h2 id="linesH">Prompter Setup</h2><p>Turn your story into easy-to-follow reading lines for the prompter.</p></div></div>
       <div class="row">
         <div class="field"><label for="split">Split into lines by</label>
           <select id="split">
@@ -259,24 +423,41 @@ body.phone .toast{top:16px;bottom:auto}
             <option value="line">Line break</option>
           </select>
         </div>
-        <button type="button" class="btn" id="resplit">Split again from story</button>
+        <button type="button" class="btn" id="resplit" title="Rebuild the lines from the story"><svg class="ic"><use href="#i-redo"/></svg>Split Again</button>
       </div>
-      <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete the line break to merge two.</p>
+      <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete a line break to merge two.</p>
       <label for="linesBox" class="sr">Prompter lines, one per row</label>
       <textarea id="linesBox" spellcheck="false"></textarea>
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <span class="count" id="count">0 lines</span>
-        <button type="button" class="btn primary" id="toRecord">Go to the prompter</button>
+      <div class="row gorow">
+        <span class="count"><svg class="ic"><use href="#i-list"/></svg><span id="count">0 lines</span></span>
+        <button type="button" class="btn primary go" id="toRecord"><svg class="ic fill"><use href="#i-play"/></svg>Go to Prompter<svg class="ic"><use href="#i-arrow"/></svg></button>
       </div>
       <div class="projrow">
-        <span class="hint" style="flex-grow:1">Project file: your story, lines and timing (the video is saved separately).</span>
-        <button type="button" class="btn" id="projSave">Save project file</button>
-        <label class="btn" for="projOpen" style="cursor:pointer">Open project file</label>
+        <svg class="ic gold"><use href="#i-folder"/></svg>
+        <span class="hint" style="flex-grow:1">Project file: your story, lines, and timing<br>(video saved separately).</span>
+        <button type="button" class="btn" id="projSave"><svg class="ic"><use href="#i-save"/></svg>Save Project</button>
+        <label class="btn" for="projOpen" style="cursor:pointer"><svg class="ic"><use href="#i-folder"/></svg>Open Project</label>
         <input id="projOpen" type="file" accept=".json,application/json" class="sr">
       </div>
     </section>
-    <p class="credit">PageCue is free and private: your story and recordings never leave this device. By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a> · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support PageCue (Buy Me a Coffee)</a></p>
+
+    <footer class="storyfoot">
+      <svg class="ic gold"><use href="#i-lock"/></svg><b>Local-first &amp; private.</b><span>Your story and recordings never leave this device.</span>
+      <i class="sep"></i><button type="button" class="link" id="aboutBtn">About PageCue</button>
+      <i class="sep"></i><a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support</a>
+    </footer>
+
+    <div class="desk" aria-hidden="true">
+      <div class="deco books"><img src="assets/scene-books.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 240 110"><rect x="8" y="58" width="220" height="44" rx="5" fill="#6b3b2a"/><rect x="8" y="58" width="220" height="44" rx="5" fill="none" stroke="#4d2a1d" stroke-width="2"/><path d="M40 58v44M196 58v44" stroke="#c7a25a" stroke-width="4"/><rect x="226" y="62" width="8" height="36" rx="2" fill="#efe4cc"/><rect x="22" y="14" width="196" height="44" rx="5" fill="#3f5a45"/><rect x="22" y="14" width="196" height="44" rx="5" fill="none" stroke="#2c4231" stroke-width="2"/><path d="M52 14v44M186 14v44" stroke="#c7a25a" stroke-width="4"/><rect x="216" y="18" width="8" height="36" rx="2" fill="#efe4cc"/></svg></div>
+      <div class="deco mug"><img src="assets/scene-mug.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 150 130"><path d="M112 42c22 0 26 34 2 40" fill="none" stroke="#d9c7a6" stroke-width="10" stroke-linecap="round"/><path d="M14 22h100v74a26 26 0 0 1-26 26H40a26 26 0 0 1-26-26z" fill="#efe3cc" stroke="#d4c09c" stroke-width="2"/><ellipse cx="64" cy="22" rx="50" ry="9" fill="#5a3a24" stroke="#d4c09c" stroke-width="2"/><g fill="#c9b48e" opacity=".5"><circle cx="34" cy="60" r="1.6"/><circle cx="58" cy="78" r="1.6"/><circle cx="84" cy="54" r="1.6"/><circle cx="96" cy="86" r="1.6"/><circle cx="44" cy="96" r="1.6"/></g></svg></div>
+    </div>
   </main>
+  <dialog id="about" class="about">
+    <h2>PageCue <small>0.5.0</small></h2>
+    <p>A free, private reading prompter for authors. Your story and recordings stay on this device: no uploads, no accounts, no tracking.</p>
+    <p>By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a><br>MIT license · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Buy me a coffee</a></p>
+    <form method="dialog"><button class="btn primary">Close</button></form>
+  </dialog>
 
   <!-- ================= REVIEW (stage 4) ================= -->
   <main id="reviewView" class="review" hidden>
@@ -319,14 +500,34 @@ body.phone .toast{top:16px;bottom:auto}
       </fieldset>
       <div style="flex-grow:1"></div>
       <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
-      <p class="hint" style="margin:0">Exporting the finished videos arrives in the next version.</p>
+      <fieldset id="exportBox">
+        <legend class="label">Export</legend>
+        <label><input type="checkbox" id="xWide" checked> Wide 16:9 · 1920×1080</label>
+        <label><input type="checkbox" id="xTall" checked> Vertical 9:16 · 1080×1920</label>
+        <label><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
+      </fieldset>
+      <button type="button" class="btn primary" id="xGo">Export videos</button>
+      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
+        <div class="meter"><i id="xBar"></i></div>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
+      </div>
+      <div class="btns" id="xOut"></div>
+      <p class="hint" style="margin:0">Export plays the take in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
+      <div class="btns"><button type="button" class="btn" id="capSrt">Captions (.srt)</button><button type="button" class="btn" id="capVtt">Captions (.vtt)</button></div>
     </aside>
 
     <section class="tl" aria-label="Timeline">
       <div class="tlinfo">
         <span class="selinfo" id="selInfo">Line 1</span>
+        <div class="capedit">
+          <label for="capEdit" class="label">Caption</label>
+          <input id="capEdit" type="text" autocomplete="off" spellcheck="true">
+          <label class="skipl"><input type="checkbox" id="capSkip"> Not spoken</label>
+          <button type="button" class="btn" id="capReset" hidden>Use the script</button>
+        </div>
         <span class="hint">Drag a line's left edge to move its start, or select it and nudge 0.1 s with <kbd>,</kbd> and <kbd>.</kbd> (hold Shift for 1 s). <kbd>Space</kbd> plays or pauses, <kbd>←</kbd> <kbd>→</kbd> change lines.</span>
       </div>
+      <div class="cutlist" id="cutList" hidden></div>
       <div class="tlscroll" id="tlScroll">
         <div class="ruler" id="ruler"></div>
         <div class="track" id="track"><div class="ph" id="ph"></div></div>
@@ -337,7 +538,7 @@ body.phone .toast{top:16px;bottom:auto}
   <!-- ================= RECORD (prompter) ================= -->
   <main id="recordView" class="record" hidden>
     <section class="prompter" id="prompter" aria-label="Prompter" aria-live="polite">
-      <div class="countdown" id="countdown" hidden><div><span id="cdNum">3</span><small>Get ready to read · Esc cancels</small></div></div>
+      <div class="countdown" id="countdown" hidden><div><span id="cdNum">3</span><small id="cdNote">Get ready to read · Esc cancels</small></div></div>
       <span class="label">You read</span>
       <div id="plines" style="display:flex;flex-direction:column;gap:inherit"></div>
     </section>
@@ -376,6 +577,7 @@ body.phone .toast{top:16px;bottom:auto}
             <span class="hint">Mic</span><div class="meter" style="flex-grow:1"><i id="meter"></i></div>
             <button type="button" class="btn" id="camStop" style="height:34px;font-size:13px">Turn off</button>
           </div>
+          <p class="hint" id="roomInfo" style="margin:8px 0 0"></p>
         </div>
       </div>
 
@@ -391,6 +593,12 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
       </div>
 
+      <div class="panel" id="keyPanel">
+        <h3>Retake key</h3>
+        <span class="hint">Stumbled? Press <kbd id="rkLabel">R</kbd>. PageCue goes back to the start of that line, counts down while it keeps recording, and cuts the slip from the video. Press it again to retry again. Many presentation clickers send B or a period from their "blank screen" button.</span>
+        <div class="btns"><button type="button" class="btn" id="rkChange">Change key</button></div>
+      </div>
+
       <div class="stats">
         <div class="stat"><b id="sTaps">0</b><span>taps logged</span></div>
         <div class="stat"><b id="sLast">–</b><span>last tap</span></div>
@@ -404,6 +612,7 @@ body.phone .toast{top:16px;bottom:auto}
     <div class="size"><button type="button" class="btn" id="smaller" aria-label="Smaller text">A−</button><button type="button" class="btn" id="bigger" aria-label="Larger text">A+</button></div>
     <button type="button" class="btn" id="backBtn">Back a line <kbd>←</kbd></button>
     <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd></button>
+    <button type="button" class="btn" id="retakeBtn" hidden>Retake line <kbd>R</kbd></button>
     <button type="button" class="btn" id="runBtn">Practice run</button>
     <button type="button" class="btn rec" id="recBtn" disabled title="Turn on the camera first"><span class="rdot"></span><span>Record</span></button>
   </footer>
@@ -512,7 +721,7 @@ function renderCount(){
 }
 function renderByline(){
   const t = state.title.trim() || "Untitled story";
-  $("byline").textContent = state.author.trim() ? t + " · " + state.author.trim() : t;
+  $("byline").textContent = state.author.trim() ? t + " • " + state.author.trim() : t;
 }
 function resplit(){
   state.lines = splitStory(state.raw, state.split);
@@ -566,9 +775,11 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 
 /* ---------- steps and device ---------- */
 function setStep(step){
+  if (step === "export"){ setStep("review"); const b = document.querySelector('nav.steps [data-step="export"]'); if (b) b.setAttribute("aria-current", "step");
+    document.querySelector('nav.steps [data-step="review"]').removeAttribute("aria-current"); setTimeout(() => $("exportBox").scrollIntoView({ behavior: "smooth", block: "center" }), 50); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
-  state.step = step;
+  state.step = step; document.body.dataset.step = step;
   document.querySelectorAll("nav.steps [data-step]").forEach(b => {
     if (b.dataset.step === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
   });
@@ -590,6 +801,27 @@ function setDevice(d){
   save();
 }
 document.querySelectorAll("[data-device]").forEach(b => b.addEventListener("click", () => setDevice(b.dataset.device)));
+
+/* ---------- project menu and about ---------- */
+function projMenu(open){
+  $("projMenu").hidden = !open; $("projChip").setAttribute("aria-expanded", String(open));
+  if (open) $("projMenu").querySelector("button").focus();
+}
+$("projChip").addEventListener("click", e => { e.stopPropagation(); projMenu($("projMenu").hidden); });
+$("projMenu").addEventListener("click", e => {
+  const b = e.target.closest("[data-pm]"); if (!b) return; projMenu(false);
+  if (b.dataset.pm === "edit"){ if (state.step !== "story") setStep("story"); if (state.step === "story"){ $("title").focus(); $("title").select(); } }
+  else if (b.dataset.pm === "save") $("projSave").click();
+  else if (b.dataset.pm === "open") $("projOpen").click();
+});
+document.addEventListener("click", e => { if (!$("projMenu").hidden && !e.target.closest(".projwrap")) projMenu(false); });
+$("projMenu").addEventListener("keydown", e => {
+  if (e.key === "Escape"){ e.stopPropagation(); projMenu(false); $("projChip").focus(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); e.stopPropagation();
+    const items = [...$("projMenu").querySelectorAll("button")], i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus(); }
+});
+$("aboutBtn").addEventListener("click", () => { const d = $("about"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
 
 function setFmt(f, quiet){
   state.fmt = f;
@@ -623,17 +855,21 @@ function renderPrompter(){
 }
 
 function next(){
+  if (rt) return;                           // counting down to a retake
   if (state.idx >= state.lines.length - 1) return;
   state.idx++;
   if (state.run && !state.run.done){
     state.run.starts[state.idx] = performance.now() - state.run.t0;
+    if (state.run.mode === "rec") liveTaps();
   }
   renderPrompter();
 }
 function back(){
+  if (rt) return;
   if (state.idx === 0) return;
   if (state.run && !state.run.done){
     state.run.starts.length = state.idx;   // drop this line's tap; re-tap to log it again
+    if (state.run.mode === "rec") liveTaps();
   }
   state.idx--;
   renderPrompter();
@@ -651,12 +887,19 @@ const recording = () => live() && state.run.mode === "rec";
 function resetRun(){ if (recording()) return; state.run = null; clearInterval(tick); }
 function beginRun(mode){
   state.idx = 0;
-  state.run = { mode, t0: performance.now(), starts: [0], done: false, warned: false };
+  state.run = { mode, t0: performance.now(), starts: [0], cuts: [], done: false, warned: false };
   clearInterval(tick); tick = setInterval(renderRun, 250);
   renderPrompter();
 }
 function stopRun(){
   const r = state.run; if (!r || r.done) return;
+  if (rt){
+    // Stopped mid-countdown: cut the slip to the end; that line has no good reading yet.
+    clearInterval(rt.timer);
+    r.cuts.push({ id: r.cuts.length + 1, a: rt.a, b: performance.now() - r.t0, line: rt.line, active: true });
+    r.starts.length = Math.max(1, rt.line);
+    rt = null; $("countdown").hidden = true;
+  }
   r.done = true; r.total = performance.now() - r.t0;
   clearInterval(tick);
   if (r.mode === "rec") stopRecording();
@@ -666,7 +909,7 @@ function stopRun(){
 function renderRun(){
   const r = state.run, on = live(), rec = recording();
   const el = on ? fmtClock(performance.now() - r.t0) : "";
-  const label = cd ? "Get ready" : on ? (rec ? "REC " : "Practice ") + el : r ? (r.mode === "rec" ? "Take saved" : "Run finished") : (stream ? "Camera on" : "Ready");
+  const label = cd ? "Get ready" : rt ? `Retake in ${rt.left}` : on ? (rec ? "REC " : "Practice ") + el : r ? (r.mode === "rec" ? "Take saved" : "Run finished") : (stream ? "Camera on" : "Ready");
   for (const id of ["status","pStatus"]){
     $(id).classList.toggle("live", on && !rec);
     $(id).classList.toggle("rec", rec);
@@ -680,7 +923,11 @@ function renderRun(){
   rb.classList.toggle("recon", rec);
   rb.disabled = !cd && !rec && (!stream || on);
   rb.title = stream ? "" : "Turn on the camera first";
-  $("sTaps").textContent = r ? Math.max(0, r.starts.length - 1) : 0;
+  $("retakeBtn").hidden = !on;
+  $("retakeBtn").disabled = !!rt;
+  $("retakeBtn").lastElementChild.textContent = keyLabel(retakeKey());
+  const nc = r && r.cuts ? r.cuts.length : 0;
+  $("sTaps").textContent = (r ? Math.max(0, r.starts.length - 1) : 0) + (nc ? ` · ${nc} retake${nc === 1 ? "" : "s"}` : "");
   const last = r && r.starts.length > 1 ? r.starts[r.starts.length - 1] : null;
   $("sLast").textContent = last == null ? "–" : fmtT(last);
   // Phones hold the raw take in memory: nudge past 15 minutes.
@@ -688,6 +935,56 @@ function renderRun(){
     r.warned = true; toast("Long take on a phone: consider stopping soon so the video saves safely.");
   }
 }
+
+/* ---------- retake: the stumble key ----------
+   Press it on a slip: PageCue goes back to the start of the line you're on, counts down
+   while recording keeps running, and marks everything from that line's start to the end
+   of the countdown as a cut. Export and review skip cuts; Review can restore any of them. */
+let rt = null;            // { line, a, left, timer } while a retake countdown runs
+const RESERVED_KEYS = [" ", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Enter", "Backspace", "Escape", "Tab", "Shift", "Control", "Alt", "Meta", "CapsLock", "Dead", "Unidentified"];
+const retakeKey = () => state.retakeKey || "r";
+const keyLabel = k => k === " " ? "Space" : k.length === 1 ? k.toUpperCase() : k;
+function retake(){
+  if (!live()) return;
+  const r = state.run;
+  if (rt) clearInterval(rt.timer);                       // pressed again: start the countdown over, same cut
+  else rt = { line: state.idx, a: r.starts[state.idx] != null ? r.starts[state.idx] : 0 };
+  rt.left = 3; showRetake();
+  if (r.mode === "rec") liveTaps();                      // a crash now still keeps the slip marked
+  rt.timer = setInterval(() => {
+    rt.left--;
+    if (rt.left > 0){ showRetake(); return; }
+    clearInterval(rt.timer);
+    const b = performance.now() - r.t0;
+    r.cuts.push({ id: r.cuts.length + 1, a: rt.a, b, line: rt.line, active: true });
+    r.starts[rt.line] = b; r.starts.length = rt.line + 1;
+    rt = null; $("countdown").hidden = true;
+    if (r.mode === "rec") liveTaps();
+    renderPrompter();
+  }, 1000);
+}
+function showRetake(){
+  $("cdNum").textContent = rt.left;
+  $("cdNote").textContent = `Retake: line ${rt.line + 1}. Start reading it again when the count ends.`;
+  $("countdown").hidden = false;
+  state.idx = rt.line; renderPrompter();
+}
+// Changing the key: the next key pressed becomes the retake key.
+let keyCapture = false;
+function renderRetakeKey(){ $("rkLabel").textContent = keyLabel(retakeKey()); }
+$("rkChange").addEventListener("click", () => {
+  keyCapture = true; $("rkChange").textContent = "Press a key…";
+});
+document.addEventListener("keydown", e => {
+  if (!keyCapture) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  keyCapture = false; $("rkChange").textContent = "Change key";
+  if (e.key === "Escape") return;
+  if (RESERVED_KEYS.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey){ toast(`${keyLabel(e.key)} already moves the prompter. Pick another key, like R, B or a period.`); return; }
+  state.retakeKey = e.key.length === 1 ? e.key.toLowerCase() : e.key; save(); renderRetakeKey(); renderRun();
+  toast(`Retake key is now ${keyLabel(retakeKey())}.`);
+}, true);
+$("retakeBtn").addEventListener("click", retake);
 
 /* ---------- camera and mic ---------- */
 let stream = null, actx = null, meterRAF = 0;
@@ -715,6 +1012,8 @@ async function camStart(){
   const vid = $("cam"); vid.srcObject = stream; vid.hidden = false; $("faceIcon").style.display = "none";
   $("camOff").hidden = true; $("camLive").hidden = false;
   await fillDevices(); startMeter(); renderRun();
+  try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}   // ask the browser not to evict saved takes
+  renderRoom();
 }
 function camStopTracks(){ if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; stopMeter(); }
 function camOff(){
@@ -764,16 +1063,20 @@ $("micSel").addEventListener("change", e => { state.micId = e.target.value; save
 /* ---------- recording ---------- */
 let recorder = null, chunks = [], wake = null, take = null, takeURL = null;
 function pickMime(){
-  const c = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  if (window.__rp && typeof window.__rp.forceMime === "string") return window.__rp.forceMime;   // test hook
+  // WebM first: Chrome's MP4 recorder holds the whole take until Stop, so an MP4 take can't be saved
+  // as it records and can't survive a crash. WebM streams a chunk every second. Exports are MP4.
+  const c = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm", "video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4"];
   for (const m of c) if (MediaRecorder.isTypeSupported(m)) return m;
   return "";
 }
 function startCountdown(){
   if (!stream){ toast("Turn on the camera first"); return; }
   if (!window.MediaRecorder){ toast("This browser can't record video. Try Chrome or Edge."); return; }
+  if (pendingRecovery){ toast("First recover or delete the unfinished recording shown at the top."); return; }
   if (take && !confirm(`Record a new take? Take ${take.n} will be replaced. Download it first if you want to keep it.`)) return;
   state.run = null; state.idx = 0; renderPrompter();
-  let n = 3; $("cdNum").textContent = n; $("countdown").hidden = false;
+  let n = 3; $("cdNum").textContent = n; $("cdNote").textContent = "Get ready to read · Esc cancels"; $("countdown").hidden = false;
   cd = setInterval(() => {
     n--;
     if (n > 0){ $("cdNum").textContent = n; return; }
@@ -788,8 +1091,8 @@ function startRecording(){
   try{ recorder = new MediaRecorder(stream, opts); }
   catch(e){ toast("Couldn't start recording: " + e.message); renderRun(); return; }
   chunks = [];
-  recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-  recorder.onstart = () => beginRun("rec");      // tap times are measured from here
+  recorder.ondataavailable = e => { if (e.data && e.data.size){ chunks.push(e.data); liveChunk(e.data); } };
+  recorder.onstart = () => { beginRun("rec"); liveStart(recorder.mimeType || mime || "video/webm"); };   // tap times are measured from here
   recorder.onstop = finishTake;
   recorder.onerror = e => toast("Recording error: " + ((e.error && e.error.message) || "unknown"));
   recorder.start(1000);
@@ -806,9 +1109,12 @@ async function finishTake(){
   const blob = new Blob(chunks, { type }); chunks = []; recorder = null;
   $("camSel").disabled = $("micSel").disabled = $("camStop").disabled = false;
   const n = take ? take.n + 1 : 1;
-  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
+  const cuts = (r.cuts || []).map(c => ({ ...c }));
+  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), cuts, origCuts: cuts.map(c => ({ ...c })), lines: state.lines.slice(), when: Date.now() });
   take.unsafe = !(await idbPut(take));
-  renderTake();
+  // Only drop the crash-safe copy once the finished take is safely stored.
+  if (!take.unsafe) await liveFinish(); else liveRec = null;
+  renderTake(); renderRoom();
   toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
 }
 function setTake(t){
@@ -818,6 +1124,7 @@ function setTake(t){
   rvLoaded = null;
   const rb = document.querySelector('nav.steps [data-step="review"]');
   rb.disabled = !t; rb.title = t ? "" : "Record a take first";
+  const xb = document.querySelector('nav.steps [data-step="export"]'); xb.disabled = !t; xb.title = rb.title;
   const p = $("takePlayer"); p.pause(); p.removeAttribute("src"); p.load(); p.hidden = true;
   renderTake();
 }
@@ -850,35 +1157,185 @@ $("takeDiscard").addEventListener("click", () => {
   setTake(null); idbDel(); startCountdown();
 });
 
-/* ---------- take storage (IndexedDB keeps one take across reloads) ---------- */
+/* ---------- storage (IndexedDB) ----------
+   "takes"    : the last finished take (video + timing), so a reload doesn't lose it.
+   "sessions" : the take being recorded right now ("live"): its timing, taps and chunk count.
+   "chunks"   : that recording's one-second video chunks, written as they arrive.
+   If the browser or computer dies mid-take, the session and chunks survive and are
+   rebuilt into a take the next time PageCue opens. */
+let dbConn = null;
 function idbOpen(){
+  if (dbConn) return Promise.resolve(dbConn);
   return new Promise((res, rej) => {
     if (!window.indexedDB) return rej(new Error("no IndexedDB"));
-    const q = indexedDB.open("pagecue", 1);
-    q.onupgradeneeded = () => q.result.createObjectStore("takes");
-    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    const q = indexedDB.open("pagecue", 2);
+    q.onupgradeneeded = () => {
+      const db = q.result;
+      for (const s of ["takes", "sessions", "chunks"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s);
+    };
+    q.onsuccess = () => { dbConn = q.result; dbConn.onversionchange = () => { dbConn.close(); dbConn = null; }; res(dbConn); };
+    q.onerror = () => rej(q.error);
   });
 }
-async function idbTx(mode, fn){
+async function idbTx(store, mode, fn){
   const db = await idbOpen();
   return new Promise((res, rej) => {
-    const tx = db.transaction("takes", mode), q = fn(tx.objectStore("takes"));
-    tx.oncomplete = () => { db.close(); res(q && q.result); };
-    tx.onerror = tx.onabort = () => { db.close(); rej(tx.error); };
+    const tx = db.transaction(store, mode), q = fn(tx.objectStore(store));
+    tx.oncomplete = () => res(q && q.result);
+    tx.onerror = tx.onabort = () => rej(tx.error || new Error("storage error"));
   });
 }
-async function idbPut(t){
-  try{ const { n, blob, type, duration, starts, origStarts, lines, when } = t; await idbTx("readwrite", st => st.put({ n, blob, type, duration, starts, origStarts, lines, when }, "current")); return true; }
-  catch(e){ return false; }
+// The video is stored once ("currentBlob"); timing and caption edits only rewrite the small record ("current").
+function takeRecord(t){
+  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered } = t;
+  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered };
 }
-async function idbGet(){ try{ return await idbTx("readonly", st => st.get("current")); }catch(e){ return null; } }
-async function idbDel(){ try{ await idbTx("readwrite", st => st.delete("current")); }catch(e){} }
+async function idbPut(t){
+  try{
+    if (t._savedBlob !== t.blob){ await idbTx("takes", "readwrite", st => st.put(t.blob, "currentBlob")); t._savedBlob = t.blob; }
+    await idbTx("takes", "readwrite", st => st.put(takeRecord(t), "current"));
+    return true;
+  }catch(e){ return false; }
+}
+async function idbGet(){
+  try{
+    const t = await idbTx("takes", "readonly", st => st.get("current"));
+    if (t && !t.blob) t.blob = await idbTx("takes", "readonly", st => st.get("currentBlob"));
+    if (t && t.blob) t._savedBlob = t.blob;
+    return t;
+  }catch(e){ return null; }
+}
+async function idbDel(){ try{ await idbTx("takes", "readwrite", st => { st.delete("currentBlob"); return st.delete("current"); }); }catch(e){} }
+
+/* ---------- crash-safe recording ---------- */
+const chunkKey = (sid, i) => sid + ":" + String(i).padStart(7, "0");
+const chunkRange = sid => IDBKeyRange.bound(sid + ":", sid + ":￿");
+let liveRec = null;          // { sid, seq, ok, queue, meta } while recording
+let pendingRecovery = null;  // a session found on startup, waiting for Recover or Discard
+function liveStart(type){
+  const sid = String(Date.now());
+  liveRec = { sid, seq: 0, ok: true, queue: Promise.resolve(),
+    meta: { sid, type, startedAt: Date.now(), n: take ? take.n + 1 : 1, lines: state.lines.slice(), starts: [0], elapsed: 0, chunks: 0, title: state.title } };
+  liveQueue(() => idbTx("sessions", "readwrite", st => st.put(liveRec.meta, "live")));
+  // Some recorders (Chrome's MP4) hand over almost nothing until Stop. If 4 s in we've had
+  // under 50 KB, the take isn't really being saved as it goes: say so, don't pretend.
+  const L = liveRec;
+  setTimeout(() => {
+    if (liveRec !== L || !L.ok || (L.bytes || 0) >= 50 * 1024) return;
+    L.ok = false; clearSession(L.sid);
+    toast("This browser doesn't save the video while it records, so crash protection is off for this take. Download it as soon as you stop.", 9000);
+  }, 4000);
+}
+function liveQueue(job){
+  const L = liveRec; if (!L) return;
+  // Writes run strictly in order; the first failure stops further writes so the saved chunks stay contiguous.
+  L.queue = L.queue.then(() => L.ok ? job() : null).catch(e => { if (L.ok){ L.ok = false; liveFailed(e); } });
+}
+function liveChunk(blob){
+  const L = liveRec; if (!L || !L.ok) return;
+  const i = L.seq++;
+  L.bytes = (L.bytes || 0) + blob.size;
+  const elapsed = state.run ? performance.now() - state.run.t0 : 0;
+  liveQueue(() => idbTx("chunks", "readwrite", st => st.put(blob, chunkKey(L.sid, i))));
+  liveQueue(() => { L.meta.chunks = i + 1; L.meta.elapsed = elapsed; return idbTx("sessions", "readwrite", st => st.put(L.meta, "live")); });
+}
+function liveTaps(){
+  const L = liveRec; if (!L || !L.ok || !state.run) return;
+  L.meta.starts = state.run.starts.slice();
+  L.meta.cuts = (state.run.cuts || []).map(c => ({ ...c }));
+  L.meta.pendingRetake = rt ? { line: rt.line, a: rt.a } : null;
+  liveQueue(() => idbTx("sessions", "readwrite", st => st.put(L.meta, "live")));
+}
+function liveFailed(e){
+  const full = e && (e.name === "QuotaExceededError" || /quota|space/i.test(e.message || ""));
+  toast((full ? "Browser storage is full, so" : "Browser storage stopped working, so") + " this take isn't protected against a crash. Keep going, then download the video as soon as you stop.", 9000);
+}
+async function clearSession(sid){
+  try{
+    await idbTx("chunks", "readwrite", st => st.delete(chunkRange(sid)));
+    await idbTx("sessions", "readwrite", st => st.delete("live"));
+  }catch(e){}
+}
+async function liveFinish(){
+  const L = liveRec; liveRec = null;
+  if (!L) return;
+  try{ await L.queue; }catch(e){}
+  await clearSession(L.sid);
+}
+// Load a blob into a throwaway video element: does it play, and how long is it?
+function probeVideo(blob){
+  return new Promise(res => {
+    const v = document.createElement("video"), url = URL.createObjectURL(blob);
+    let done = false;
+    const end = (ok) => { if (done) return; done = true; const d = v.duration; v.removeAttribute("src"); v.load(); URL.revokeObjectURL(url); res({ ok, duration: isFinite(d) ? d * 1000 : 0 }); };
+    v.muted = true; v.preload = "auto";
+    v.onloadeddata = () => end(true);
+    v.onerror = () => end(false);
+    setTimeout(() => end(v.readyState >= 1), 8000);
+    v.src = url;
+  });
+}
+async function checkRecovery(){
+  let meta = null;
+  try{ meta = await idbTx("sessions", "readonly", st => st.get("live")); }catch(e){ return; }
+  if (!meta) return;
+  let count = 0;
+  try{ count = await idbTx("chunks", "readonly", st => st.count(chunkRange(meta.sid))); }catch(e){}
+  if (!count){ clearSession(meta.sid); return; }
+  pendingRecovery = meta;
+  const when = new Date(meta.startedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  const nc = (meta.cuts || []).length + (meta.pendingRetake ? 1 : 0);
+  $("recoverText").textContent = `PageCue found a recording that didn't finish: take ${meta.n}${meta.title ? " of " + meta.title : ""}, started ${when}, about ${fmtClock(Math.max(meta.elapsed, count * 1000))} long, ${meta.starts.length} line${meta.starts.length === 1 ? "" : "s"} tapped${nc ? `, ${nc} retake${nc === 1 ? "" : "s"}` : ""}.`;
+  $("recoverBar").hidden = false;
+}
+async function recoverSession(){
+  const meta = pendingRecovery; if (!meta) return;
+  $("recoverGo").disabled = $("recoverDrop").disabled = true;
+  let parts = [];
+  try{ parts = await idbTx("chunks", "readonly", st => st.getAll(chunkRange(meta.sid))); }catch(e){}
+  if (!parts || !parts.length){ toast("The unfinished recording couldn't be read back."); $("recoverGo").disabled = $("recoverDrop").disabled = false; return; }
+  const blob = new Blob(parts, { type: meta.type || parts[0].type || "video/webm" });
+  const probe = await probeVideo(blob);
+  const duration = Math.max(meta.elapsed || 0, probe.duration || 0, 1000);
+  let starts = meta.starts.filter((s, i) => i === 0 || s < duration - 100);
+  const cuts = (meta.cuts || []).filter(c => c.a < duration).map(c => ({ ...c, b: Math.min(c.b, duration) }));
+  if (meta.pendingRetake && meta.pendingRetake.a < duration){
+    // The crash came mid-countdown: the slip is cut to the end, and that line counts as unread.
+    cuts.push({ id: cuts.length + 1, a: meta.pendingRetake.a, b: duration, line: meta.pendingRetake.line, active: true });
+    starts = starts.slice(0, Math.max(1, meta.pendingRetake.line));
+  }
+  if (take && !confirm(`Recovering replaces take ${take.n} in this browser. Download take ${take.n} first if you want to keep it. Recover now?`)){ $("recoverGo").disabled = $("recoverDrop").disabled = false; return; }
+  setTake({ n: meta.n, blob, type: blob.type, duration, starts, origStarts: starts.slice(), cuts, origCuts: cuts.map(c => ({ ...c })), lines: meta.lines, when: meta.startedAt, recovered: true });
+  take.unsafe = !(await idbPut(take));
+  if (!take.unsafe) await clearSession(meta.sid);
+  pendingRecovery = null; $("recoverBar").hidden = true;
+  renderTake();
+  toast(probe.ok ? `Take ${meta.n} recovered: ${fmtClock(duration)}, ${starts.length} lines timed.` : `Take ${meta.n} recovered, but this browser can't play it back. Download it and try another player.`, 7000);
+}
+$("recoverGo").addEventListener("click", recoverSession);
+$("recoverDrop").addEventListener("click", async () => {
+  if (!pendingRecovery || !confirm("Delete the unfinished recording? This can't be undone.")) return;
+  await clearSession(pendingRecovery.sid); pendingRecovery = null; $("recoverBar").hidden = true; toast("Unfinished recording deleted.");
+});
+async function storageRoom(){
+  try{ const e = await navigator.storage.estimate(); return Math.max(0, (e.quota || 0) - (e.usage || 0)); }catch(e){ return null; }
+}
+async function renderRoom(){
+  const room = await storageRoom();
+  if (room == null){ $("roomInfo").textContent = ""; return; }
+  // ~5 Mbps ≈ 37.5 MB a minute; finishing a take briefly needs room for two copies.
+  const min = Math.floor(room / (2 * 37.5 * 1048576));
+  $("roomInfo").textContent = min >= 120 ? "Crash protection is on: takes are saved as you record." :
+    min >= 1 ? `Crash protection is on, with room for about ${min} minute${min === 1 ? "" : "s"} of recording in this browser.` :
+    "This browser has no room left to protect a take against crashes. You can still record; download right after you stop.";
+  $("roomInfo").className = min >= 10 ? "hint" : "warn";
+}
 
 /* ---------- project file (story, lines, timing; never the video) ---------- */
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
     title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
-    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
 $("projOpen").addEventListener("change", e => {
@@ -916,6 +1373,24 @@ function applyLook(){
 }
 const plain = l => l.replace(/^#{1,6}\s+/, "").replace(/\*+|_/g, "");
 const durMs = () => take ? Math.max(take.duration, (take.starts[take.starts.length - 1] || 0) + MIN_GAP) : 0;
+// Cuts are kept in the take's own clock. "Edited" time is that clock with active cuts removed.
+function activeCuts(){
+  if (!take || !take.cuts) return [];
+  const D = durMs();
+  const cs = take.cuts.filter(c => c.active).map(c => ({ a: Math.max(0, c.a), b: Math.min(D, c.b) })).filter(c => c.b > c.a).sort((x, y) => x.a - y.a);
+  const out = [];
+  for (const c of cs){ const l = out[out.length - 1]; if (l && c.a <= l.b + 1) l.b = Math.max(l.b, c.b); else out.push({ ...c }); }
+  return out;
+}
+function keptSegments(){
+  const out = [], D = durMs(); let t = 0;
+  for (const c of activeCuts()){ if (c.a > t) out.push([t, c.a]); t = Math.max(t, c.b); }
+  if (D > t) out.push([t, D]);
+  return out;
+}
+const keptMs = () => keptSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
+function toEdited(t){ let off = 0; for (const c of activeCuts()){ if (t >= c.b) off += c.b - c.a; else if (t > c.a) off += t - c.a; } return t - off; }
+const inActiveCut = ms => activeCuts().find(c => ms >= c.a && ms < c.b);
 function lineAt(ms){
   const s = take.starts; if (ms < s[0]) return -1;
   let i = 0; while (i + 1 < s.length && s[i + 1] <= ms) i++;
@@ -928,7 +1403,7 @@ function enterReview(){
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
-  applyLook(); buildTimeline(); renderReview();
+  applyLook(); buildTimeline(); renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
   if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
@@ -938,14 +1413,16 @@ function enterReview(){
 function renderReview(){
   if (!take) return;
   const ms = nowMs(), i = lineAt(ms), L = take.lines;
-  $("rNow").innerHTML = i >= 0 ? md(L[i]) : "";
-  $("rPrev").innerHTML = i > 0 ? md(L[i - 1]) : "";
+  const o = overlayAt(ms);
+  $("rNow").innerHTML = o.now >= 0 ? captionHTML(o.now) : "";
+  $("rPrev").innerHTML = o.prev >= 0 ? captionHTML(o.prev) : "";
   $("rMeta").textContent = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
   $("rvTime").textContent = fmtT(ms) + " / " + fmtClock(durMs());
   $("rvIcon").setAttribute("d", rv.paused ? "M7 4l13 8-13 8z" : "M6 4h4v16H6zM14 4h4v16h-4z");
   $("rvPlay").setAttribute("aria-label", rv.paused ? "Play" : "Pause");
   const ph = $("ph"); ph.style.left = (ms / 1000 * PPS) + "px";
   const s = take.starts[sel];
+  if (document.activeElement !== $("capEdit")) fillCapEditor();
   $("selInfo").textContent = `Line ${sel + 1} starts at ${fmtT(s)}: ${plain(L[sel]).slice(0, 70)}${plain(L[sel]).length > 70 ? "…" : ""}`;
 }
 function buildTimeline(){
@@ -959,21 +1436,50 @@ function buildTimeline(){
   for (let t = 0; t <= secs + 0.01; t += stepS)
     ticks.push(`<i style="left:${t * PPS}px"></i><span style="left:${t * PPS + 3}px">${fmtClock(t * 1000)}</span>`);
   ru.innerHTML = ticks.join("");
-  tr.querySelectorAll(".blk").forEach(b => b.remove());
+  tr.querySelectorAll(".blk, .cut").forEach(b => b.remove());
   const S = take.starts, D = durMs(), frag = document.createDocumentFragment();
   for (let i = 0; i < S.length; i++){
     const end = i + 1 < S.length ? S[i + 1] : D;
     const b = document.createElement("div");
-    b.className = "blk" + (i === sel ? " sel" : "");
+    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "");
     b.dataset.i = i;
     b.style.left = (S[i] / 1000 * PPS) + "px";
     b.style.width = Math.max(4, (end - S[i]) / 1000 * PPS) + "px";
     b.title = `Line ${i + 1}: ${plain(take.lines[i])}`;
-    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(plain(take.lines[i]))}`;
+    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(captionText(i))}`;
     frag.appendChild(b);
   }
+  (take.cuts || []).forEach((c, k) => {
+    const d = document.createElement("div");
+    d.className = "cut" + (c.active ? "" : " off");
+    d.style.left = (c.a / 1000 * PPS) + "px"; d.style.width = Math.max(3, (c.b - c.a) / 1000 * PPS) + "px";
+    d.title = `${c.active ? "Cut" : "Restored"}: line ${c.line + 1}, ${fmtT(c.a)} to ${fmtT(c.b)}`;
+    frag.appendChild(d);
+  });
   tr.appendChild(frag);
+  renderCutList();
 }
+function renderCutList(){
+  const box = $("cutList"), cs = take && take.cuts ? take.cuts : [];
+  box.hidden = !cs.length;
+  if (!cs.length){ box.innerHTML = ""; return; }
+  const on = cs.filter(c => c.active).length;
+  box.innerHTML = `<span class="label">Retake cuts · ${on} of ${cs.length} cut · ${fmtClock(keptMs())} after cuts</span>` + cs.map((c, k) =>
+    `<span class="cutchip${c.active ? "" : " off"}"><span>Line ${c.line + 1} · ${fmtT(c.a)}–${fmtT(c.b)} (${((c.b - c.a) / 1000).toFixed(1)} s)</span>`
+    + `<button type="button" class="btn" data-cut="${k}" data-act="toggle">${c.active ? "Restore" : "Cut again"}</button>`
+    + `<button type="button" class="btn" data-cut="${k}" data-act="play">Play</button></span>`).join("");
+}
+$("cutList").addEventListener("click", e => {
+  const b = e.target.closest("button[data-cut]"); if (!b || !take) return;
+  const c = take.cuts[+b.dataset.cut]; if (!c) return;
+  if (b.dataset.act === "toggle"){
+    c.active = !c.active; persistSoon(); buildTimeline(); renderReview(); renderExportInfo();
+    toast(c.active ? `Line ${c.line + 1}'s slip is cut again.` : `Line ${c.line + 1}'s slip is restored; it will play in the video.`);
+  } else {
+    // Play from just before the slip, so you hear what's being cut (or kept).
+    rv.currentTime = Math.max(0, c.a - 1500) / 1000; if (rv.paused) rvPlayToggle();
+  }
+});
 function select(i, seek){
   if (!take) return;
   sel = Math.max(0, Math.min(take.starts.length - 1, i));
@@ -993,7 +1499,7 @@ function setStart(i, ms){
 }
 function persistSoon(){
   clearTimeout(saveT);
-  saveT = setTimeout(async () => { if (take) { const ok = await idbPut(take); take.unsafe = !ok; renderTake(); } }, 400);
+  saveT = setTimeout(async () => { saveT = null; if (take) { const ok = await idbPut(take); take.unsafe = !ok; renderTake(); } }, 120);
 }
 function rvPlayToggle(){
   if (!take) return;
@@ -1004,11 +1510,13 @@ function rvPause(){ try{ rv.pause(); }catch(e){} cancelAnimationFrame(rvRAF); if
 function loopReview(){
   cancelAnimationFrame(rvRAF);
   const step = () => {
+    if (!rv.paused){ const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001; }
     renderReview();
     if (!rv.paused){ scrollToMs(nowMs()); rvRAF = requestAnimationFrame(step); }
   };
   step();
 }
+window.addEventListener("pagehide", () => { if (saveT){ clearTimeout(saveT); saveT = null; if (take) idbPut(take); } });   // don't lose the last edit
 rv.addEventListener("ended", () => { cancelAnimationFrame(rvRAF); renderReview(); });
 rv.addEventListener("seeked", renderReview);
 $("rvPlay").addEventListener("click", rvPlayToggle);
@@ -1039,20 +1547,326 @@ window.addEventListener("resize", () => { if (state.step === "review" && take) b
 
 function nudge(ms){ if (!take) return; setStart(sel, take.starts[sel] + ms); rv.currentTime = take.starts[sel] / 1000 + 0.01; buildTimeline(); renderReview(); }
 $("resetTiming").addEventListener("click", () => {
-  if (!take || !confirm("Put every line back where you tapped it during the take?")) return;
-  take.starts = take.origStarts.slice(); persistSoon(); buildTimeline(); renderReview(); toast("Timing reset to the take");
+  if (!take || !confirm("Put every line back where you tapped it during the take, and every retake cut back as it was?")) return;
+  take.starts = take.origStarts.slice(); if (take.origCuts) take.cuts = take.origCuts.map(c => ({ ...c })); persistSoon(); buildTimeline(); renderReview(); toast("Timing reset to the take");
 });
 document.querySelectorAll('input[name="txtmode"]').forEach(r => r.addEventListener("change", () => { state.txtMode = r.value; save(); applyLook(); renderReview(); }));
 document.querySelectorAll("[data-corner]").forEach(b => b.addEventListener("click", () => { state.corner = b.dataset.corner; save(); applyLook(); }));
 document.querySelectorAll("[data-shape]").forEach(b => b.addEventListener("click", () => { state.shape = b.dataset.shape; save(); applyLook(); }));
 document.querySelectorAll("[data-rfmt]").forEach(b => b.addEventListener("click", () => { rFmt = b.dataset.rfmt; applyLook(); }));
 
+/* ---------- captions: script-aligned, editable per line ---------- */
+const capOf = i => (take.capText && take.capText[i] != null) ? take.capText[i] : null;     // a corrected caption, as plain text
+const isSkipped = i => !!(take.skip && take.skip[i]);
+function captionText(i){ const c = capOf(i); return c != null ? c : plain(take.lines[i]); }
+function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(take.lines[i]); }
+// What is on screen at time ms: the current spoken line and the spoken line before it.
+function overlayAt(ms){
+  if (inActiveCut(ms)) return { now: -1, prev: -1 };
+  const restored = (take.cuts || []).find(c => !c.active && ms >= c.a && ms < c.b);   // a restored slip shows the line being read
+  const i = restored ? restored.line : lineAt(ms);
+  if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
+  let p = i - 1; while (p >= 0 && isSkipped(p)) p--;
+  return { now: i, prev: p };
+}
+function cues(offsetMs){
+  const S = take.starts, D = durMs(), out = [];
+  for (let i = 0; i < S.length; i++){
+    if (isSkipped(i)) continue;
+    const end = i + 1 < S.length ? S[i + 1] : D;
+    const a = toEdited(S[i]), b = toEdited(end);
+    if (b - a < 50) continue;
+    out.push({ a: a + offsetMs, b: b + offsetMs, text: captionText(i) });
+  }
+  return out;
+}
+function stamp(ms, sep){
+  ms = Math.max(0, Math.round(ms));
+  const h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, s = Math.floor(ms / 1000) % 60, x = ms % 1000;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}${sep}${String(x).padStart(3, "0")}`;
+}
+function toSRT(offsetMs){ return cues(offsetMs).map((c, k) => `${k + 1}\n${stamp(c.a, ",")} --> ${stamp(c.b, ",")}\n${c.text}\n`).join("\n"); }
+function toVTT(offsetMs){ return "WEBVTT\n\n" + cues(offsetMs).map(c => `${stamp(c.a, ".")} --> ${stamp(c.b, ".")}\n${c.text}\n`).join("\n"); }
+const titleMs = () => $("xTitle").checked ? 3000 : 0;
+$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${fileBase()}.srt`); });
+$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${fileBase()}.vtt`); });
+
+function fillCapEditor(){
+  if (!take) return;
+  const c = capOf(sel);
+  $("capEdit").value = c != null ? c : plain(take.lines[sel]);
+  $("capSkip").checked = isSkipped(sel);
+  $("capReset").hidden = c == null;
+}
+$("capEdit").addEventListener("input", e => {
+  if (!take) return;
+  take.capText = take.capText || {};
+  const v = e.target.value;
+  if (v === plain(take.lines[sel])) delete take.capText[sel]; else take.capText[sel] = v;
+  $("capReset").hidden = capOf(sel) == null;
+  persistSoon(); buildTimeline(); renderReview();
+});
+$("capSkip").addEventListener("change", e => {
+  if (!take) return;
+  take.skip = take.skip || {};
+  if (e.target.checked) take.skip[sel] = true; else delete take.skip[sel];
+  persistSoon(); buildTimeline(); renderReview();
+});
+$("capReset").addEventListener("click", () => { if (take && take.capText){ delete take.capText[sel]; fillCapEditor(); persistSoon(); buildTimeline(); renderReview(); } });
+
+/* ---------- export: draw each frame on a canvas and record it, in real time ---------- */
+const VIDEO = { bg: "#1b2430", ink: "#fbf3e2", dim: "#9fb0bf", meta: "#c9d3dc", face: "#2c3a48", fig: "#55687a" };
+const SERIF = getComputedStyle(document.documentElement).getPropertyValue("--serif").trim() || "Georgia, serif";
+const SANS = getComputedStyle(document.documentElement).getPropertyValue("--sans").trim() || "system-ui, sans-serif";
+function pickExportMime(){
+  const c = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"];
+  for (const m of c) if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  return "";
+}
+// Markdown line -> runs of { text, b, i }. Plain text (a corrected caption) is one run.
+function runsOf(text, isPlain){
+  if (isPlain) return [{ text, b: false, i: false }];
+  const src = text.replace(/^#{1,6}\s+/, ""), out = [];
+  let b = false, it = false;
+  for (const part of src.split(/(\*\*|\*|_(?=\S)|(?<=\S)_)/)){
+    if (part === "**"){ b = !b; continue; }
+    if (part === "*" || part === "_"){ it = !it; continue; }
+    if (part) out.push({ text: part, b, i: it });
+  }
+  return out;
+}
+function fontOf(run, px, base, family){ return `${run.i ? "italic " : ""}${run.b ? 700 : base} ${Math.round(px)}px ${family}`; }
+// Word-wrap runs into lines no wider than maxW.
+function wrapRuns(g, runs, px, base, family, maxW){
+  const lines = [[]]; let w = 0;
+  for (const r of runs){
+    for (const tok of r.text.split(/(\s+)/)){
+      if (!tok) continue;
+      g.font = fontOf(r, px, base, family);
+      const tw = g.measureText(tok).width, space = /^\s+$/.test(tok);
+      if (space && w === 0) continue;
+      if (!space && w > 0 && w + tw > maxW){ lines.push([]); w = 0; }
+      if (space && w + tw > maxW) continue;
+      lines[lines.length - 1].push({ ...r, text: tok, w: tw }); w += tw;
+    }
+  }
+  return lines.map(l => { while (l.length && /^\s+$/.test(l[l.length - 1].text)) l.pop(); return l; }).filter(l => l.length);
+}
+function drawLines(g, lines, x, y, px, lh, base, family, color, align, maxW){
+  g.fillStyle = color; g.textBaseline = "alphabetic";
+  lines.forEach((l, k) => {
+    const lw = l.reduce((a, r) => a + r.w, 0);
+    let cx = align === "center" ? x + (maxW - lw) / 2 : align === "right" ? x + maxW - lw : x;
+    const by = y + k * px * lh + px;
+    for (const r of l){ g.font = fontOf(r, px, base, family); g.fillText(r.text, cx, by); cx += r.w; }
+  });
+  return lines.length * px * lh;
+}
+// Geometry matches the on-screen preview (the .vid CSS) so what you saw is what you get.
+function layout(fmt, W, H){
+  const corner = state.corner || "tr", one = state.txtMode === "one", rounded = state.shape === "rounded";
+  if (fmt === "wide"){
+    const fs = W * 0.24;
+    const face = { s: fs, x: corner === "tl" ? W * 0.05 : W - W * 0.05 - fs, y: corner === "bottom" ? H - H * 0.10 - fs : H * 0.08 };
+    const meta = corner === "tl" ? { x: W * 0.34, w: W * 0.59, align: "right" } : { x: W * 0.07, w: W * 0.59, align: "left" };
+    return { face, rounded, one, metaPx: W * 0.026, meta: { ...meta, y: H * 0.07 },
+      txt: { x: W * 0.07, w: W * 0.63, bottom: H - H * 0.13, align: "left", nowPx: W * 0.048, prevPx: W * 0.030, gap: W * 0.016 } };
+  }
+  let fs = W * 0.44, fx = (W - fs) / 2, fy = H * 0.07, metaY = H - H * 0.07 - W * 0.044 * 1.3, txtTop = H * 0.41;
+  if (corner === "tl"){ fs = W * 0.36; fx = W * 0.08; }
+  if (corner === "bottom"){ fy = H - H * 0.12 - fs; txtTop = H * 0.16; metaY = H * 0.06; }
+  return { face: { s: fs, x: fx, y: fy }, rounded, one, metaPx: W * 0.044, meta: { x: W * 0.08, w: W * 0.84, y: metaY, align: "center" },
+    txt: { x: W * 0.08, w: W * 0.84, top: txtTop, align: "center", nowPx: W * 0.084, prevPx: W * 0.052, gap: W * 0.03 } };
+}
+function facePath(g, f, rounded){
+  g.beginPath();
+  if (rounded){ const r = f.s * 0.16; g.roundRect ? g.roundRect(f.x, f.y, f.s, f.s, r) : g.rect(f.x, f.y, f.s, f.s); }
+  else g.arc(f.x + f.s / 2, f.y + f.s / 2, f.s / 2, 0, Math.PI * 2);
+}
+function drawFrame(g, W, H, fmt, ms, vid){
+  const L = layout(fmt, W, H);
+  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
+  // title · author
+  const metaText = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
+  if (metaText){
+    g.font = `400 ${Math.round(L.metaPx)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textBaseline = "top";
+    g.textAlign = L.meta.align === "center" ? "center" : L.meta.align === "right" ? "right" : "left";
+    const mx = L.meta.align === "center" ? L.meta.x + L.meta.w / 2 : L.meta.align === "right" ? L.meta.x + L.meta.w : L.meta.x;
+    g.fillText(metaText, mx, L.meta.y, L.meta.w); g.textAlign = "left";
+  }
+  // face bubble: the take's camera image, cropped square, not mirrored
+  const f = L.face;
+  g.save(); facePath(g, f, L.rounded); g.clip();
+  if (vid && vid.readyState >= 2 && vid.videoWidth){
+    const vw = vid.videoWidth, vh = vid.videoHeight, side = Math.min(vw, vh);
+    g.drawImage(vid, (vw - side) / 2, (vh - side) * 0.4, side, side, f.x, f.y, f.s, f.s);
+  } else {
+    g.fillStyle = VIDEO.face; g.fillRect(f.x, f.y, f.s, f.s);
+    g.fillStyle = VIDEO.fig; g.beginPath(); g.arc(f.x + f.s / 2, f.y + f.s * 0.40, f.s * 0.17, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(f.x + f.s / 2, f.y + f.s * 1.02, f.s * 0.32, f.s * 0.36, 0, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+  g.lineWidth = Math.max(3, W * 0.006); g.strokeStyle = VIDEO.ink; facePath(g, f, L.rounded); g.stroke();
+  // story text
+  if (ms == null) return;
+  const o = overlayAt(ms), T = L.txt;
+  const nowL = o.now >= 0 ? wrapRuns(g, runsOf(capOf(o.now) != null ? capOf(o.now) : take.lines[o.now], capOf(o.now) != null), T.nowPx, 600, SERIF, T.w) : [];
+  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, runsOf(capOf(o.prev) != null ? capOf(o.prev) : take.lines[o.prev], capOf(o.prev) != null), T.prevPx, 400, SERIF, T.w) : [];
+  const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
+  let y = T.top != null ? T.top : T.bottom - hNow - gap - hPrev;
+  if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, VIDEO.dim, T.align, T.w); y += hPrev + gap; }
+  if (nowL.length) drawLines(g, nowL, T.x, y, T.nowPx, 1.3, 600, SERIF, VIDEO.ink, T.align, T.w);
+}
+function drawTitle(g, W, H, fmt){
+  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
+  const t = state.title.trim() || "Untitled", a = state.author.trim();
+  const tp = fmt === "wide" ? W * 0.055 : W * 0.09, ap = fmt === "wide" ? W * 0.026 : W * 0.045, maxW = W * 0.84;
+  const lines = wrapRuns(g, [{ text: t, b: false, i: false }], tp, 600, SERIF, maxW);
+  const h = lines.length * tp * 1.2 + (a ? ap * 2.2 : 0);
+  let y = (H - h) / 2;
+  y += drawLines(g, lines, (W - maxW) / 2, y, tp, 1.2, 600, SERIF, VIDEO.ink, "center", maxW);
+  if (a){ g.font = `400 ${Math.round(ap)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textAlign = "center"; g.textBaseline = "top"; g.fillText(a, W / 2, y + ap * 0.9, maxW); g.textAlign = "left"; }
+}
+const once = (el, ev, ms) => new Promise((res, rej) => {
+  const t = setTimeout(() => rej(new Error("timed out waiting for " + ev)), ms || 15000);
+  el.addEventListener(ev, () => { clearTimeout(t); res(); }, { once: true });
+  el.addEventListener("error", () => { clearTimeout(t); rej(new Error("the take couldn't be loaded")); }, { once: true });
+});
+let exportJob = null;
+async function renderVideo(fmt, withTitle, onProgress){
+  const W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d");
+  const segs = keptSegments();
+  if (!segs.length) throw new Error("everything in this take is cut");
+  // Two players of the same take. While one plays a kept section, the other is already
+  // parked at the start of the next one, so a cut is a switch, not a seek: no pause, and
+  // each section plays exactly like an uncut export (picture and sound from one element).
+  const mk = () => { const v = document.createElement("video"); v.playsInline = true; v.preload = "auto"; v.src = takeURL; return v; };
+  const P = [mk(), mk()];
+  await Promise.all(P.map(v => once(v, "loadeddata")));
+  const ac = new (window.AudioContext || window.webkitAudioContext)(); await ac.resume().catch(() => {});
+  const dest = ac.createMediaStreamDestination();
+  P.forEach(v => ac.createMediaElementSource(v).connect(dest));    // to the file, not the speakers
+  // Park a player at the start of section k. One seek per park; callers wait on the same promise.
+  const park = (v, k) => {
+    v._target = k; v._seg = undefined; v.pause(); v.currentTime = segs[k][0] / 1000 + 0.001;
+    v._parking = once(v, "seeked", 10000).catch(() => {}).then(() => { if (v._target === k) v._seg = k; });
+    return v._parking;
+  };
+  await Promise.all([park(P[0], 0), segs.length > 1 ? park(P[1], 1) : null]);   // both parked before the encoder starts
+  const out = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+  const mime = pickExportMime();
+  const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
+  const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
+  const tMs = withTitle ? 3000 : 0, total = tMs + keptMs();
+  const segLen = k => segs[k][1] - segs[k][0];
+  drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, segs[0][0], P[0]);
+  return new Promise((resolve, reject) => {
+    let raf = 0, started = false, finished = false, ending = false, switching = false, t0 = 0, si = 0, cur = P[0], doneMs = 0, lastMs = segs[0][0];
+    const job = exportJob = { cancel: false };
+    const finish = (err) => {
+      if (finished) return; finished = true; cancelAnimationFrame(raf); clearInterval(bg);
+      P.forEach(v => { try{ v.pause(); }catch(e){} });
+      rec.onstop = () => {
+        out.getTracks().forEach(t => t.stop()); ac.close().catch(() => {});
+        P.forEach(v => { v.removeAttribute("src"); v.load(); });
+        if (err) reject(err); else if (job.cancel) resolve(null); else resolve(new Blob(parts, { type: rec.mimeType || mime || "video/webm" }));
+      };
+      if (rec.state !== "inactive") rec.stop(); else rec.onstop();
+    };
+    const frame = () => {
+      if (job.cancel){ finish(); return; }
+      const el = performance.now() - t0;
+      if (!started){
+        if (el < tMs) drawTitle(g, W, H, fmt);
+        else { started = true; cur.play().catch(e => { if (!e || e.name !== "AbortError") finish(e); }); }
+      } else if (ending || switching){
+        drawFrame(g, W, H, fmt, lastMs, cur);          // hold the frame: at the end (so picture lasts as long as sound) or while the next player finishes parking
+      } else {
+        const ms = cur.currentTime * 1000;
+        if (ms >= segs[si][1] - 15 || cur.ended){
+          doneMs = segs.slice(0, si + 1).reduce((a, sg) => a + sg[1] - sg[0], 0);
+          const nxt = P.find(v => v !== cur);
+          if (si + 1 < segs.length){
+            const go = () => {
+              if (finished) return;
+              (job.log = job.log || []).push({ to: si + 1, held: switching, at: Math.round(performance.now() - t0) });
+              cur.pause(); const prev = cur; cur = nxt; si++; switching = false;
+              cur.play().catch(e => { if (!e || e.name !== "AbortError") finish(e); });
+              if (si + 1 < segs.length) park(prev, si + 1);    // the player just finished parks at the section after next
+            };
+            if (nxt._seg === si + 1 && !nxt.seeking) go();
+            else {
+              // Not parked yet (a very short section): pause, wait for that one park, then switch. Once.
+              switching = true; lastMs = ms; cur.pause();
+              (nxt._target === si + 1 ? nxt._parking : park(nxt, si + 1)).then(go);
+            }
+          } else {
+            ending = true; lastMs = ms; cur.pause();
+            setTimeout(() => finish(), 300);
+          }
+        } else {
+          lastMs = ms;
+          drawFrame(g, W, H, fmt, ms, cur);
+          doneMs = segs.slice(0, si).reduce((a, sg) => a + sg[1] - sg[0], 0) + Math.max(0, ms - segs[si][0]);
+        }
+      }
+      onProgress(Math.min(1, (started ? tMs + doneMs : el) / total));
+      if (el > total + 20000 + segs.length * 2000){ finish(); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    // If the tab is hidden, animation frames stop; keep drawing on a slower timer and warn.
+    const bg = setInterval(() => { if (document.hidden && !finished) frame(); }, 100);
+    rec.onerror = e => finish(e.error || new Error("recording failed"));
+    rec.start(1000); t0 = performance.now(); frame();
+  });
+}
+let lastExportLog = [];
+const exported = {};    // fmt -> { blob, url }
+$("xGo").addEventListener("click", async () => {
+  if (!take || exportJob) return;
+  const fmts = [$("xWide").checked && "wide", $("xTall").checked && "tall"].filter(Boolean);
+  if (!fmts.length){ toast("Pick wide, vertical, or both."); return; }
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ toast("This browser can't export video. Try Chrome or Edge."); return; }
+  rvPause();
+  $("xGo").disabled = true; $("xProg").hidden = false; $("xCancel").hidden = false; $("xOut").innerHTML = ""; $("xStat").textContent = "Starting…";
+  const withTitle = $("xTitle").checked;
+  try{
+    for (const [k, fmt] of fmts.entries()){
+      const name = fmt === "wide" ? "Wide 16:9" : "Vertical 9:16";
+      const blob = await renderVideo(fmt, withTitle, p => {
+        $("xBar").style.width = Math.round(((k + p) / fmts.length) * 100) + "%";
+        $("xStat").textContent = `Exporting ${name} (${k + 1} of ${fmts.length}): ${Math.round(p * 100)}%`;
+      });
+      lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
+      if (!blob) break;   // cancelled
+      if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
+      exported[fmt] = { blob, url: URL.createObjectURL(blob) };
+      const ext = extOf(blob.type), file = `${fileBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
+      const a = document.createElement("a"); a.className = "btn"; a.href = exported[fmt].url; a.download = file;
+      const codec = /avc1|h264/i.test(blob.type) ? "H.264" : /vp9/i.test(blob.type) ? "VP9" : /vp8/i.test(blob.type) ? "VP8" : "";
+      a.textContent = `Download ${name} (${(blob.size / 1048576).toFixed(1)} MB ${ext.toUpperCase()}${codec ? " · " + codec : ""})`;
+      $("xOut").appendChild(a);
+    }
+    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : "Done. Download your videos below.";
+  }catch(e){
+    $("xStat").textContent = "Export stopped: " + (e && e.message || e);
+  }finally{
+    exportJob = null; $("xGo").disabled = false; $("xCancel").hidden = true;
+  }
+});
+$("xCancel").addEventListener("click", () => { if (exportJob) exportJob.cancel = true; });
+document.addEventListener("visibilitychange", () => { if (document.hidden && exportJob) toast("Keep PageCue in front while it exports, or the video may stutter.", 6000); });
+function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(keptMs() + titleMs()); }
+$("xTitle").addEventListener("change", renderExportInfo);
+
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
 $("recBtn").addEventListener("click", () => cd ? cancelCountdown() : recording() ? stopRun() : startCountdown());
 $("nextBtn").addEventListener("click", next);
 $("backBtn").addEventListener("click", back);
-$("prompter").addEventListener("click", e => { if (!cd) next(); });   // tap anywhere on the prompter
+$("prompter").addEventListener("click", e => { if (!cd && !rt) next(); });   // tap anywhere on the prompter
 $("smaller").addEventListener("click", () => { state.fs = Math.max(24, state.fs - 4); renderPrompter(); save(); });
 $("bigger").addEventListener("click", () => { state.fs = Math.min(80, state.fs + 4); renderPrompter(); save(); });
 
@@ -1073,6 +1887,8 @@ document.addEventListener("keydown", e => {
   if (state.step !== "record") return;
   if (k === "Escape"){ if (cd){ e.preventDefault(); cancelCountdown(); } else if (live()){ e.preventDefault(); stopRun(); } return; }
   if (cd) { if (k === " ") e.preventDefault(); return; }
+  if (live() && (k.length === 1 ? k.toLowerCase() : k) === retakeKey()){ e.preventDefault(); retake(); return; }
+  if (rt){ if (k === " ") e.preventDefault(); return; }
   if (k === " " || k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === "Enter"){ e.preventDefault(); next(); }
   else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace"){ e.preventDefault(); back(); }
 });
@@ -1082,9 +1898,9 @@ window.addEventListener("beforeunload", e => {
 
 /* ---------- misc ---------- */
 let toastT = null;
-function toast(msg){
+function toast(msg, ms){
   const t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600);
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), ms || 2600);
 }
 
 /* ---------- start ---------- */
@@ -1094,11 +1910,13 @@ $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
-idbGet().then(t => { if (t && t.blob) setTake(t); });
+idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
+checkRecovery();
+renderRetakeKey();                                          // and any take a crash interrupted
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md };
+window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog };
 })();
 </script>
 </body>

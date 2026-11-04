@@ -44,6 +44,10 @@ try { Start-Process $url } catch { Write-Host "  Open $url in your browser." }
 while ($true) {
     $client = $listener.AcceptTcpClient()
     try {
+        # Browsers open spare connections that may never send a request. Without a timeout,
+        # one of those would freeze this single-threaded server.
+        $client.ReceiveTimeout = 750
+        $client.SendTimeout = 10000
         $stream = $client.GetStream()
         $reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::ASCII, $false, 4096, $true)
         $requestLine = $reader.ReadLine()
