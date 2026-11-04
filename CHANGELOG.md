@@ -12,6 +12,7 @@ Stage 3: camera and recording.
 - Warns when the prompter lines change after a take, since its timing may no longer match
 - Project file (.pagecue.json): save and open your story, lines and take timing (the video stays a separate file)
 - Screen stays awake while recording, where the browser allows it
+- Support link (Buy Me a Coffee) and credits on the Story screen
 - Phone mode: front camera, vertical framing, and a nudge on takes longer than 15 minutes
 
 ## 0.1.0 — 2026-11-04

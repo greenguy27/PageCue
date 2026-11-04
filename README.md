@@ -18,6 +18,10 @@ In development. Not released yet.
 | 4 | Review + timeline fixes | Planned |
 | 5 | Wide + vertical video export | Planned |
 
+## Support
+
+PageCue is free. If it helps you, you can [buy me a coffee](https://buymeacoffee.com/cer5061k).
+
 ## License
 
 MIT. See [LICENSE](LICENSE). The name PageCue and its branding are not covered by the license.
