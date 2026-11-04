@@ -6,7 +6,7 @@
 <title>PageCue</title>
 <meta name="theme-color" content="#f6f1e7">
 <style>
-/* PageCue v0.4 (stage 5: export, captions, recording recovery). Direction B "Studio".
+/* PageCue v0.5 (retake mode). Direction B "Studio".
    One file, no network requests, nothing leaves the device. */
 :root{
   --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
@@ -192,6 +192,12 @@ body.phone .recover{margin:10px 12px 0}
 .capedit input[type=text]{flex:1 1 320px;height:38px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-family:var(--serif);font-size:15px}
 .capedit .skipl{display:flex;align-items:center;gap:6px;font-size:14px}
 .capedit .btn{height:38px;font-size:13px}
+.cut{position:absolute;top:2px;bottom:2px;border:1px dashed var(--rec);border-radius:4px;z-index:1;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(179,38,30,.20) 0 6px,rgba(179,38,30,.06) 6px 12px)}
+.cut.off{background:none;border-style:dotted;opacity:.55}
+.cutlist{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.cutchip{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 10px;border:1px dashed var(--rec);border-radius:10px;background:var(--paper);font-size:13px}
+.cutchip.off{border-style:dotted;opacity:.75}
+.cutchip .btn{height:30px;padding:0 10px;font-size:12px}
 .blk.skip{text-decoration:line-through;opacity:.55}
 #exportBox label{display:flex;align-items:center;gap:10px;font-size:14px}
 #exportBox input{width:18px;height:18px;accent-color:var(--accent)}
@@ -364,6 +370,7 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
         <span class="hint">Drag a line's left edge to move its start, or select it and nudge 0.1 s with <kbd>,</kbd> and <kbd>.</kbd> (hold Shift for 1 s). <kbd>Space</kbd> plays or pauses, <kbd>←</kbd> <kbd>→</kbd> change lines.</span>
       </div>
+      <div class="cutlist" id="cutList" hidden></div>
       <div class="tlscroll" id="tlScroll">
         <div class="ruler" id="ruler"></div>
         <div class="track" id="track"><div class="ph" id="ph"></div></div>
@@ -374,7 +381,7 @@ body.phone .toast{top:16px;bottom:auto}
   <!-- ================= RECORD (prompter) ================= -->
   <main id="recordView" class="record" hidden>
     <section class="prompter" id="prompter" aria-label="Prompter" aria-live="polite">
-      <div class="countdown" id="countdown" hidden><div><span id="cdNum">3</span><small>Get ready to read · Esc cancels</small></div></div>
+      <div class="countdown" id="countdown" hidden><div><span id="cdNum">3</span><small id="cdNote">Get ready to read · Esc cancels</small></div></div>
       <span class="label">You read</span>
       <div id="plines" style="display:flex;flex-direction:column;gap:inherit"></div>
     </section>
@@ -429,6 +436,12 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
       </div>
 
+      <div class="panel" id="keyPanel">
+        <h3>Retake key</h3>
+        <span class="hint">Stumbled? Press <kbd id="rkLabel">R</kbd>. PageCue goes back to the start of that line, counts down while it keeps recording, and cuts the slip from the video. Press it again to retry again. Many presentation clickers send B or a period from their "blank screen" button.</span>
+        <div class="btns"><button type="button" class="btn" id="rkChange">Change key</button></div>
+      </div>
+
       <div class="stats">
         <div class="stat"><b id="sTaps">0</b><span>taps logged</span></div>
         <div class="stat"><b id="sLast">–</b><span>last tap</span></div>
@@ -442,6 +455,7 @@ body.phone .toast{top:16px;bottom:auto}
     <div class="size"><button type="button" class="btn" id="smaller" aria-label="Smaller text">A−</button><button type="button" class="btn" id="bigger" aria-label="Larger text">A+</button></div>
     <button type="button" class="btn" id="backBtn">Back a line <kbd>←</kbd></button>
     <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd></button>
+    <button type="button" class="btn" id="retakeBtn" hidden>Retake line <kbd>R</kbd></button>
     <button type="button" class="btn" id="runBtn">Practice run</button>
     <button type="button" class="btn rec" id="recBtn" disabled title="Turn on the camera first"><span class="rdot"></span><span>Record</span></button>
   </footer>
@@ -663,6 +677,7 @@ function renderPrompter(){
 }
 
 function next(){
+  if (rt) return;                           // counting down to a retake
   if (state.idx >= state.lines.length - 1) return;
   state.idx++;
   if (state.run && !state.run.done){
@@ -672,6 +687,7 @@ function next(){
   renderPrompter();
 }
 function back(){
+  if (rt) return;
   if (state.idx === 0) return;
   if (state.run && !state.run.done){
     state.run.starts.length = state.idx;   // drop this line's tap; re-tap to log it again
@@ -693,12 +709,19 @@ const recording = () => live() && state.run.mode === "rec";
 function resetRun(){ if (recording()) return; state.run = null; clearInterval(tick); }
 function beginRun(mode){
   state.idx = 0;
-  state.run = { mode, t0: performance.now(), starts: [0], done: false, warned: false };
+  state.run = { mode, t0: performance.now(), starts: [0], cuts: [], done: false, warned: false };
   clearInterval(tick); tick = setInterval(renderRun, 250);
   renderPrompter();
 }
 function stopRun(){
   const r = state.run; if (!r || r.done) return;
+  if (rt){
+    // Stopped mid-countdown: cut the slip to the end; that line has no good reading yet.
+    clearInterval(rt.timer);
+    r.cuts.push({ id: r.cuts.length + 1, a: rt.a, b: performance.now() - r.t0, line: rt.line, active: true });
+    r.starts.length = Math.max(1, rt.line);
+    rt = null; $("countdown").hidden = true;
+  }
   r.done = true; r.total = performance.now() - r.t0;
   clearInterval(tick);
   if (r.mode === "rec") stopRecording();
@@ -708,7 +731,7 @@ function stopRun(){
 function renderRun(){
   const r = state.run, on = live(), rec = recording();
   const el = on ? fmtClock(performance.now() - r.t0) : "";
-  const label = cd ? "Get ready" : on ? (rec ? "REC " : "Practice ") + el : r ? (r.mode === "rec" ? "Take saved" : "Run finished") : (stream ? "Camera on" : "Ready");
+  const label = cd ? "Get ready" : rt ? `Retake in ${rt.left}` : on ? (rec ? "REC " : "Practice ") + el : r ? (r.mode === "rec" ? "Take saved" : "Run finished") : (stream ? "Camera on" : "Ready");
   for (const id of ["status","pStatus"]){
     $(id).classList.toggle("live", on && !rec);
     $(id).classList.toggle("rec", rec);
@@ -722,7 +745,11 @@ function renderRun(){
   rb.classList.toggle("recon", rec);
   rb.disabled = !cd && !rec && (!stream || on);
   rb.title = stream ? "" : "Turn on the camera first";
-  $("sTaps").textContent = r ? Math.max(0, r.starts.length - 1) : 0;
+  $("retakeBtn").hidden = !on;
+  $("retakeBtn").disabled = !!rt;
+  $("retakeBtn").lastElementChild.textContent = keyLabel(retakeKey());
+  const nc = r && r.cuts ? r.cuts.length : 0;
+  $("sTaps").textContent = (r ? Math.max(0, r.starts.length - 1) : 0) + (nc ? ` · ${nc} retake${nc === 1 ? "" : "s"}` : "");
   const last = r && r.starts.length > 1 ? r.starts[r.starts.length - 1] : null;
   $("sLast").textContent = last == null ? "–" : fmtT(last);
   // Phones hold the raw take in memory: nudge past 15 minutes.
@@ -730,6 +757,56 @@ function renderRun(){
     r.warned = true; toast("Long take on a phone: consider stopping soon so the video saves safely.");
   }
 }
+
+/* ---------- retake: the stumble key ----------
+   Press it on a slip: PageCue goes back to the start of the line you're on, counts down
+   while recording keeps running, and marks everything from that line's start to the end
+   of the countdown as a cut. Export and review skip cuts; Review can restore any of them. */
+let rt = null;            // { line, a, left, timer } while a retake countdown runs
+const RESERVED_KEYS = [" ", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Enter", "Backspace", "Escape", "Tab", "Shift", "Control", "Alt", "Meta", "CapsLock", "Dead", "Unidentified"];
+const retakeKey = () => state.retakeKey || "r";
+const keyLabel = k => k === " " ? "Space" : k.length === 1 ? k.toUpperCase() : k;
+function retake(){
+  if (!live()) return;
+  const r = state.run;
+  if (rt) clearInterval(rt.timer);                       // pressed again: start the countdown over, same cut
+  else rt = { line: state.idx, a: r.starts[state.idx] != null ? r.starts[state.idx] : 0 };
+  rt.left = 3; showRetake();
+  if (r.mode === "rec") liveTaps();                      // a crash now still keeps the slip marked
+  rt.timer = setInterval(() => {
+    rt.left--;
+    if (rt.left > 0){ showRetake(); return; }
+    clearInterval(rt.timer);
+    const b = performance.now() - r.t0;
+    r.cuts.push({ id: r.cuts.length + 1, a: rt.a, b, line: rt.line, active: true });
+    r.starts[rt.line] = b; r.starts.length = rt.line + 1;
+    rt = null; $("countdown").hidden = true;
+    if (r.mode === "rec") liveTaps();
+    renderPrompter();
+  }, 1000);
+}
+function showRetake(){
+  $("cdNum").textContent = rt.left;
+  $("cdNote").textContent = `Retake: line ${rt.line + 1}. Start reading it again when the count ends.`;
+  $("countdown").hidden = false;
+  state.idx = rt.line; renderPrompter();
+}
+// Changing the key: the next key pressed becomes the retake key.
+let keyCapture = false;
+function renderRetakeKey(){ $("rkLabel").textContent = keyLabel(retakeKey()); }
+$("rkChange").addEventListener("click", () => {
+  keyCapture = true; $("rkChange").textContent = "Press a key…";
+});
+document.addEventListener("keydown", e => {
+  if (!keyCapture) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  keyCapture = false; $("rkChange").textContent = "Change key";
+  if (e.key === "Escape") return;
+  if (RESERVED_KEYS.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey){ toast(`${keyLabel(e.key)} already moves the prompter. Pick another key, like R, B or a period.`); return; }
+  state.retakeKey = e.key.length === 1 ? e.key.toLowerCase() : e.key; save(); renderRetakeKey(); renderRun();
+  toast(`Retake key is now ${keyLabel(retakeKey())}.`);
+}, true);
+$("retakeBtn").addEventListener("click", retake);
 
 /* ---------- camera and mic ---------- */
 let stream = null, actx = null, meterRAF = 0;
@@ -821,7 +898,7 @@ function startCountdown(){
   if (pendingRecovery){ toast("First recover or delete the unfinished recording shown at the top."); return; }
   if (take && !confirm(`Record a new take? Take ${take.n} will be replaced. Download it first if you want to keep it.`)) return;
   state.run = null; state.idx = 0; renderPrompter();
-  let n = 3; $("cdNum").textContent = n; $("countdown").hidden = false;
+  let n = 3; $("cdNum").textContent = n; $("cdNote").textContent = "Get ready to read · Esc cancels"; $("countdown").hidden = false;
   cd = setInterval(() => {
     n--;
     if (n > 0){ $("cdNum").textContent = n; return; }
@@ -854,7 +931,8 @@ async function finishTake(){
   const blob = new Blob(chunks, { type }); chunks = []; recorder = null;
   $("camSel").disabled = $("micSel").disabled = $("camStop").disabled = false;
   const n = take ? take.n + 1 : 1;
-  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
+  const cuts = (r.cuts || []).map(c => ({ ...c }));
+  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), cuts, origCuts: cuts.map(c => ({ ...c })), lines: state.lines.slice(), when: Date.now() });
   take.unsafe = !(await idbPut(take));
   // Only drop the crash-safe copy once the finished take is safely stored.
   if (!take.unsafe) await liveFinish(); else liveRec = null;
@@ -931,8 +1009,8 @@ async function idbTx(store, mode, fn){
 }
 // The video is stored once ("currentBlob"); timing and caption edits only rewrite the small record ("current").
 function takeRecord(t){
-  const { n, type, duration, starts, origStarts, lines, when, capText, skip, recovered } = t;
-  return { n, type, duration, starts, origStarts, lines, when, capText, skip, recovered };
+  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered } = t;
+  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered };
 }
 async function idbPut(t){
   try{
@@ -986,6 +1064,8 @@ function liveChunk(blob){
 function liveTaps(){
   const L = liveRec; if (!L || !L.ok || !state.run) return;
   L.meta.starts = state.run.starts.slice();
+  L.meta.cuts = (state.run.cuts || []).map(c => ({ ...c }));
+  L.meta.pendingRetake = rt ? { line: rt.line, a: rt.a } : null;
   liveQueue(() => idbTx("sessions", "readwrite", st => st.put(L.meta, "live")));
 }
 function liveFailed(e){
@@ -1026,7 +1106,8 @@ async function checkRecovery(){
   if (!count){ clearSession(meta.sid); return; }
   pendingRecovery = meta;
   const when = new Date(meta.startedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
-  $("recoverText").textContent = `PageCue found a recording that didn't finish: take ${meta.n}${meta.title ? " of " + meta.title : ""}, started ${when}, about ${fmtClock(Math.max(meta.elapsed, count * 1000))} long, ${meta.starts.length} line${meta.starts.length === 1 ? "" : "s"} tapped.`;
+  const nc = (meta.cuts || []).length + (meta.pendingRetake ? 1 : 0);
+  $("recoverText").textContent = `PageCue found a recording that didn't finish: take ${meta.n}${meta.title ? " of " + meta.title : ""}, started ${when}, about ${fmtClock(Math.max(meta.elapsed, count * 1000))} long, ${meta.starts.length} line${meta.starts.length === 1 ? "" : "s"} tapped${nc ? `, ${nc} retake${nc === 1 ? "" : "s"}` : ""}.`;
   $("recoverBar").hidden = false;
 }
 async function recoverSession(){
@@ -1038,9 +1119,15 @@ async function recoverSession(){
   const blob = new Blob(parts, { type: meta.type || parts[0].type || "video/webm" });
   const probe = await probeVideo(blob);
   const duration = Math.max(meta.elapsed || 0, probe.duration || 0, 1000);
-  const starts = meta.starts.filter((s, i) => i === 0 || s < duration - 100);
+  let starts = meta.starts.filter((s, i) => i === 0 || s < duration - 100);
+  const cuts = (meta.cuts || []).filter(c => c.a < duration).map(c => ({ ...c, b: Math.min(c.b, duration) }));
+  if (meta.pendingRetake && meta.pendingRetake.a < duration){
+    // The crash came mid-countdown: the slip is cut to the end, and that line counts as unread.
+    cuts.push({ id: cuts.length + 1, a: meta.pendingRetake.a, b: duration, line: meta.pendingRetake.line, active: true });
+    starts = starts.slice(0, Math.max(1, meta.pendingRetake.line));
+  }
   if (take && !confirm(`Recovering replaces take ${take.n} in this browser. Download take ${take.n} first if you want to keep it. Recover now?`)){ $("recoverGo").disabled = $("recoverDrop").disabled = false; return; }
-  setTake({ n: meta.n, blob, type: blob.type, duration, starts, origStarts: starts.slice(), lines: meta.lines, when: meta.startedAt, recovered: true });
+  setTake({ n: meta.n, blob, type: blob.type, duration, starts, origStarts: starts.slice(), cuts, origCuts: cuts.map(c => ({ ...c })), lines: meta.lines, when: meta.startedAt, recovered: true });
   take.unsafe = !(await idbPut(take));
   if (!take.unsafe) await clearSession(meta.sid);
   pendingRecovery = null; $("recoverBar").hidden = true;
@@ -1070,7 +1157,7 @@ async function renderRoom(){
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
     title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
-    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
 $("projOpen").addEventListener("change", e => {
@@ -1108,6 +1195,24 @@ function applyLook(){
 }
 const plain = l => l.replace(/^#{1,6}\s+/, "").replace(/\*+|_/g, "");
 const durMs = () => take ? Math.max(take.duration, (take.starts[take.starts.length - 1] || 0) + MIN_GAP) : 0;
+// Cuts are kept in the take's own clock. "Edited" time is that clock with active cuts removed.
+function activeCuts(){
+  if (!take || !take.cuts) return [];
+  const D = durMs();
+  const cs = take.cuts.filter(c => c.active).map(c => ({ a: Math.max(0, c.a), b: Math.min(D, c.b) })).filter(c => c.b > c.a).sort((x, y) => x.a - y.a);
+  const out = [];
+  for (const c of cs){ const l = out[out.length - 1]; if (l && c.a <= l.b + 1) l.b = Math.max(l.b, c.b); else out.push({ ...c }); }
+  return out;
+}
+function keptSegments(){
+  const out = [], D = durMs(); let t = 0;
+  for (const c of activeCuts()){ if (c.a > t) out.push([t, c.a]); t = Math.max(t, c.b); }
+  if (D > t) out.push([t, D]);
+  return out;
+}
+const keptMs = () => keptSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
+function toEdited(t){ let off = 0; for (const c of activeCuts()){ if (t >= c.b) off += c.b - c.a; else if (t > c.a) off += t - c.a; } return t - off; }
+const inActiveCut = ms => activeCuts().find(c => ms >= c.a && ms < c.b);
 function lineAt(ms){
   const s = take.starts; if (ms < s[0]) return -1;
   let i = 0; while (i + 1 < s.length && s[i + 1] <= ms) i++;
@@ -1153,7 +1258,7 @@ function buildTimeline(){
   for (let t = 0; t <= secs + 0.01; t += stepS)
     ticks.push(`<i style="left:${t * PPS}px"></i><span style="left:${t * PPS + 3}px">${fmtClock(t * 1000)}</span>`);
   ru.innerHTML = ticks.join("");
-  tr.querySelectorAll(".blk").forEach(b => b.remove());
+  tr.querySelectorAll(".blk, .cut").forEach(b => b.remove());
   const S = take.starts, D = durMs(), frag = document.createDocumentFragment();
   for (let i = 0; i < S.length; i++){
     const end = i + 1 < S.length ? S[i + 1] : D;
@@ -1166,8 +1271,37 @@ function buildTimeline(){
     b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(captionText(i))}`;
     frag.appendChild(b);
   }
+  (take.cuts || []).forEach((c, k) => {
+    const d = document.createElement("div");
+    d.className = "cut" + (c.active ? "" : " off");
+    d.style.left = (c.a / 1000 * PPS) + "px"; d.style.width = Math.max(3, (c.b - c.a) / 1000 * PPS) + "px";
+    d.title = `${c.active ? "Cut" : "Restored"}: line ${c.line + 1}, ${fmtT(c.a)} to ${fmtT(c.b)}`;
+    frag.appendChild(d);
+  });
   tr.appendChild(frag);
+  renderCutList();
 }
+function renderCutList(){
+  const box = $("cutList"), cs = take && take.cuts ? take.cuts : [];
+  box.hidden = !cs.length;
+  if (!cs.length){ box.innerHTML = ""; return; }
+  const on = cs.filter(c => c.active).length;
+  box.innerHTML = `<span class="label">Retake cuts · ${on} of ${cs.length} cut · ${fmtClock(keptMs())} after cuts</span>` + cs.map((c, k) =>
+    `<span class="cutchip${c.active ? "" : " off"}"><span>Line ${c.line + 1} · ${fmtT(c.a)}–${fmtT(c.b)} (${((c.b - c.a) / 1000).toFixed(1)} s)</span>`
+    + `<button type="button" class="btn" data-cut="${k}" data-act="toggle">${c.active ? "Restore" : "Cut again"}</button>`
+    + `<button type="button" class="btn" data-cut="${k}" data-act="play">Play</button></span>`).join("");
+}
+$("cutList").addEventListener("click", e => {
+  const b = e.target.closest("button[data-cut]"); if (!b || !take) return;
+  const c = take.cuts[+b.dataset.cut]; if (!c) return;
+  if (b.dataset.act === "toggle"){
+    c.active = !c.active; persistSoon(); buildTimeline(); renderReview(); renderExportInfo();
+    toast(c.active ? `Line ${c.line + 1}'s slip is cut again.` : `Line ${c.line + 1}'s slip is restored; it will play in the video.`);
+  } else {
+    // Play from just before the slip, so you hear what's being cut (or kept).
+    rv.currentTime = Math.max(0, c.a - 1500) / 1000; if (rv.paused) rvPlayToggle();
+  }
+});
 function select(i, seek){
   if (!take) return;
   sel = Math.max(0, Math.min(take.starts.length - 1, i));
@@ -1198,6 +1332,7 @@ function rvPause(){ try{ rv.pause(); }catch(e){} cancelAnimationFrame(rvRAF); if
 function loopReview(){
   cancelAnimationFrame(rvRAF);
   const step = () => {
+    if (!rv.paused){ const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001; }
     renderReview();
     if (!rv.paused){ scrollToMs(nowMs()); rvRAF = requestAnimationFrame(step); }
   };
@@ -1234,8 +1369,8 @@ window.addEventListener("resize", () => { if (state.step === "review" && take) b
 
 function nudge(ms){ if (!take) return; setStart(sel, take.starts[sel] + ms); rv.currentTime = take.starts[sel] / 1000 + 0.01; buildTimeline(); renderReview(); }
 $("resetTiming").addEventListener("click", () => {
-  if (!take || !confirm("Put every line back where you tapped it during the take?")) return;
-  take.starts = take.origStarts.slice(); persistSoon(); buildTimeline(); renderReview(); toast("Timing reset to the take");
+  if (!take || !confirm("Put every line back where you tapped it during the take, and every retake cut back as it was?")) return;
+  take.starts = take.origStarts.slice(); if (take.origCuts) take.cuts = take.origCuts.map(c => ({ ...c })); persistSoon(); buildTimeline(); renderReview(); toast("Timing reset to the take");
 });
 document.querySelectorAll('input[name="txtmode"]').forEach(r => r.addEventListener("change", () => { state.txtMode = r.value; save(); applyLook(); renderReview(); }));
 document.querySelectorAll("[data-corner]").forEach(b => b.addEventListener("click", () => { state.corner = b.dataset.corner; save(); applyLook(); }));
@@ -1249,7 +1384,9 @@ function captionText(i){ const c = capOf(i); return c != null ? c : plain(take.l
 function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(take.lines[i]); }
 // What is on screen at time ms: the current spoken line and the spoken line before it.
 function overlayAt(ms){
-  const i = lineAt(ms);
+  if (inActiveCut(ms)) return { now: -1, prev: -1 };
+  const restored = (take.cuts || []).find(c => !c.active && ms >= c.a && ms < c.b);   // a restored slip shows the line being read
+  const i = restored ? restored.line : lineAt(ms);
   if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
   let p = i - 1; while (p >= 0 && isSkipped(p)) p--;
   return { now: i, prev: p };
@@ -1259,7 +1396,9 @@ function cues(offsetMs){
   for (let i = 0; i < S.length; i++){
     if (isSkipped(i)) continue;
     const end = i + 1 < S.length ? S[i + 1] : D;
-    out.push({ a: S[i] + offsetMs, b: end + offsetMs, text: captionText(i) });
+    const a = toEdited(S[i]), b = toEdited(end);
+    if (b - a < 50) continue;
+    out.push({ a: a + offsetMs, b: b + offsetMs, text: captionText(i) });
   }
   return out;
 }
@@ -1420,24 +1559,40 @@ async function renderVideo(fmt, withTitle, onProgress){
   const W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
-  const xv = document.createElement("video"); xv.playsInline = true; xv.preload = "auto"; xv.src = takeURL;
-  await once(xv, "loadeddata");
+  const segs = keptSegments();
+  if (!segs.length) throw new Error("everything in this take is cut");
+  // Two players of the same take. While one plays a kept section, the other is already
+  // parked at the start of the next one, so a cut is a switch, not a seek: no pause, and
+  // each section plays exactly like an uncut export (picture and sound from one element).
+  const mk = () => { const v = document.createElement("video"); v.playsInline = true; v.preload = "auto"; v.src = takeURL; return v; };
+  const P = [mk(), mk()];
+  await Promise.all(P.map(v => once(v, "loadeddata")));
   const ac = new (window.AudioContext || window.webkitAudioContext)(); await ac.resume().catch(() => {});
-  const dest = ac.createMediaStreamDestination(); ac.createMediaElementSource(xv).connect(dest);   // goes to the file, not the speakers
+  const dest = ac.createMediaStreamDestination();
+  P.forEach(v => ac.createMediaElementSource(v).connect(dest));    // to the file, not the speakers
+  // Park a player at the start of section k. One seek per park; callers wait on the same promise.
+  const park = (v, k) => {
+    v._target = k; v._seg = undefined; v.pause(); v.currentTime = segs[k][0] / 1000 + 0.001;
+    v._parking = once(v, "seeked", 10000).catch(() => {}).then(() => { if (v._target === k) v._seg = k; });
+    return v._parking;
+  };
+  await Promise.all([park(P[0], 0), segs.length > 1 ? park(P[1], 1) : null]);   // both parked before the encoder starts
   const out = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
   const mime = pickExportMime();
   const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
   const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
-  const tMs = withTitle ? 3000 : 0, total = tMs + durMs();
-  drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, 0, xv);
+  const tMs = withTitle ? 3000 : 0, total = tMs + keptMs();
+  const segLen = k => segs[k][1] - segs[k][0];
+  drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, segs[0][0], P[0]);
   return new Promise((resolve, reject) => {
-    let raf = 0, started = false, finished = false, t0 = 0;
+    let raf = 0, started = false, finished = false, ending = false, switching = false, t0 = 0, si = 0, cur = P[0], doneMs = 0, lastMs = segs[0][0];
     const job = exportJob = { cancel: false };
     const finish = (err) => {
       if (finished) return; finished = true; cancelAnimationFrame(raf); clearInterval(bg);
-      try{ xv.pause(); }catch(e){}
+      P.forEach(v => { try{ v.pause(); }catch(e){} });
       rec.onstop = () => {
-        out.getTracks().forEach(t => t.stop()); ac.close().catch(() => {}); xv.removeAttribute("src"); xv.load();
+        out.getTracks().forEach(t => t.stop()); ac.close().catch(() => {});
+        P.forEach(v => { v.removeAttribute("src"); v.load(); });
         if (err) reject(err); else if (job.cancel) resolve(null); else resolve(new Blob(parts, { type: rec.mimeType || mime || "video/webm" }));
       };
       if (rec.state !== "inactive") rec.stop(); else rec.onstop();
@@ -1445,14 +1600,42 @@ async function renderVideo(fmt, withTitle, onProgress){
     const frame = () => {
       if (job.cancel){ finish(); return; }
       const el = performance.now() - t0;
-      if (el < tMs) drawTitle(g, W, H, fmt);
-      else {
-        if (!started){ started = true; xv.currentTime = 0; xv.play().catch(e => finish(e)); }
-        drawFrame(g, W, H, fmt, xv.currentTime * 1000, xv);
+      if (!started){
+        if (el < tMs) drawTitle(g, W, H, fmt);
+        else { started = true; cur.play().catch(e => { if (!e || e.name !== "AbortError") finish(e); }); }
+      } else if (ending || switching){
+        drawFrame(g, W, H, fmt, lastMs, cur);          // hold the frame: at the end (so picture lasts as long as sound) or while the next player finishes parking
+      } else {
+        const ms = cur.currentTime * 1000;
+        if (ms >= segs[si][1] - 15 || cur.ended){
+          doneMs = segs.slice(0, si + 1).reduce((a, sg) => a + sg[1] - sg[0], 0);
+          const nxt = P.find(v => v !== cur);
+          if (si + 1 < segs.length){
+            const go = () => {
+              if (finished) return;
+              (job.log = job.log || []).push({ to: si + 1, held: switching, at: Math.round(performance.now() - t0) });
+              cur.pause(); const prev = cur; cur = nxt; si++; switching = false;
+              cur.play().catch(e => { if (!e || e.name !== "AbortError") finish(e); });
+              if (si + 1 < segs.length) park(prev, si + 1);    // the player just finished parks at the section after next
+            };
+            if (nxt._seg === si + 1 && !nxt.seeking) go();
+            else {
+              // Not parked yet (a very short section): pause, wait for that one park, then switch. Once.
+              switching = true; lastMs = ms; cur.pause();
+              (nxt._target === si + 1 ? nxt._parking : park(nxt, si + 1)).then(go);
+            }
+          } else {
+            ending = true; lastMs = ms; cur.pause();
+            setTimeout(() => finish(), 300);
+          }
+        } else {
+          lastMs = ms;
+          drawFrame(g, W, H, fmt, ms, cur);
+          doneMs = segs.slice(0, si).reduce((a, sg) => a + sg[1] - sg[0], 0) + Math.max(0, ms - segs[si][0]);
+        }
       }
-      onProgress(Math.min(1, el / total));
-      if (started && (xv.ended || xv.currentTime * 1000 >= durMs() + 150)){ setTimeout(() => finish(), 250); return; }
-      if (el > total + 8000){ finish(); return; }
+      onProgress(Math.min(1, (started ? tMs + doneMs : el) / total));
+      if (el > total + 20000 + segs.length * 2000){ finish(); return; }
       raf = requestAnimationFrame(frame);
     };
     // If the tab is hidden, animation frames stop; keep drawing on a slower timer and warn.
@@ -1461,6 +1644,7 @@ async function renderVideo(fmt, withTitle, onProgress){
     rec.start(1000); t0 = performance.now(); frame();
   });
 }
+let lastExportLog = [];
 const exported = {};    // fmt -> { blob, url }
 $("xGo").addEventListener("click", async () => {
   if (!take || exportJob) return;
@@ -1477,6 +1661,7 @@ $("xGo").addEventListener("click", async () => {
         $("xBar").style.width = Math.round(((k + p) / fmts.length) * 100) + "%";
         $("xStat").textContent = `Exporting ${name} (${k + 1} of ${fmts.length}): ${Math.round(p * 100)}%`;
       });
+      lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
       if (!blob) break;   // cancelled
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
       exported[fmt] = { blob, url: URL.createObjectURL(blob) };
@@ -1495,7 +1680,7 @@ $("xGo").addEventListener("click", async () => {
 });
 $("xCancel").addEventListener("click", () => { if (exportJob) exportJob.cancel = true; });
 document.addEventListener("visibilitychange", () => { if (document.hidden && exportJob) toast("Keep PageCue in front while it exports, or the video may stutter.", 6000); });
-function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(durMs() + titleMs()); }
+function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(keptMs() + titleMs()); }
 $("xTitle").addEventListener("change", renderExportInfo);
 
 /* ---------- controls and keys ---------- */
@@ -1503,7 +1688,7 @@ $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("pract
 $("recBtn").addEventListener("click", () => cd ? cancelCountdown() : recording() ? stopRun() : startCountdown());
 $("nextBtn").addEventListener("click", next);
 $("backBtn").addEventListener("click", back);
-$("prompter").addEventListener("click", e => { if (!cd) next(); });   // tap anywhere on the prompter
+$("prompter").addEventListener("click", e => { if (!cd && !rt) next(); });   // tap anywhere on the prompter
 $("smaller").addEventListener("click", () => { state.fs = Math.max(24, state.fs - 4); renderPrompter(); save(); });
 $("bigger").addEventListener("click", () => { state.fs = Math.min(80, state.fs + 4); renderPrompter(); save(); });
 
@@ -1524,6 +1709,8 @@ document.addEventListener("keydown", e => {
   if (state.step !== "record") return;
   if (k === "Escape"){ if (cd){ e.preventDefault(); cancelCountdown(); } else if (live()){ e.preventDefault(); stopRun(); } return; }
   if (cd) { if (k === " ") e.preventDefault(); return; }
+  if (live() && (k.length === 1 ? k.toLowerCase() : k) === retakeKey()){ e.preventDefault(); retake(); return; }
+  if (rt){ if (k === " ") e.preventDefault(); return; }
   if (k === " " || k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === "Enter"){ e.preventDefault(); next(); }
   else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace"){ e.preventDefault(); back(); }
 });
@@ -1546,11 +1733,12 @@ $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
 idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
-checkRecovery();                                          // and any take a crash interrupted
+checkRecovery();
+renderRetakeKey();                                          // and any take a crash interrupted
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md, take: () => take };
+window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog };
 })();
 </script>
 </body>
