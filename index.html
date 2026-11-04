@@ -199,9 +199,6 @@ body.phone .recover{margin:10px 12px 0}
 .cutchip.off{border-style:dotted;opacity:.75}
 .cutchip .btn{height:30px;padding:0 10px;font-size:12px}
 .blk.skip{text-decoration:line-through;opacity:.55}
-#exportBox label{display:flex;align-items:center;gap:10px;font-size:14px}
-#exportBox input{width:18px;height:18px;accent-color:var(--accent)}
-#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
 
 
 /* ---------- Studio look (warm desk) ---------- */
@@ -293,6 +290,65 @@ nav.steps button:not(:disabled):hover{color:var(--ink)}
 .about h2{margin:0 0 8px;font-size:24px;color:var(--accent)}
 .about small{font-family:var(--sans);font-size:13px;color:var(--ink2);font-weight:400}
 .about form{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* export screen */
+.exportv{flex-grow:1;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,1fr);gap:24px;padding:24px 32px;align-items:start}
+.xleft{display:flex;flex-direction:column;gap:18px;min-width:0}
+#xPrevSlot .rprev{flex:none}
+.xsum h3{margin:0;font-family:var(--serif);font-size:18px}
+.xsum dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0;font-size:14px}
+.xsum dt{color:var(--ink2)}
+.xsum dd{margin:0;font-family:var(--serif);font-size:15px}
+.xset{gap:16px}
+.xset fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px}
+.ftiles{flex-direction:row!important;flex-wrap:wrap}
+.ftiles legend{margin-bottom:8px}
+.ftile{flex:1 1 150px;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--rule2);border-radius:12px;background:var(--paper);cursor:pointer}
+.ftile:has(input:checked){border-color:var(--accent);background:var(--accent-wash)}
+.ftile input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.ftile .ic{width:26px;height:26px;color:var(--accent)}
+.ftile b{display:block;font-family:var(--serif);font-size:16px}
+.ftile small{color:var(--ink2);font-size:13px}
+.xopt{display:flex;align-items:center;gap:10px;font-size:14px}
+.xopt input{width:18px;height:18px;accent-color:var(--accent)}
+.xset .btn.go{min-width:0;width:100%;justify-content:center;gap:12px}
+#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
+#toExport{gap:10px}
+@media (max-width:1000px){ .exportv{grid-template-columns:minmax(0,1fr);padding:16px} }
+body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
+
+.xrange .pills{max-width:320px}
+.clipEd{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--rule);border-radius:12px;background:var(--ground)}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.cgrid label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+.cgrid select{height:38px;padding:0 8px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-weight:400;min-width:0}
+.crow{display:flex;gap:8px}
+.crow input{flex:1 1 auto;min-width:0;height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.crow .btn{height:40px}
+.clips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.clipchip{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border:1px solid var(--rule2);border-radius:10px;background:var(--paper);font-size:13px}
+.clipchip.on{border-color:var(--accent);background:var(--accent-wash)}
+.clipchip .link{color:var(--accent);font-size:13px}
+.clipchip .btn{height:28px;padding:0 8px;font-size:12px}
+
+.xpreset{display:flex;flex-direction:column;gap:8px}
+.prow{display:flex;gap:8px;flex-wrap:wrap}
+.prow select,.prow input{flex:1 1 180px;min-width:0;height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--field);font-family:var(--serif);font-size:15px}
+.prow .btn{height:40px}
+
+#xOut{flex-direction:column;align-items:stretch}
+.xfile{display:flex;flex-direction:column;gap:4px}
+.xchk{font-size:13px;color:var(--accent)}
+.xchk.bad{color:#8a4b00}
+
+/* reader cues */
+.cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
+.pl.cueline .cue{font-size:.72em}
+.pl.past .cue,.pl.far .cue{opacity:.75}
+.blk.cueblk{font-style:italic;color:var(--gold);background:var(--gold-wash);border-style:dashed}
+.cuetog{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink2);line-height:1.45}
+.cuetog input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent);flex:0 0 auto}
+.cuetog b{color:var(--ink);font-weight:600}
 
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
@@ -426,6 +482,7 @@ body.phone .toast{top:16px;bottom:auto}
         <button type="button" class="btn" id="resplit" title="Rebuild the lines from the story"><svg class="ic"><use href="#i-redo"/></svg>Split Again</button>
       </div>
       <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete a line break to merge two.</p>
+      <label class="cuetog"><input type="checkbox" id="cueToggle" checked> <span><b>[Brackets] are reader cues</b>, like [Pause 2 seconds] or [Whisper]: shown on the prompter, never on the video or in captions. Put a cue on its own line to make it its own prompter line.</span></label>
       <label for="linesBox" class="sr">Prompter lines, one per row</label>
       <textarea id="linesBox" spellcheck="false"></textarea>
       <div class="row gorow">
@@ -500,20 +557,7 @@ body.phone .toast{top:16px;bottom:auto}
       </fieldset>
       <div style="flex-grow:1"></div>
       <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
-      <fieldset id="exportBox">
-        <legend class="label">Export</legend>
-        <label><input type="checkbox" id="xWide" checked> Wide 16:9 · 1920×1080</label>
-        <label><input type="checkbox" id="xTall" checked> Vertical 9:16 · 1080×1920</label>
-        <label><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
-      </fieldset>
-      <button type="button" class="btn primary" id="xGo">Export videos</button>
-      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
-        <div class="meter"><i id="xBar"></i></div>
-        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
-      </div>
-      <div class="btns" id="xOut"></div>
-      <p class="hint" style="margin:0">Export plays the take in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
-      <div class="btns"><button type="button" class="btn" id="capSrt">Captions (.srt)</button><button type="button" class="btn" id="capVtt">Captions (.vtt)</button></div>
+      <button type="button" class="btn primary" id="toExport">Continue to Export<svg class="ic"><use href="#i-arrow"/></svg></button>
     </aside>
 
     <section class="tl" aria-label="Timeline">
@@ -533,6 +577,71 @@ body.phone .toast{top:16px;bottom:auto}
         <div class="track" id="track"><div class="ph" id="ph"></div></div>
       </div>
     </section>
+  </main>
+
+  <!-- ================= EXPORT ================= -->
+  <main id="exportView" class="exportv" hidden>
+    <div class="xleft">
+      <div id="xPrevSlot"></div>
+      <section class="card xsum" aria-labelledby="xSumH">
+        <h3 id="xSumH">Export summary</h3>
+        <dl id="xSum"></dl>
+      </section>
+    </div>
+    <aside class="card xset" aria-labelledby="xSetH">
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-export"/></svg></span>
+        <div><h2 id="xSetH">Export Settings</h2><p>Make the finished videos and their captions.</p></div></div>
+      <div class="xpreset" id="xPresetBox">
+        <label class="label" for="presetSel">Preset</label>
+        <div class="prow">
+          <select id="presetSel"></select>
+          <button type="button" class="btn" id="presetNew">Save as preset</button>
+          <button type="button" class="btn" id="presetDel" hidden>Delete</button>
+        </div>
+        <div class="prow" id="presetNameRow" hidden>
+          <input id="presetName" type="text" placeholder="Preset name, e.g. YouTube upload" autocomplete="off">
+          <button type="button" class="btn primary" id="presetSave">Save</button>
+          <button type="button" class="btn" id="presetCancel">Cancel</button>
+        </div>
+        <p class="hint" id="presetHint" style="margin:0">A preset remembers formats, the title card, the story text and face bubble look, and clip lead-in and tail. Presets are kept in this browser only.</p>
+      </div>
+      <fieldset class="xrange" id="xRangeBox">
+        <legend class="label">What to export</legend>
+        <div class="pills" role="group" aria-label="What to export">
+          <button type="button" data-xr="all" aria-pressed="true">Whole take</button><button type="button" data-xr="clip" aria-pressed="false">A clip</button>
+        </div>
+        <div id="clipEd" class="clipEd" hidden>
+          <div class="cgrid">
+            <label>From line<select id="clipFrom"></select></label>
+            <label>To line<select id="clipTo"></select></label>
+            <label>Lead-in<select id="clipLead"><option value="0">None</option><option value="300" selected>0.3 s</option><option value="500">0.5 s</option><option value="1000">1 s</option></select></label>
+            <label>Tail<select id="clipTail"><option value="0">None</option><option value="300" selected>0.3 s</option><option value="500">0.5 s</option><option value="1000">1 s</option></select></label>
+          </div>
+          <p class="hint" style="margin:0">Lead-in and tail add a little time before the first line and after the last, so a breath or a final word isn't clipped. Retake cuts are still removed.</p>
+          <div class="crow"><input id="clipName" type="text" placeholder="Clip name, e.g. Opening hook" autocomplete="off"><button type="button" class="btn" id="clipSave">Save clip</button></div>
+        </div>
+        <div class="clips" id="clipList"></div>
+      </fieldset>
+      <fieldset class="ftiles" id="exportBox">
+        <legend class="label">Formats · pick one or both</legend>
+        <label class="ftile"><input type="checkbox" id="xWide" checked><svg class="ic"><use href="#i-laptop"/></svg><span><b>Wide 16:9</b><small>1920 × 1080</small></span></label>
+        <label class="ftile"><input type="checkbox" id="xTall" checked><svg class="ic"><use href="#i-phone"/></svg><span><b>Vertical 9:16</b><small>1080 × 1920</small></span></label>
+      </fieldset>
+      <label class="xopt"><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
+      <fieldset class="xcap">
+        <legend class="label">Captions</legend>
+        <div class="btns"><button type="button" class="btn" id="capSrt">Download .srt</button><button type="button" class="btn" id="capVtt">Download .vtt</button></div>
+        <p class="hint" style="margin:0">Built from your script and timing, and matched to this export (cuts, clip and title card). Reader cues are left out.</p>
+      </fieldset>
+      <div style="flex-grow:1"></div>
+      <button type="button" class="btn primary go" id="xGo"><svg class="ic"><use href="#i-export"/></svg>Export Video</button>
+      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
+        <div class="meter"><i id="xBar"></i></div>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
+      </div>
+      <div class="btns" id="xOut"></div>
+      <p class="hint" style="margin:0">Export plays the video in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
+    </aside>
   </main>
 
   <!-- ================= RECORD (prompter) ================= -->
@@ -635,8 +744,8 @@ const state = {
 
 function save(){
   try{
-    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape} = state;
-    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape}));
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues}));
   }catch(e){ /* private mode or storage blocked: the app still works */ }
 }
 function load(){
@@ -658,6 +767,32 @@ function md(line){
   return h;
 }
 const isHeading = l => /^#{1,6}\s+/.test(l);
+
+/* Reader cues: [Pause 2 seconds], [Whisper], [Look at camera]. Shown on the prompter only;
+   never in the video text or captions. A bracket needs a letter inside, and a markdown link
+   [text](url) is not a cue. The project switch turns cues off for stories that use brackets as story text. */
+const CUE_RE = /\[([^\[\]\n]*[A-Za-z][^\[\]\n]*)\](?!\()/g;
+const cuesOn = () => state.cues !== false;
+function stripCues(l){
+  if (!cuesOn() || l.indexOf("[") < 0) return l;
+  return l.replace(CUE_RE, " ").replace(/\*\*\s*\*\*|(^|\s)\*\s*\*(?=\s|$)/g, "$1").replace(/[ \t]{2,}/g, " ")
+          .replace(/\s+([,.;:!?…])/g, "$1").trim();
+}
+const isCueLine = l => cuesOn() && l.indexOf("[") >= 0 && stripCues(l).replace(/^#{1,6}\s+/, "").replace(/[\s*_—–-]/g, "") === "";
+// The prompter's version of a line: cues kept, styled as notes for the reader.
+function mdP(line){
+  const h = md(line);
+  return cuesOn() ? h.replace(CUE_RE, '<span class="cue">[$1]</span>') : h;
+}
+// What viewers see for line i of lines L: the last line at or before i that isn't a cue-only line
+// (so a [Pause] keeps the previous line on screen). skip(i) marks lines left off the video.
+function spokenAt(L, i, skip){
+  let k = i;
+  while (k >= 0 && isCueLine(L[k])) k--;
+  if (k < 0 || (skip && skip(k))) return { now: -1, prev: -1 };
+  let p = k - 1; while (p >= 0 && (isCueLine(L[p]) || (skip && skip(p)))) p--;
+  return { now: k, prev: p };
+}
 
 // Keep ** and * pairs balanced when a split falls inside them.
 function balance(lines){
@@ -682,9 +817,20 @@ function splitStory(raw, mode){
   // (and any closing quote or bracket), but not after common abbreviations.
   const abbr = /\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|Mt|vs|etc|e\.g|i\.e)\.$/i;
   const out = [];
+  const chunks = [];
   for (const para of text.split(/\n\s*\n/)){
+    if (!cuesOn()){ chunks.push(para); continue; }
+    let buf = [];
+    for (const ln of para.split("\n")){
+      if (ln.trim() && isCueLine(ln.trim())){ if (buf.length) chunks.push(buf.join("\n")); buf = []; chunks.push(ln.trim()); }
+      else buf.push(ln);
+    }
+    if (buf.length) chunks.push(buf.join("\n"));
+  }
+  for (const para of chunks){
     const p = para.replace(/\s*\n\s*/g, " ").trim();
     if (!p) continue;
+    if (isCueLine(p)){ out.push(p); continue; }
     if (isHeading(p)){ out.push(p); continue; }
     const parts = p.split(/(?<=[.!?…]+[”"’')\]*_]*)\s+(?=[“"‘'(\[*_]*[A-Z0-9“"‘])/);
     const merged = [];
@@ -741,6 +887,13 @@ $("raw").addEventListener("input", e => {
 });
 $("split").addEventListener("change", e => { state.split = e.target.value; state.linesEdited = false; resplit(); });
 $("resplit").addEventListener("click", () => { state.linesEdited = false; resplit(); toast("Lines rebuilt from the story"); });
+$("cueToggle").addEventListener("change", e => {
+  state.cues = e.target.checked;
+  if (!state.linesEdited) resplit(); else save();
+  renderPrompter();
+  if (typeof take !== "undefined" && take && state.step === "review"){ buildTimeline(); renderReview(); }
+  toast(state.cues ? "Brackets are reader cues: on the prompter only" : "Brackets are story text: they'll show on the video and in captions");
+});
 $("linesBox").addEventListener("input", () => {
   state.lines = linesFromBox(); state.linesEdited = true;
   if (state.idx >= state.lines.length) state.idx = Math.max(0, state.lines.length - 1);
@@ -775,8 +928,8 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 
 /* ---------- steps and device ---------- */
 function setStep(step){
-  if (step === "export"){ setStep("review"); const b = document.querySelector('nav.steps [data-step="export"]'); if (b) b.setAttribute("aria-current", "step");
-    document.querySelector('nav.steps [data-step="review"]').removeAttribute("aria-current"); setTimeout(() => $("exportBox").scrollIntoView({ behavior: "smooth", block: "center" }), 50); return; }
+  if ((step === "export" || step === "review") && !take){ toast("Record a take first"); return; }
+  if (exportJob && step !== "export"){ toast("Wait for the export to finish, or cancel it"); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
   state.step = step; document.body.dataset.step = step;
@@ -786,10 +939,11 @@ function setStep(step){
   $("storyView").hidden = step !== "story";
   $("recordView").hidden = step !== "record";
   $("reviewView").hidden = step !== "review";
+  $("exportView").hidden = step !== "export";
   $("bar").hidden = step !== "record";
-  if (step !== "review") rvPause();
+  rvPause();
   if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); }
-  if (step === "review") enterReview();
+  if (step === "review" || step === "export") enterReview();
 }
 document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
 
@@ -835,17 +989,19 @@ document.querySelectorAll("[data-fmt]").forEach(b => b.addEventListener("click",
 function renderPrompter(){
   const L = state.lines, i = state.idx, box = $("plines");
   const out = [];
-  if (i > 0) out.push(`<p class="pl past${isHeading(L[i-1])?" h":""}">${md(L[i-1])}</p>`);
-  out.push(`<p class="pl cur${isHeading(L[i])?" h":""}" aria-current="true">${md(L[i] || "")}</p>`);
+  const cls = k => (isHeading(L[k]) ? " h" : "") + (isCueLine(L[k]) ? " cueline" : "");
+  if (i > 0) out.push(`<p class="pl past${cls(i-1)}">${mdP(L[i-1])}</p>`);
+  out.push(`<p class="pl cur${cls(i)}" aria-current="true">${mdP(L[i] || "")}</p>`);
   for (let k = i + 1; k < Math.min(L.length, i + 4); k++)
-    out.push(`<p class="pl${k > i + 1 ? " far" : ""}${isHeading(L[k])?" h":""}">${md(L[k])}</p>`);
+    out.push(`<p class="pl${k > i + 1 ? " far" : ""}${cls(k)}">${mdP(L[k])}</p>`);
   if (i === L.length - 1) out.push(`<p class="pl end">End of story. ${state.run && !state.run.done ? "Press Stop to finish the run." : ""}</p>`);
   box.innerHTML = out.join("");
 
   const where = `Line ${i + 1} of ${L.length}`;
   $("where").textContent = where; $("pWhere").textContent = where;
-  $("vPrev").innerHTML = i > 0 ? md(L[i-1]) : "";
-  $("vNow").innerHTML = md(L[i] || "");
+  const vs = spokenAt(L, i);
+  $("vPrev").innerHTML = vs.prev >= 0 ? md(stripCues(L[vs.prev])) : "";
+  $("vNow").innerHTML = vs.now >= 0 ? md(stripCues(L[vs.now])) : "";
   const t = state.title.trim(), a = state.author.trim();
   $("vMeta").textContent = [t, a].filter(Boolean).join(" · ");
   $("backBtn").disabled = i === 0;
@@ -1118,6 +1274,7 @@ async function finishTake(){
   toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
 }
 function setTake(t){
+  xr = { mode: "all", from: 0, to: 0, lead: 300, tail: 300, id: null, name: "" };   // a new take starts with the whole take
   if (takeURL) URL.revokeObjectURL(takeURL);
   if (t && !t.origStarts) t.origStarts = t.starts.slice();
   take = t; takeURL = t ? URL.createObjectURL(t.blob) : null;
@@ -1187,8 +1344,8 @@ async function idbTx(store, mode, fn){
 }
 // The video is stored once ("currentBlob"); timing and caption edits only rewrite the small record ("current").
 function takeRecord(t){
-  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered } = t;
-  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered };
+  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered, clips } = t;
+  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered, clips };
 }
 async function idbPut(t){
   try{
@@ -1334,8 +1491,8 @@ async function renderRoom(){
 /* ---------- project file (story, lines, timing; never the video) ---------- */
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
-    title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
-    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+    title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines, readerCues: cuesOn(),
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), clips: (take.clips || []).map(c => ({ name: c.name, fromLine: c.from + 1, toLine: c.to + 1, leadMs: c.lead, tailMs: c.tail })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
 $("projOpen").addEventListener("change", e => {
@@ -1345,7 +1502,7 @@ $("projOpen").addEventListener("change", e => {
     let p; try{ p = JSON.parse(String(r.result)); }catch(err){ toast("That isn't a PageCue project file."); return; }
     if (!p || p.app !== "PageCue" || !Array.isArray(p.lines)){ toast("That isn't a PageCue project file."); return; }
     state.title = String(p.title || ""); state.author = String(p.author || ""); state.raw = String(p.story || "");
-    state.split = p.split === "line" ? "line" : "sentence";
+    state.split = p.split === "line" ? "line" : "sentence"; state.cues = p.readerCues !== false; $("cueToggle").checked = cuesOn();
     state.lines = p.lines.map(String); state.linesEdited = true; state.importedTiming = p.timing || null;
     $("title").value = state.title; $("author").value = state.author; $("raw").value = state.raw;
     $("split").value = state.split; $("linesBox").value = state.lines.join("\n");
@@ -1389,6 +1546,23 @@ function keptSegments(){
   return out;
 }
 const keptMs = () => keptSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
+/* Clip Creator: export a range of lines. xr is the range on the Export screen; the clip only
+   applies there (Review always shows the whole take). Times stay in the take's own clock. */
+let xr = { mode: "all", from: 0, to: 0, lead: 300, tail: 300, id: null, name: "" };
+function clipWin(){
+  if (!take || xr.mode !== "clip" || state.step !== "export") return null;
+  const S = take.starts, D = durMs(), n = S.length;
+  const from = Math.max(0, Math.min(n - 1, xr.from)), to = Math.max(from, Math.min(n - 1, xr.to));
+  const a = Math.max(0, S[from] - xr.lead), b = Math.min(D, (to + 1 < n ? S[to + 1] : D) + xr.tail);
+  return { a, b, from, to };
+}
+// The parts of the take that go into the export: kept (not cut), and inside the clip if there is one.
+function exportSegments(){
+  const k = keptSegments(), w = clipWin();
+  if (!w) return k;
+  return k.map(([x, y]) => [Math.max(x, w.a), Math.min(y, w.b)]).filter(([x, y]) => y - x > 30);
+}
+const exportMs = () => exportSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
 function toEdited(t){ let off = 0; for (const c of activeCuts()){ if (t >= c.b) off += c.b - c.a; else if (t > c.a) off += t - c.a; } return t - off; }
 const inActiveCut = ms => activeCuts().find(c => ms >= c.a && ms < c.b);
 function lineAt(ms){
@@ -1400,10 +1574,15 @@ function nowMs(){ return (rv.currentTime || 0) * 1000; }
 
 function enterReview(){
   if (!take){ setStep("record"); return; }
+  const pv = document.querySelector(".rprev");                      // one preview, shown on Review or Export
+  if (state.step === "export"){ if (pv.parentNode !== $("xPrevSlot")) $("xPrevSlot").appendChild(pv); }
+  else if (pv.parentNode !== $("reviewView")) $("reviewView").insertBefore(pv, $("reviewView").firstChild);
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
-  applyLook(); buildTimeline(); renderReview(); renderExportInfo();
+  applyLook(); buildTimeline();
+  if (state.step === "export"){ renderPresets(); renderClipUI(); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
+  renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
   if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
@@ -1441,12 +1620,12 @@ function buildTimeline(){
   for (let i = 0; i < S.length; i++){
     const end = i + 1 < S.length ? S[i + 1] : D;
     const b = document.createElement("div");
-    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "");
+    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "") + (isCue(i) ? " cueblk" : "");
     b.dataset.i = i;
     b.style.left = (S[i] / 1000 * PPS) + "px";
     b.style.width = Math.max(4, (end - S[i]) / 1000 * PPS) + "px";
     b.title = `Line ${i + 1}: ${plain(take.lines[i])}`;
-    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(captionText(i))}`;
+    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(isCue(i) ? plain(take.lines[i]) : captionText(i))}`;
     frag.appendChild(b);
   }
   (take.cuts || []).forEach((c, k) => {
@@ -1503,14 +1682,22 @@ function persistSoon(){
 }
 function rvPlayToggle(){
   if (!take) return;
-  if (rv.paused){ if (nowMs() >= durMs() - 50) rv.currentTime = 0; rv.play().catch(() => {}); loopReview(); }
+  const w = clipWin();
+  if (rv.paused){
+    if (w){ if (nowMs() < w.a || nowMs() >= w.b - 50) rv.currentTime = w.a / 1000 + 0.001; }
+    else if (nowMs() >= durMs() - 50) rv.currentTime = 0;
+    rv.play().catch(() => {}); loopReview();
+  }
   else rvPause();
 }
 function rvPause(){ try{ rv.pause(); }catch(e){} cancelAnimationFrame(rvRAF); if (take) renderReview(); }
 function loopReview(){
   cancelAnimationFrame(rvRAF);
   const step = () => {
-    if (!rv.paused){ const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001; }
+    if (!rv.paused){
+      const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001;
+      const w = clipWin(); if (w && nowMs() >= w.b){ rv.pause(); rv.currentTime = w.b / 1000; }
+    }
     renderReview();
     if (!rv.paused){ scrollToMs(nowMs()); rvRAF = requestAnimationFrame(step); }
   };
@@ -1543,7 +1730,7 @@ trackEl.addEventListener("pointermove", e => {
 const endDrag = e => { if (!drag) return; drag = null; try{ trackEl.releasePointerCapture(e.pointerId); }catch(err){} rv.currentTime = take.starts[sel] / 1000 + 0.01; };
 trackEl.addEventListener("pointerup", endDrag);
 trackEl.addEventListener("pointercancel", endDrag);
-window.addEventListener("resize", () => { if (state.step === "review" && take) buildTimeline(); });
+window.addEventListener("resize", () => { if ((state.step === "review" || state.step === "export") && take) buildTimeline(); });
 
 function nudge(ms){ if (!take) return; setStart(sel, take.starts[sel] + ms); rv.currentTime = take.starts[sel] / 1000 + 0.01; buildTimeline(); renderReview(); }
 $("resetTiming").addEventListener("click", () => {
@@ -1558,23 +1745,30 @@ document.querySelectorAll("[data-rfmt]").forEach(b => b.addEventListener("click"
 /* ---------- captions: script-aligned, editable per line ---------- */
 const capOf = i => (take.capText && take.capText[i] != null) ? take.capText[i] : null;     // a corrected caption, as plain text
 const isSkipped = i => !!(take.skip && take.skip[i]);
-function captionText(i){ const c = capOf(i); return c != null ? c : plain(take.lines[i]); }
-function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(take.lines[i]); }
+const defCap = i => plain(stripCues(take.lines[i]));                                    // the caption PageCue would write
+function captionText(i){ const c = capOf(i); return c != null ? c : defCap(i); }
+function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(stripCues(take.lines[i])); }
+const isCue = i => isCueLine(take.lines[i]);
 // What is on screen at time ms: the current spoken line and the spoken line before it.
 function overlayAt(ms){
   if (inActiveCut(ms)) return { now: -1, prev: -1 };
   const restored = (take.cuts || []).find(c => !c.active && ms >= c.a && ms < c.b);   // a restored slip shows the line being read
   const i = restored ? restored.line : lineAt(ms);
   if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
-  let p = i - 1; while (p >= 0 && isSkipped(p)) p--;
-  return { now: i, prev: p };
+  const w = clipWin();
+  if (!w) return spokenAt(take.lines, i, isSkipped);     // a cue-only line keeps the last spoken line up
+  if (i < w.from) return { now: -1, prev: -1 };           // lead-in: the clip's first line hasn't started
+  const o = spokenAt(take.lines, Math.min(i, w.to), isSkipped);   // tail: keep the clip's last line
+  return { now: o.now >= w.from ? o.now : -1, prev: o.prev >= w.from ? o.prev : -1 };
 }
 function cues(offsetMs){
-  const S = take.starts, D = durMs(), out = [];
-  for (let i = 0; i < S.length; i++){
-    if (isSkipped(i)) continue;
-    const end = i + 1 < S.length ? S[i + 1] : D;
-    const a = toEdited(S[i]), b = toEdited(end);
+  const S = take.starts, D = durMs(), out = [], w = clipWin();
+  const lo = w ? w.from : 0, hi = w ? w.to : S.length - 1, base = w ? toEdited(w.a) : 0;
+  for (let i = lo; i <= hi; i++){
+    if (isSkipped(i) || isCue(i)) continue;
+    let n = i + 1; while (n <= hi && isCue(n) && !isSkipped(n)) n++;   // a caption stays up through a following cue, like the video text
+    const end = n <= hi ? S[n] : w ? w.b : (n < S.length ? S[n] : D);
+    const a = toEdited(w ? Math.max(S[i], w.a) : S[i]) - base, b = toEdited(end) - base;
     if (b - a < 50) continue;
     out.push({ a: a + offsetMs, b: b + offsetMs, text: captionText(i) });
   }
@@ -1588,13 +1782,18 @@ function stamp(ms, sep){
 function toSRT(offsetMs){ return cues(offsetMs).map((c, k) => `${k + 1}\n${stamp(c.a, ",")} --> ${stamp(c.b, ",")}\n${c.text}\n`).join("\n"); }
 function toVTT(offsetMs){ return "WEBVTT\n\n" + cues(offsetMs).map(c => `${stamp(c.a, ".")} --> ${stamp(c.b, ".")}\n${c.text}\n`).join("\n"); }
 const titleMs = () => $("xTitle").checked ? 3000 : 0;
-$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${fileBase()}.srt`); });
-$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${fileBase()}.vtt`); });
+const slug = t => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const exportBase = () => clipWin() ? `${fileBase()}-${slug(xr.name) || `lines-${clipWin().from + 1}-${clipWin().to + 1}`}` : fileBase();
+$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${exportBase()}.srt`); });
+$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${exportBase()}.vtt`); });
 
 function fillCapEditor(){
   if (!take) return;
   const c = capOf(sel);
-  $("capEdit").value = c != null ? c : plain(take.lines[sel]);
+  const cueOnly = isCue(sel);
+  $("capEdit").value = cueOnly ? "" : (c != null ? c : defCap(sel));
+  $("capEdit").disabled = cueOnly; $("capSkip").disabled = cueOnly;
+  $("capEdit").placeholder = cueOnly ? "Reader cue: shown on the prompter only, never on the video or in captions" : "";
   $("capSkip").checked = isSkipped(sel);
   $("capReset").hidden = c == null;
 }
@@ -1602,7 +1801,7 @@ $("capEdit").addEventListener("input", e => {
   if (!take) return;
   take.capText = take.capText || {};
   const v = e.target.value;
-  if (v === plain(take.lines[sel])) delete take.capText[sel]; else take.capText[sel] = v;
+  if (v === defCap(sel)) delete take.capText[sel]; else take.capText[sel] = v;
   $("capReset").hidden = capOf(sel) == null;
   persistSoon(); buildTimeline(); renderReview();
 });
@@ -1710,8 +1909,9 @@ function drawFrame(g, W, H, fmt, ms, vid){
   // story text
   if (ms == null) return;
   const o = overlayAt(ms), T = L.txt;
-  const nowL = o.now >= 0 ? wrapRuns(g, runsOf(capOf(o.now) != null ? capOf(o.now) : take.lines[o.now], capOf(o.now) != null), T.nowPx, 600, SERIF, T.w) : [];
-  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, runsOf(capOf(o.prev) != null ? capOf(o.prev) : take.lines[o.prev], capOf(o.prev) != null), T.prevPx, 400, SERIF, T.w) : [];
+  const txtOf = k => capOf(k) != null ? runsOf(capOf(k), true) : runsOf(stripCues(take.lines[k]), false);
+  const nowL = o.now >= 0 ? wrapRuns(g, txtOf(o.now), T.nowPx, 600, SERIF, T.w) : [];
+  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, txtOf(o.prev), T.prevPx, 400, SERIF, T.w) : [];
   const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
   let y = T.top != null ? T.top : T.bottom - hNow - gap - hPrev;
   if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, VIDEO.dim, T.align, T.w); y += hPrev + gap; }
@@ -1737,8 +1937,8 @@ async function renderVideo(fmt, withTitle, onProgress){
   const W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
-  const segs = keptSegments();
-  if (!segs.length) throw new Error("everything in this take is cut");
+  const segs = exportSegments();
+  if (!segs.length) throw new Error(clipWin() ? "everything in this clip is cut" : "everything in this take is cut");
   // Two players of the same take. While one plays a kept section, the other is already
   // parked at the start of the next one, so a cut is a switch, not a seek: no pause, and
   // each section plays exactly like an uncut export (picture and sound from one element).
@@ -1759,7 +1959,7 @@ async function renderVideo(fmt, withTitle, onProgress){
   const mime = pickExportMime();
   const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
   const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
-  const tMs = withTitle ? 3000 : 0, total = tMs + keptMs();
+  const tMs = withTitle ? 3000 : 0, total = tMs + exportMs();
   const segLen = k => segs[k][1] - segs[k][0];
   drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, segs[0][0], P[0]);
   return new Promise((resolve, reject) => {
@@ -1822,7 +2022,43 @@ async function renderVideo(fmt, withTitle, onProgress){
     rec.start(1000); t0 = performance.now(); frame();
   });
 }
-let lastExportLog = [];
+let lastExportLog = [], lastChecks = [];
+/* Export check: reopen the finished file the way a viewer's player would, and confirm it plays,
+   is the right size and length, and decodes both picture and sound. Nothing leaves the device. */
+function checkExport(blob, fmt, expectMs){
+  return new Promise(res => {
+    const v = document.createElement("video"), url = URL.createObjectURL(blob), W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
+    let done = false, timer = 0;
+    const end = r => { if (done) return; done = true; clearTimeout(timer); try{ v.pause(); }catch(e){} v.removeAttribute("src"); v.load(); URL.revokeObjectURL(url); res(r); };
+    v.muted = true; v.playsInline = true; v.preload = "auto";
+    v.onerror = () => end({ ok: false, problems: ["the file wouldn't open"] });
+    timer = setTimeout(() => end({ ok: false, problems: ["checking took too long"] }), 15000);
+    const measure = async () => {
+      let d = v.duration;
+      if (!isFinite(d)){                      // recorded files often don't state their length; seeking to the end makes the player find it
+        v.currentTime = 1e7;
+        await new Promise(r => { const t = setTimeout(r, 4000); v.addEventListener("durationchange", () => { if (isFinite(v.duration)){ clearTimeout(t); r(); } }); });
+        d = v.duration; v.currentTime = 0; await once(v, "seeked", 3000).catch(() => {});
+      }
+      const problems = [], lenMs = isFinite(d) ? d * 1000 : 0;
+      if (v.videoWidth !== W || v.videoHeight !== H) problems.push(`the picture is ${v.videoWidth}×${v.videoHeight}, not ${W}×${H}`);
+      if (!lenMs) problems.push("its length couldn't be read");
+      else if (Math.abs(lenMs - expectMs) > 1000 + expectMs * 0.02) problems.push(`it's ${fmtClock(lenMs)} long instead of about ${fmtClock(expectMs)}`);
+      // Play a moment (muted) and see whether picture and sound actually decode.
+      let pic = null, snd = null;
+      if ("webkitVideoDecodedByteCount" in v){
+        try{ await v.play(); }catch(e){}
+        await new Promise(r => setTimeout(r, 700)); v.pause();
+        pic = v.webkitVideoDecodedByteCount > 0; snd = v.webkitAudioDecodedByteCount > 0;
+        if (!pic) problems.push("no picture decoded");
+        if (!snd) problems.push("no sound decoded");
+      }
+      end({ ok: !problems.length, problems, lenMs, w: v.videoWidth, h: v.videoHeight, pic, snd });
+    };
+    v.addEventListener("loadedmetadata", measure, { once: true });
+    v.src = url;
+  });
+}
 const exported = {};    // fmt -> { blob, url }
 $("xGo").addEventListener("click", async () => {
   if (!take || exportJob) return;
@@ -1830,6 +2066,7 @@ $("xGo").addEventListener("click", async () => {
   if (!fmts.length){ toast("Pick wide, vertical, or both."); return; }
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ toast("This browser can't export video. Try Chrome or Edge."); return; }
   rvPause();
+  lastChecks = [];
   $("xGo").disabled = true; $("xProg").hidden = false; $("xCancel").hidden = false; $("xOut").innerHTML = ""; $("xStat").textContent = "Starting…";
   const withTitle = $("xTitle").checked;
   try{
@@ -1841,15 +2078,23 @@ $("xGo").addEventListener("click", async () => {
       });
       lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
       if (!blob) break;   // cancelled
+      const expectMs = exportMs() + titleMs();
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
       exported[fmt] = { blob, url: URL.createObjectURL(blob) };
-      const ext = extOf(blob.type), file = `${fileBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
+      const ext = extOf(blob.type), file = `${exportBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
       const a = document.createElement("a"); a.className = "btn"; a.href = exported[fmt].url; a.download = file;
       const codec = /avc1|h264/i.test(blob.type) ? "H.264" : /vp9/i.test(blob.type) ? "VP9" : /vp8/i.test(blob.type) ? "VP8" : "";
       a.textContent = `Download ${name} (${(blob.size / 1048576).toFixed(1)} MB ${ext.toUpperCase()}${codec ? " · " + codec : ""})`;
-      $("xOut").appendChild(a);
+      const row = document.createElement("div"); row.className = "xfile"; row.appendChild(a);
+      const chk = document.createElement("span"); chk.className = "xchk"; chk.textContent = "Checking the file…"; row.appendChild(chk);
+      $("xOut").appendChild(row);
+      $("xStat").textContent = `Checking ${name}…`;
+      const r = await checkExport(blob, fmt, expectMs); lastChecks.push(Object.assign({ fmt }, r));
+      if (r.ok) chk.textContent = `✓ Checked: opens and plays, ${r.w}×${r.h}, ${fmtClock(r.lenMs)}${r.pic ? ", picture and sound" : ""}.`;
+      else { chk.className = "xchk bad"; chk.textContent = `⚠ This file may not play everywhere: ${r.problems.join("; ")}. Try exporting again; if it keeps happening, try Chrome or Edge.`; }
     }
-    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : "Done. Download your videos below.";
+    const bad = lastChecks.filter(c => !c.ok).length;
+    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : bad ? `Done, but ${bad === 1 ? "one file" : bad + " files"} didn't pass the check. See below.` : "Done. Every file was checked. Download your videos below.";
   }catch(e){
     $("xStat").textContent = "Export stopped: " + (e && e.message || e);
   }finally{
@@ -1858,8 +2103,145 @@ $("xGo").addEventListener("click", async () => {
 });
 $("xCancel").addEventListener("click", () => { if (exportJob) exportJob.cancel = true; });
 document.addEventListener("visibilitychange", () => { if (document.hidden && exportJob) toast("Keep PageCue in front while it exports, or the video may stutter.", 6000); });
-function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(keptMs() + titleMs()); }
-$("xTitle").addEventListener("change", renderExportInfo);
+function exportCodecLabel(){
+  const m = pickExportMime();
+  if (/mp4/.test(m)) return /avc1/.test(m) ? "MP4 · H.264 video, AAC sound" : "MP4 (this browser picks the codec; the download button shows which)";
+  if (/webm/.test(m)) return "WebM · " + (/vp9/.test(m) ? "VP9" : "VP8") + " (this browser can't make MP4)";
+  return "Not supported in this browser";
+}
+function renderExportInfo(){
+  if (!take) return;
+  const len = exportMs() + titleMs(), w = clipWin();
+  $("xTime").textContent = fmtClock(len);
+  const fmts = [$("xWide").checked && "Wide 16:9", $("xTall").checked && "Vertical 9:16"].filter(Boolean);
+  const nCuts = activeCuts().filter(c => !w || (c.b > w.a && c.a < w.b)).length;
+  const spoken = take.starts.filter((_, i) => !isSkipped(i) && !isCue(i) && (!w || (i >= w.from && i <= w.to))).length;
+  const t = state.title.trim() || "Untitled story", a = state.author.trim();
+  const rows = [
+    ["Story", a ? `${t} • ${a}` : t],
+    ["Range", w ? `${xr.name ? `Clip “${xr.name}”: ` : "Clip: "}lines ${w.from + 1}–${w.to + 1}` : "Whole take"],
+    ["Length", `${fmtClock(len)}${nCuts ? ` (${nCuts} retake ${nCuts === 1 ? "cut" : "cuts"} removed)` : ""}${titleMs() ? ", including the title card" : ""}`],
+    ["Lines", `${spoken} spoken line${spoken === 1 ? "" : "s"}`],
+    ["Formats", fmts.length ? fmts.join(" and ") : "None picked"],
+    ["Video file", exportCodecLabel()],
+    ["Export time", fmts.length ? `about ${fmtClock(len * fmts.length)} in real time` : "—"]
+  ];
+  $("xSum").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+}
+["xTitle", "xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
+$("toExport").addEventListener("click", () => setStep("export"));
+
+/* ---------- export presets (this browser only) ---------- */
+const PKEY = "pagecue.presets.v1";
+const BUILTIN_PRESETS = [
+  { id: "b-wide", name: "Wide video", builtin: true, wide: true, tall: false, title: true },
+  { id: "b-short", name: "Vertical short", builtin: true, wide: false, tall: true, title: false },
+  { id: "b-both", name: "Both formats", builtin: true, wide: true, tall: true, title: true }
+];
+function userPresets(){ try{ const a = JSON.parse(localStorage.getItem(PKEY) || "[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function storePresets(a){ try{ localStorage.setItem(PKEY, JSON.stringify(a)); return true; }catch(e){ return false; } }
+const allPresets = () => BUILTIN_PRESETS.concat(userPresets());
+let presetId = "";
+function renderPresets(){
+  const u = userPresets();
+  $("presetSel").innerHTML = `<option value="">Choose a preset…</option><optgroup label="Built in">` +
+    BUILTIN_PRESETS.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("") + `</optgroup>` +
+    (u.length ? `<optgroup label="Your presets">` + u.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("") + `</optgroup>` : "");
+  if (!allPresets().some(p => p.id === presetId)) presetId = "";
+  $("presetSel").value = presetId;
+  const cur = allPresets().find(p => p.id === presetId);
+  $("presetDel").hidden = !cur || !!cur.builtin;
+}
+function applyPreset(p){
+  $("xWide").checked = !!p.wide; $("xTall").checked = !!p.tall; $("xTitle").checked = !!p.title;
+  if (p.txtMode) state.txtMode = p.txtMode;
+  if (p.corner) state.corner = p.corner;
+  if (p.shape) state.shape = p.shape;
+  if (p.lead != null) xr.lead = p.lead;
+  if (p.tail != null) xr.tail = p.tail;
+  save(); applyLook(); renderClipUI(); if (take) renderReview();
+}
+$("presetSel").addEventListener("change", e => {
+  presetId = e.target.value; const p = allPresets().find(x => x.id === presetId);
+  if (p){ applyPreset(p); toast(`Preset “${p.name}” applied`); }
+  renderPresets();
+});
+$("presetNew").addEventListener("click", () => { $("presetNameRow").hidden = false; const cur = userPresets().find(p => p.id === presetId); $("presetName").value = cur ? cur.name : ""; $("presetName").focus(); });
+$("presetCancel").addEventListener("click", () => { $("presetNameRow").hidden = true; });
+$("presetName").addEventListener("keydown", e => { if (e.key === "Enter") $("presetSave").click(); if (e.key === "Escape") $("presetCancel").click(); });
+$("presetSave").addEventListener("click", () => {
+  const name = $("presetName").value.trim(); if (!name){ toast("Give the preset a name"); return; }
+  const u = userPresets();
+  let p = u.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (!p){ p = { id: "u-" + Date.now().toString(36) }; u.push(p); }
+  Object.assign(p, { name, wide: $("xWide").checked, tall: $("xTall").checked, title: $("xTitle").checked,
+    txtMode: state.txtMode || "two", corner: state.corner || "tr", shape: state.shape || "circle", lead: xr.lead, tail: xr.tail });
+  if (!storePresets(u)){ toast("This browser won't let PageCue save presets (private mode or storage blocked)."); return; }
+  presetId = p.id; $("presetNameRow").hidden = true; renderPresets(); toast(`Saved preset “${name}”`);
+});
+$("presetDel").addEventListener("click", () => {
+  const p = userPresets().find(x => x.id === presetId); if (!p) return;
+  if (!confirm(`Delete the preset “${p.name}”?`)) return;
+  storePresets(userPresets().filter(x => x.id !== p.id)); presetId = ""; renderPresets(); toast("Preset deleted");
+});
+// Changing a setting by hand means the preset no longer describes what will export.
+["xWide", "xTall", "xTitle", "clipLead", "clipTail"].forEach(id => $(id).addEventListener("change", () => { if (presetId){ presetId = ""; renderPresets(); } }));
+
+/* ---------- Clip Creator UI ---------- */
+function clipLabel(i){
+  const L = take.lines[i], t = isCueLine(L) ? plain(L) : plain(stripCues(L));
+  return `${i + 1} · ${t.length > 44 ? t.slice(0, 43) + "…" : t}`;
+}
+function renderClipUI(){
+  if (!take) return;
+  document.querySelectorAll("[data-xr]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xr === xr.mode)));
+  $("clipEd").hidden = xr.mode !== "clip";
+  const n = take.starts.length;
+  xr.from = Math.max(0, Math.min(n - 1, xr.from)); xr.to = Math.max(xr.from, Math.min(n - 1, xr.to));
+  const opts = Array.from({ length: n }, (_, i) => `<option value="${i}">${esc(clipLabel(i))}</option>`).join("");
+  if ($("clipFrom").options.length !== n){ $("clipFrom").innerHTML = opts; $("clipTo").innerHTML = opts; }
+  $("clipFrom").value = xr.from; $("clipTo").value = xr.to;
+  $("clipLead").value = xr.lead; $("clipTail").value = xr.tail;
+  if (document.activeElement !== $("clipName")) $("clipName").value = xr.name;
+  const cl = take.clips || [];
+  $("clipList").innerHTML = cl.length ? `<span class="label">Saved clips</span>` + cl.map(c =>
+    `<span class="clipchip${c.id === xr.id ? " on" : ""}"><button type="button" class="link" data-clip="${c.id}" data-act="load">${esc(c.name)} · lines ${c.from + 1}–${c.to + 1}</button>`
+    + `<button type="button" class="btn" data-clip="${c.id}" data-act="del" aria-label="Delete clip ${esc(c.name)}">Delete</button></span>`).join("") : "";
+  renderExportInfo();
+}
+function clipChanged(seek){
+  if (seek && clipWin()){ rvPause(); rv.currentTime = clipWin().a / 1000 + 0.001; }
+  renderClipUI(); if (take) renderReview();
+}
+document.querySelectorAll("[data-xr]").forEach(b => b.addEventListener("click", () => {
+  xr.mode = b.dataset.xr;
+  if (xr.mode === "clip" && xr.to === 0 && take.starts.length > 1){ xr.from = Math.min(sel, take.starts.length - 1); xr.to = Math.min(take.starts.length - 1, xr.from + 2); }
+  clipChanged(true);
+}));
+$("clipFrom").addEventListener("change", e => { xr.from = +e.target.value; if (xr.to < xr.from) xr.to = xr.from; clipChanged(true); });
+$("clipTo").addEventListener("change", e => { xr.to = +e.target.value; if (xr.from > xr.to) xr.from = xr.to; clipChanged(true); });
+$("clipLead").addEventListener("change", e => { xr.lead = +e.target.value; clipChanged(true); });
+$("clipTail").addEventListener("change", e => { xr.tail = +e.target.value; clipChanged(false); });
+$("clipName").addEventListener("input", e => { xr.name = e.target.value; renderExportInfo(); });
+$("clipSave").addEventListener("click", () => {
+  if (!take) return;
+  const name = $("clipName").value.trim() || `Lines ${xr.from + 1}–${xr.to + 1}`;
+  take.clips = take.clips || [];
+  let c = take.clips.find(c => c.id === xr.id && c.name === name);
+  if (!c){ c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }; take.clips.push(c); }
+  Object.assign(c, { name, from: xr.from, to: xr.to, lead: xr.lead, tail: xr.tail });
+  xr.id = c.id; xr.name = name; persistSoon(); renderClipUI(); toast(`Saved clip “${name}”`);
+});
+$("clipList").addEventListener("click", e => {
+  const b = e.target.closest("[data-clip]"); if (!b || !take) return;
+  const c = (take.clips || []).find(c => c.id === b.dataset.clip); if (!c) return;
+  if (b.dataset.act === "del"){
+    if (!confirm(`Delete the clip “${c.name}”? The take itself isn't changed.`)) return;
+    take.clips = take.clips.filter(x => x !== c); if (xr.id === c.id) xr.id = null; persistSoon(); renderClipUI(); return;
+  }
+  Object.assign(xr, { mode: "clip", from: c.from, to: c.to, lead: c.lead, tail: c.tail, id: c.id, name: c.name });
+  clipChanged(true);
+});
 
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
@@ -1876,6 +2258,7 @@ document.addEventListener("keydown", e => {
   if (t && ((t.tagName === "INPUT" && t.type !== "radio") || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
+  if (state.step === "export"){ if (k === " "){ e.preventDefault(); rvPlayToggle(); } return; }
   if (state.step === "review"){
     if (k === " "){ e.preventDefault(); rvPlayToggle(); }
     else if (k === "ArrowRight" || k === "ArrowDown"){ e.preventDefault(); select(sel + 1, true); }
@@ -1909,6 +2292,7 @@ $("title").value = state.title; $("author").value = state.author;
 $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
+$("cueToggle").checked = cuesOn();
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
 idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
 checkRecovery();
@@ -1916,7 +2300,7 @@ renderRetakeKey();                                          // and any take a cr
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog };
+window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog, checks: () => lastChecks, checkExport: (b, f, ms) => checkExport(b, f, ms), ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
 })();
 </script>
 </body>

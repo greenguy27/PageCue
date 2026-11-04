@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.6.0 — 2026-11-04
+
+Stage 7: Export screen, Clip Creator, presets and reader cues.
+
+**Reader cues**
+- Text in [brackets] is a note for the reader, like [Pause 2 seconds], [Whisper] or [Look at camera]: shown on the prompter, never on the video or in captions
+- A cue on its own line becomes its own prompter line (tap past it like any line); a cue inside a line is shown on the prompter and left out of the video text and captions
+- During a cue-only line, the video keeps showing the last spoken line, and that caption stays up
+- Timing, retakes and crash recovery work exactly as before
+- A switch on the Story screen turns cues off for stories that use brackets as story text; it's saved with the project
+
+**Export screen**
+- Export has its own step: preview, what to export, formats (one or both), title card, captions, a summary, and one Export button with progress and Cancel
+- Review keeps how the video looks (story text, face bubble) and gains Continue to Export
+- The summary shows the length after cuts and the file type this browser will really make
+
+**Clip Creator**
+- Export a range of lines as a clip, with an optional lead-in and tail (0.3 s by default)
+- Retake cuts inside the clip are still removed; the clip's captions start at 0:00 and match it exactly
+- Save named clips with the take and re-export them any time; clip files are named after the clip
+
+**Presets**
+- Built in: Wide video, Vertical short, Both formats
+- Save your own: formats, title card, story text and bubble look, clip lead-in and tail; kept in this browser only
+
+**Export check**
+- After each file is made, PageCue reopens it and confirms it plays, is the right size and length, and has picture and sound; if not, it says so next to the download
+
 ## 0.5.0 — 2026-11-04
 
 Stage 6: retake mode.
