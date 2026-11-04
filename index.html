@@ -96,9 +96,9 @@ textarea{width:100%;min-height:300px;padding:14px;border:1px solid var(--rule2);
 .vid .now{font-size:4.8cqw;line-height:1.3;color:var(--video-ink);font-weight:600}
 .vid .now strong,.vid .prev strong{font-weight:700}
 .vid .face{position:absolute;top:8%;right:5%;width:24%;aspect-ratio:1;border-radius:50%;overflow:hidden;background:var(--face);border:3px solid var(--video-ink)}
-.vid.tall .meta{top:auto;bottom:7%;left:0;right:0;text-align:center;font-size:4.4cqw}
-.vid.tall .face{top:7%;left:50%;right:auto;width:44%;transform:translateX(-50%)}
-.vid.tall .txt{left:8%;right:8%;top:41%;bottom:auto;text-align:center;gap:3cqw}
+.vid.tall .meta{top:32.5%;bottom:auto;left:13%;right:13%;text-align:center;font-size:4.4cqw}
+.vid.tall .face{top:8.5%;left:50%;right:auto;width:40%;transform:translateX(-50%)}
+.vid.tall .txt{left:13%;right:13%;top:37%;bottom:auto;text-align:center;gap:3cqw}
 .vid.tall .prev{font-size:5.2cqw}
 .vid.tall .now{font-size:8.4cqw}
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -181,11 +181,17 @@ body.phone .recover{margin:10px 12px 0}
 .vid.wide.c-tl .face{left:5%;right:auto}
 .vid.wide.c-tl .meta{left:34%;right:7%;text-align:right}
 .vid.wide.c-bottom .face{top:auto;bottom:10%}
-.vid.tall.c-bottom .face{top:auto;bottom:12%}
-.vid.tall.c-bottom .txt{top:16%}
-.vid.tall.c-bottom .meta{top:6%;bottom:auto}
-.vid.tall.c-tl .face{left:8%;transform:none;width:36%}
-.vid.tall.c-tl .meta{bottom:7%}
+.vid.tall.c-bottom .face{top:auto;bottom:22%}
+.vid.tall.c-bottom .txt{top:14%}
+.vid.tall.c-bottom .meta{top:8.5%;bottom:auto}
+.vid.tall.c-tl .face{left:13%;transform:none;width:34%}
+.vid.tall.c-tl .meta{top:29%}
+.vid.tall.c-tl .txt{top:34%}
+/* exact preview: the canvas shows the frame; the text and video stay for reading and playback */
+.vid .pcv{display:none}
+.vid.cv .pcv{display:block;position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.vid.cv .meta,.vid.cv .txt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.vid.cv .face{opacity:0;pointer-events:none}
 .vid.one .prev{display:none}
 
 .capedit{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
@@ -315,6 +321,7 @@ nav.steps button:not(:disabled):hover{color:var(--ink)}
 #xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
 #toExport{gap:10px}
 @media (max-width:1000px){ .exportv{grid-template-columns:minmax(0,1fr);padding:16px} }
+@media (min-width:1001px) and (min-height:820px){ .exportv .xleft{position:sticky;top:70px} }   /* the preview stays in view while you edit settings below */
 body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 
 .xrange .pills{max-width:320px}
@@ -340,6 +347,28 @@ body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 .xfile{display:flex;flex-direction:column;gap:4px}
 .xchk{font-size:13px;color:var(--accent)}
 .xchk.bad{color:#8a4b00}
+
+/* look and cards */
+.xsec{border:1px solid var(--rule);border-radius:12px;background:var(--paper)}
+.xsec summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;cursor:pointer;font-family:var(--serif);font-size:16px;font-weight:600;list-style:none}
+.xsec summary::-webkit-details-marker{display:none}
+.xsec summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--ink2);border-bottom:2px solid var(--ink2);transform:rotate(45deg);margin-left:6px}
+.xsec[open] summary::after{transform:rotate(-135deg)}
+.xsec summary small{margin-left:auto;font-family:var(--sans);font-size:13px;font-weight:400;color:var(--ink2)}
+.xsecb{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px}
+.xrow{display:grid;grid-template-columns:110px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px}
+.xrow input[type=text],.xrow select{height:36px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--field);font-family:var(--serif);font-size:15px;min-width:0}
+.xrow input[type=range]{accent-color:var(--accent);width:100%}
+.xrow input[type=color]{width:52px;height:34px;padding:2px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper)}
+.xrow output{font-family:var(--mono);font-size:13px;color:var(--ink2);min-width:42px}
+.xcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.imgpick{display:flex;align-items:center;gap:10px}
+.imgpick .xcol{flex:1 1 auto;gap:1px}
+.imgpick small{font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imgpick .btn{height:34px;padding:0 10px;font-size:14px}
+.thumb{width:52px;height:52px;flex:0 0 auto;border-radius:8px;border:1px solid var(--rule2);background:var(--ground) center/cover no-repeat}
+.xsecb .pills{max-width:320px}
+#xGo{margin-top:4px}
 
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
@@ -526,7 +555,8 @@ body.phone .toast{top:16px;bottom:auto}
           <button type="button" data-rfmt="tall" aria-pressed="false">Vertical 9:16</button>
         </div>
       </div>
-      <div class="vid wide" id="rvid">
+      <div class="vid wide cv" id="rvid">
+        <canvas id="rcv" class="pcv" aria-hidden="true"></canvas>
         <div class="meta" id="rMeta"></div>
         <div class="txt"><span class="prev" id="rPrev"></span><span class="now" id="rNow"></span></div>
         <div class="face"><video id="rv" playsinline preload="auto"></video></div>
@@ -603,7 +633,7 @@ body.phone .toast{top:16px;bottom:auto}
           <button type="button" class="btn primary" id="presetSave">Save</button>
           <button type="button" class="btn" id="presetCancel">Cancel</button>
         </div>
-        <p class="hint" id="presetHint" style="margin:0">A preset remembers formats, the title card, the story text and face bubble look, and clip lead-in and tail. Presets are kept in this browser only.</p>
+        <p class="hint" id="presetHint" style="margin:0">A preset remembers formats, the background, the opening and ending cards, the story text and face bubble look, and clip lead-in and tail. Presets are kept in this browser only.</p>
       </div>
       <fieldset class="xrange" id="xRangeBox">
         <legend class="label">What to export</legend>
@@ -627,7 +657,61 @@ body.phone .toast{top:16px;bottom:auto}
         <label class="ftile"><input type="checkbox" id="xWide" checked><svg class="ic"><use href="#i-laptop"/></svg><span><b>Wide 16:9</b><small>1920 × 1080</small></span></label>
         <label class="ftile"><input type="checkbox" id="xTall" checked><svg class="ic"><use href="#i-phone"/></svg><span><b>Vertical 9:16</b><small>1080 × 1920</small></span></label>
       </fieldset>
-      <label class="xopt"><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
+      <details class="xsec" id="secBg">
+        <summary><span>Background</span><small id="sumBg">Plain color</small></summary>
+        <div class="xsecb">
+          <div class="pills" role="group" aria-label="Background type">
+            <button type="button" data-bgk="color">Plain color</button><button type="button" data-bgk="image">Image</button>
+          </div>
+          <label class="xrow" id="bgColorRow">Color <input type="color" id="bgColor" value="#1b2430"></label>
+          <div id="bgImgBox" class="xcol">
+            <div class="imgpick"><span class="thumb" id="thBg"></span><span class="xcol"><b>Image</b><small id="nmBg">None yet</small></span>
+              <label class="btn" for="fBg">Choose…</label><button type="button" class="btn" id="rmBg">Remove</button>
+              <input type="file" id="fBg" accept="image/jpeg,image/png,image/webp" class="sr"></div>
+            <div class="imgpick"><span class="thumb" id="thBgT"></span><span class="xcol"><b>Vertical image</b><small id="nmBgT">Optional: used for 9:16 instead</small></span>
+              <label class="btn" for="fBgT">Choose…</label><button type="button" class="btn" id="rmBgT">Remove</button>
+              <input type="file" id="fBgT" accept="image/jpeg,image/png,image/webp" class="sr"></div>
+            <div class="xrow"><span class="label">Position for</span>
+              <div class="pills" role="group" aria-label="Position for"><button type="button" data-posf="wide">Wide</button><button type="button" data-posf="tall">Vertical</button></div></div>
+            <label class="xrow">Left–right <input type="range" id="posX" min="0" max="100" step="1"></label>
+            <label class="xrow">Up–down <input type="range" id="posY" min="0" max="100" step="1"></label>
+            <label class="xrow">Zoom <input type="range" id="posZ" min="100" max="200" step="5"></label>
+            <p class="hint" style="margin:0">Tip: drag the preview to move the image. Each format keeps its own position.</p>
+          </div>
+          <label class="xrow">Darken <input type="range" id="bgDim" min="0" max="80" step="5"></label>
+          <label class="xrow">Blur <select id="bgBlur"><option value="0">None</option><option value="6">Light</option><option value="16">Strong</option></select></label>
+          <label class="xopt"><input type="checkbox" id="safeGuide"> Show the vertical safe area in the preview (never exported)</label>
+        </div>
+      </details>
+      <details class="xsec" id="secOpen">
+        <summary><span>Opening card</span><small id="sumOpen">Off</small></summary>
+        <div class="xsecb">
+          <label class="xopt"><input type="checkbox" id="xTitle"> Start with an opening card</label>
+          <label class="xrow">Title <input type="text" id="oTitle" autocomplete="off"></label>
+          <label class="xrow">Author <input type="text" id="oAuthor" autocomplete="off"></label>
+          <label class="xrow">Subtitle <input type="text" id="oSub" placeholder="e.g. Chapter 1" autocomplete="off"></label>
+          <div class="imgpick"><span class="thumb" id="thOc"></span><span class="xcol"><b>Cover image</b><small id="nmOc">Optional</small></span>
+            <label class="btn" for="fOc">Choose…</label><button type="button" class="btn" id="rmOc">Remove</button>
+            <input type="file" id="fOc" accept="image/jpeg,image/png,image/webp" class="sr"></div>
+          <label class="xrow">Length <input type="range" id="oSecs" min="2" max="5" step="0.5"><output id="oSecsV"></output></label>
+          <label class="xopt"><input type="checkbox" id="oFade"> Fade in and out (0.4 s)</label>
+          <button type="button" class="btn" id="oPlay">Play the opening card</button>
+        </div>
+      </details>
+      <details class="xsec" id="secEnd">
+        <summary><span>Ending card</span><small id="sumEnd">Off</small></summary>
+        <div class="xsecb">
+          <label class="xopt"><input type="checkbox" id="xEnd"> End with an ending card</label>
+          <label class="xrow">Headline <input type="text" id="eHead" placeholder="e.g. Read the full story" autocomplete="off"></label>
+          <label class="xrow">Second line <input type="text" id="eSub" placeholder="e.g. crbooks.ink" autocomplete="off"></label>
+          <div class="imgpick"><span class="thumb" id="thEc"></span><span class="xcol"><b>Cover image</b><small id="nmEc">Optional</small></span>
+            <label class="btn" for="fEc">Choose…</label><button type="button" class="btn" id="rmEc">Remove</button>
+            <input type="file" id="fEc" accept="image/jpeg,image/png,image/webp" class="sr"></div>
+          <label class="xrow">Length <input type="range" id="eSecs" min="3" max="8" step="0.5"><output id="eSecsV"></output></label>
+          <label class="xopt"><input type="checkbox" id="eFade"> Fade in and out (0.4 s)</label>
+          <button type="button" class="btn" id="ePlay">Play the ending card</button>
+        </div>
+      </details>
       <fieldset class="xcap">
         <legend class="label">Captions</legend>
         <div class="btns"><button type="button" class="btn" id="capSrt">Download .srt</button><button type="button" class="btn" id="capVtt">Download .vtt</button></div>
@@ -744,8 +828,8 @@ const state = {
 
 function save(){
   try{
-    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues} = state;
-    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues}));
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues,look,safeGuide} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues,look,safeGuide}));
   }catch(e){ /* private mode or storage blocked: the app still works */ }
 }
 function load(){
@@ -753,6 +837,20 @@ function load(){
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
     if (s && typeof s === "object") Object.assign(state, s);
   }catch(e){}
+  state.look = mergeLook(state.look);
+}
+/* The video's look: background and opening/ending cards. Images are kept in the browser's
+   own database ("assets") and referenced here by id; nothing is uploaded. */
+function LOOK0(){
+  return { bg: { kind: "color", color: "#1b2430", img: null, imgTall: null, dim: 45, blur: 0,
+                 pos: { wide: { x: 0.5, y: 0.5, z: 1 }, tall: { x: 0.5, y: 0.5, z: 1 } } },
+           open: { on: false, title: "", author: "", subtitle: "", cover: null, secs: 3, fade: true },
+           end: { on: false, headline: "", sub: "", cover: null, secs: 4, fade: true } };
+}
+function mergeLook(l){
+  const d = LOOK0(); if (!l || typeof l !== "object") return d;
+  const bg = Object.assign(d.bg, l.bg || {}); bg.pos = { wide: Object.assign(d.bg.pos.wide, (l.bg && l.bg.pos && l.bg.pos.wide) || {}), tall: Object.assign(d.bg.pos.tall, (l.bg && l.bg.pos && l.bg.pos.tall) || {}) };
+  return { bg, open: Object.assign(d.open, l.open || {}), end: Object.assign(d.end, l.end || {}) };
 }
 
 /* ---------- text: splitting and markdown ---------- */
@@ -942,7 +1040,7 @@ function setStep(step){
   $("exportView").hidden = step !== "export";
   $("bar").hidden = step !== "record";
   rvPause();
-  if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); }
+  if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); applyRecordLook(); }
   if (step === "review" || step === "export") enterReview();
 }
 document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
@@ -982,6 +1080,7 @@ function setFmt(f, quiet){
   $("vid").className = "vid " + f + lookClasses();
   document.querySelectorAll("[data-fmt]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fmt === f)));
   if (!quiet) save();
+  if (typeof applyRecordLook === "function" && state.look) applyRecordLook();
 }
 document.querySelectorAll("[data-fmt]").forEach(b => b.addEventListener("click", () => setFmt(b.dataset.fmt)));
 
@@ -1325,10 +1424,10 @@ function idbOpen(){
   if (dbConn) return Promise.resolve(dbConn);
   return new Promise((res, rej) => {
     if (!window.indexedDB) return rej(new Error("no IndexedDB"));
-    const q = indexedDB.open("pagecue", 2);
+    const q = indexedDB.open("pagecue", 3);
     q.onupgradeneeded = () => {
       const db = q.result;
-      for (const s of ["takes", "sessions", "chunks"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s);
+      for (const s of ["takes", "sessions", "chunks", "assets"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s);
     };
     q.onsuccess = () => { dbConn = q.result; dbConn.onversionchange = () => { dbConn.close(); dbConn = null; }; res(dbConn); };
     q.onerror = () => rej(q.error);
@@ -1489,8 +1588,21 @@ async function renderRoom(){
 }
 
 /* ---------- project file (story, lines, timing; never the video) ---------- */
-$("projSave").addEventListener("click", () => {
-  const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
+async function lookAssetsForFile(){
+  const ids = [...new Set(allLookIds(state.look))], out = {}; let total = 0;
+  for (const id of ids){
+    let rec = null; try{ rec = await idbTx("assets", "readonly", st => st.get(id)); }catch(e){}
+    if (!rec || !rec.blob) continue;
+    total += rec.blob.size;
+    out[id] = { name: rec.name, w: rec.w, h: rec.h, role: rec.role, data: await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(rec.blob); }) };
+  }
+  return { assets: out, total };
+}
+$("projSave").addEventListener("click", async () => {
+  const emb = await lookAssetsForFile();
+  if (emb.total > PROJECT_IMG_MAX && !confirm(`The background and card images add ${(emb.total / 1048576).toFixed(1)} MB, more than PageCue's 8 MB limit for a project file. Save the project without its images?`)) return;
+  const withImages = emb.total <= PROJECT_IMG_MAX;
+  const p = { app: "PageCue", format: 2, savedAt: new Date().toISOString(), look: state.look, assets: withImages ? emb.assets : {},
     title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines, readerCues: cuesOn(),
     timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), clips: (take.clips || []).map(c => ({ name: c.name, fromLine: c.from + 1, toLine: c.to + 1, leadMs: c.lead, tailMs: c.tail })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
@@ -1498,11 +1610,19 @@ $("projSave").addEventListener("click", () => {
 $("projOpen").addEventListener("change", e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
   const r = new FileReader();
-  r.onload = () => {
+  r.onload = async () => {
     let p; try{ p = JSON.parse(String(r.result)); }catch(err){ toast("That isn't a PageCue project file."); return; }
     if (!p || p.app !== "PageCue" || !Array.isArray(p.lines)){ toast("That isn't a PageCue project file."); return; }
     state.title = String(p.title || ""); state.author = String(p.author || ""); state.raw = String(p.story || "");
     state.split = p.split === "line" ? "line" : "sentence"; state.cues = p.readerCues !== false; $("cueToggle").checked = cuesOn();
+    if (p.look){
+      state.look = mergeLook(p.look);
+      for (const [id, a] of Object.entries(p.assets || {})){
+        if (!/^img-[a-z0-9]+$/.test(id) || typeof a.data !== "string" || !/^data:image\/(jpeg|png|webp);base64,/.test(a.data)) continue;
+        try{ const blob = await (await fetch(a.data)).blob(); await idbTx("assets", "readwrite", st => st.put({ blob, name: a.name, w: a.w, h: a.h, role: a.role }, id)); assetCache.delete(id); }catch(e){}
+      }
+      for (const id of lookIds(state.look)) if (!(p.assets || {})[id]) { /* missing image: fall back quietly */ }
+    }
     state.lines = p.lines.map(String); state.linesEdited = true; state.importedTiming = p.timing || null;
     $("title").value = state.title; $("author").value = state.author; $("raw").value = state.raw;
     $("split").value = state.split; $("linesBox").value = state.lines.join("\n");
@@ -1521,7 +1641,7 @@ function lookClasses(){
   return (state.txtMode === "one" ? " one" : "") + " c-" + (state.corner || "tr") + " shape-" + (state.shape || "circle");
 }
 function applyLook(){
-  $("rvid").className = "vid " + rFmt + lookClasses();
+  $("rvid").className = "vid cv " + rFmt + lookClasses();
   setFmt(state.fmt, true);
   document.querySelectorAll('input[name="txtmode"]').forEach(r => r.checked = r.value === (state.txtMode || "two"));
   document.querySelectorAll("[data-corner]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.corner === (state.corner || "tr"))));
@@ -1581,13 +1701,24 @@ function enterReview(){
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
   applyLook(); buildTimeline();
-  if (state.step === "export"){ renderPresets(); renderClipUI(); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
+  if (state.step === "export"){ renderPresets(); renderClipUI(); renderLookUI(); posFmt = rFmt; preloadLook().then(() => { renderLookUI(); drawPreview(); }); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
   renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
   if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
   if (missing > 0) w.push(`The take ended before the last ${missing === 1 ? "line" : missing + " lines"}, so ${missing === 1 ? "it isn't" : "they aren't"} on the timeline.`);
   $("rWarn").hidden = !w.length; $("rWarn").textContent = w.join(" ");
+}
+let pvCard = null;          // { kind: "open"|"end", t0, last } while a card plays in the preview, or { kind, still: true }
+function drawPreview(){
+  const cvp = $("rcv"); if (!cvp || !take) return;
+  const W = rFmt === "wide" ? 1920 : 1080, H = rFmt === "wide" ? 1080 : 1920;
+  if (cvp.width !== W || cvp.height !== H){ cvp.width = W; cvp.height = H; }
+  const g = cvp.getContext("2d");
+  if (pvCard && pvCard.kind === "open") drawOpenAt(g, W, H, rFmt, pvCard.still ? titleMs() / 2 : performance.now() - pvCard.t0);
+  else if (pvCard && pvCard.kind === "end") drawEndAt(g, W, H, rFmt, pvCard.still ? endMs() / 2 : performance.now() - pvCard.t0, pvCard.last);
+  else drawFrame(g, W, H, rFmt, nowMs(), rv);
+  if (state.safeGuide && rFmt === "tall") drawSafeGuide(g, W, H);
 }
 function renderReview(){
   if (!take) return;
@@ -1603,7 +1734,9 @@ function renderReview(){
   const s = take.starts[sel];
   if (document.activeElement !== $("capEdit")) fillCapEditor();
   $("selInfo").textContent = `Line ${sel + 1} starts at ${fmtT(s)}: ${plain(L[sel]).slice(0, 70)}${plain(L[sel]).length > 70 ? "…" : ""}`;
+  drawPreview();
 }
+rv.addEventListener("loadeddata", () => drawPreview());
 function buildTimeline(){
   const sc = $("tlScroll"), tr = $("track"), ru = $("ruler");
   const secs = durMs() / 1000;
@@ -1682,6 +1815,7 @@ function persistSoon(){
 }
 function rvPlayToggle(){
   if (!take) return;
+  if (pvCard){ pvCard = null; }
   const w = clipWin();
   if (rv.paused){
     if (w){ if (nowMs() < w.a || nowMs() >= w.b - 50) rv.currentTime = w.a / 1000 + 0.001; }
@@ -1781,7 +1915,8 @@ function stamp(ms, sep){
 }
 function toSRT(offsetMs){ return cues(offsetMs).map((c, k) => `${k + 1}\n${stamp(c.a, ",")} --> ${stamp(c.b, ",")}\n${c.text}\n`).join("\n"); }
 function toVTT(offsetMs){ return "WEBVTT\n\n" + cues(offsetMs).map(c => `${stamp(c.a, ".")} --> ${stamp(c.b, ".")}\n${c.text}\n`).join("\n"); }
-const titleMs = () => $("xTitle").checked ? 3000 : 0;
+const titleMs = () => state.look.open.on ? Math.round(state.look.open.secs * 1000) : 0;   // the opening card
+const endMs = () => state.look.end.on ? Math.round(state.look.end.secs * 1000) : 0;       // the ending card
 const slug = t => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const exportBase = () => clipWin() ? `${fileBase()}-${slug(xr.name) || `lines-${clipWin().from + 1}-${clipWin().to + 1}`}` : fileBase();
 $("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${exportBase()}.srt`); });
@@ -1861,7 +1996,9 @@ function drawLines(g, lines, x, y, px, lh, base, family, color, align, maxW){
   });
   return lines.length * px * lh;
 }
-// Geometry matches the on-screen preview (the .vid CSS) so what you saw is what you get.
+// Vertical safe area, as fractions of the frame: left, right, top, bottom edges.
+const SAFE = { l: 0.06, r: 0.87, t: 0.08, b: 0.78 };
+// Geometry. Review and Export draw their preview with this same code, so the preview is the export.
 function layout(fmt, W, H){
   const corner = state.corner || "tr", one = state.txtMode === "one", rounded = state.shape === "rounded";
   if (fmt === "wide"){
@@ -1871,27 +2008,144 @@ function layout(fmt, W, H){
     return { face, rounded, one, metaPx: W * 0.026, meta: { ...meta, y: H * 0.07 },
       txt: { x: W * 0.07, w: W * 0.63, bottom: H - H * 0.13, align: "left", nowPx: W * 0.048, prevPx: W * 0.030, gap: W * 0.016 } };
   }
-  let fs = W * 0.44, fx = (W - fs) / 2, fy = H * 0.07, metaY = H - H * 0.07 - W * 0.044 * 1.3, txtTop = H * 0.41;
-  if (corner === "tl"){ fs = W * 0.36; fx = W * 0.08; }
-  if (corner === "bottom"){ fy = H - H * 0.12 - fs; txtTop = H * 0.16; metaY = H * 0.06; }
-  return { face: { s: fs, x: fx, y: fy }, rounded, one, metaPx: W * 0.044, meta: { x: W * 0.08, w: W * 0.84, y: metaY, align: "center" },
-    txt: { x: W * 0.08, w: W * 0.84, top: txtTop, align: "center", nowPx: W * 0.084, prevPx: W * 0.052, gap: W * 0.03 } };
+  // Vertical: everything stays inside the safe area (SAFE) that TikTok, Reels and Shorts don't cover with buttons and captions.
+  let fs = W * 0.40, fx = (W - fs) / 2, fy = H * 0.085, metaY = H * 0.325, txtTop = H * 0.37;
+  if (corner === "tl"){ fs = W * 0.34; fx = W * 0.13; metaY = H * 0.29; txtTop = H * 0.34; }
+  if (corner === "bottom"){ fy = H * SAFE.b - fs; txtTop = H * 0.14; metaY = H * 0.085; }
+  return { face: { s: fs, x: fx, y: fy }, rounded, one, metaPx: W * 0.044, meta: { x: W * 0.13, w: W * 0.74, y: metaY, align: "center" },
+    txt: { x: W * 0.13, w: W * 0.74, top: txtTop, align: "center", nowPx: W * 0.084, prevPx: W * 0.052, gap: W * 0.03 } };
 }
 function facePath(g, f, rounded){
   g.beginPath();
   if (rounded){ const r = f.s * 0.16; g.roundRect ? g.roundRect(f.x, f.y, f.s, f.s, r) : g.rect(f.x, f.y, f.s, f.s); }
   else g.arc(f.x + f.s / 2, f.y + f.s / 2, f.s / 2, 0, Math.PI * 2);
 }
+/* ---------- background and cards ---------- */
+const assetCache = new Map();          // id -> { bmp, w, h } once decoded
+const assetWait = new Map();           // id -> promise while loading
+function assetNow(id){
+  if (!id) return null;
+  const a = assetCache.get(id); if (a) return a;
+  if (!assetWait.has(id)) assetWait.set(id, loadAsset(id).then(() => { if (state.step === "review" || state.step === "export") renderReview(); }));
+  return null;
+}
+async function loadAsset(id){
+  if (assetCache.has(id)) return assetCache.get(id);
+  let rec = null; try{ rec = await idbTx("assets", "readonly", st => st.get(id)); }catch(e){}
+  if (!rec || !rec.blob) return null;
+  try{ const bmp = await createImageBitmap(rec.blob); const a = { bmp, w: bmp.width, h: bmp.height, name: rec.name, bytes: rec.blob.size }; assetCache.set(id, a); return a; }
+  catch(e){ return null; }
+}
+const lookIds = l => [l.bg.kind === "image" && l.bg.img, l.bg.kind === "image" && l.bg.imgTall, l.open.on && l.open.cover, l.end.on && l.end.cover].filter(Boolean);
+const allLookIds = l => [l.bg.img, l.bg.imgTall, l.open.cover, l.end.cover].filter(Boolean);     // everything a project file should carry
+async function preloadLook(){ await Promise.all(lookIds(state.look).map(loadAsset)); }
+const hasBgImage = fmt => { const b = state.look.bg; return b.kind === "image" && !!assetNow((fmt === "tall" && b.imgTall) || b.img); };
+const bgCache = { key: "", cv: null };
+// The background as one prepared layer (image cropped to fill, blurred, darkened), cached until a setting changes.
+function bgLayer(W, H, fmt){
+  const b = state.look.bg, id = b.kind === "image" ? ((fmt === "tall" && b.imgTall) || b.img) : null, a = id ? assetNow(id) : null;
+  const P = b.pos[fmt === "tall" ? "tall" : "wide"];
+  const key = [W, H, b.color, a ? id : "-", P.x, P.y, P.z, b.dim, b.blur].join("|");
+  if (bgCache.key === key) return bgCache.cv;
+  const cv = bgCache.cv && bgCache.cv.width === W && bgCache.cv.height === H ? bgCache.cv : document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const g = cv.getContext("2d");
+  g.filter = "none"; g.globalAlpha = 1; g.fillStyle = b.kind === "image" ? "#11161d" : (b.color || VIDEO.bg); g.fillRect(0, 0, W, H);
+  if (a){
+    const r = coverRect(a.w, a.h, W, H, P);
+    const blur = (+b.blur || 0) * W / 1920;
+    if (blur){ g.filter = `blur(${blur}px)`; const m = blur * 2; g.drawImage(a.bmp, r.sx, r.sy, r.sw, r.sh, -m, -m, W + 2 * m, H + 2 * m); g.filter = "none"; }
+    else g.drawImage(a.bmp, r.sx, r.sy, r.sw, r.sh, 0, 0, W, H);
+    g.fillStyle = `rgba(0,0,0,${Math.max(0, Math.min(0.8, (+b.dim || 0) / 100))})`; g.fillRect(0, 0, W, H);
+  }
+  bgCache.key = key; bgCache.cv = cv; return cv;
+}
+// Which part of an iw×ih image fills a W×H frame, for a focus point (x, y in 0–1) and zoom.
+function coverRect(iw, ih, W, H, P){
+  const sc = Math.max(W / iw, H / ih) * Math.max(1, P.z || 1), sw = W / sc, sh = H / sc;
+  const sx = Math.max(0, Math.min(iw - sw, P.x * iw - sw / 2)), sy = Math.max(0, Math.min(ih - sh, P.y * ih - sh / 2));
+  return { sx, sy, sw, sh, sc };
+}
+function withShadow(g, W, on, fn){
+  if (on){ g.save(); g.shadowColor = "rgba(0,0,0,0.6)"; g.shadowBlur = W * 0.008; g.shadowOffsetY = W * 0.0015; fn(); g.restore(); } else fn();
+}
+// The box cards place their content in: the vertical safe area, or most of a wide frame.
+const cardBox = (fmt, W, H) => fmt === "tall" ? { x: W * SAFE.l + W * 0.04, y: H * SAFE.t, w: W * (SAFE.r - SAFE.l) - W * 0.08, h: H * (SAFE.b - SAFE.t) }
+                                               : { x: W * 0.08, y: H * 0.10, w: W * 0.84, h: H * 0.80 };
+function drawCardContent(g, W, H, fmt, kind){
+  const c = kind === "open" ? state.look.open : state.look.end, box = cardBox(fmt, W, H);
+  const cover = c.cover ? assetNow(c.cover) : null, sh = hasBgImage(fmt);
+  const wide = fmt === "wide";
+  const big = wide ? W * 0.052 : W * 0.085, mid = wide ? W * 0.026 : W * 0.046, sub = wide ? W * 0.030 : W * 0.05;
+  const rows = [];
+  if (kind === "open"){
+    const t = (c.title || "").trim() || state.title.trim() || "Untitled", a = (c.author || "").trim() || state.author.trim(), st = (c.subtitle || "").trim();
+    rows.push({ runs: [{ text: t, b: false, i: false }], px: big, base: 600, fam: SERIF, color: VIDEO.ink, lh: 1.18 });
+    if (st) rows.push({ runs: [{ text: st, b: false, i: true }], px: sub, base: 400, fam: SERIF, color: VIDEO.ink, lh: 1.3, gapBefore: big * 0.35 });
+    if (a) rows.push({ runs: [{ text: a, b: false, i: false }], px: mid, base: 400, fam: SANS, color: VIDEO.meta, lh: 1.3, gapBefore: big * 0.45 });
+  } else {
+    const hd = (c.headline || "").trim() || "Thanks for listening", s2 = (c.sub || "").trim();
+    rows.push({ runs: [{ text: hd, b: false, i: false }], px: big, base: 600, fam: SERIF, color: VIDEO.ink, lh: 1.18 });
+    if (s2) rows.push({ runs: [{ text: s2, b: false, i: false }], px: mid * 1.15, base: 500, fam: SANS, color: VIDEO.meta, lh: 1.3, gapBefore: big * 0.5 });
+  }
+  // cover size and the text column beside (wide) or below (vertical) it
+  let cr = null, tx = box.x, tw = box.w, align = "center";
+  if (cover){
+    if (wide){ const ch = box.h * 0.82, cw = Math.min(box.w * 0.36, ch * cover.w / cover.h); const h2 = cw * cover.h / cover.w;
+      cr = { x: box.x + box.w * 0.02, y: box.y + (box.h - h2) / 2, w: cw, h: h2 }; tx = cr.x + cw + box.w * 0.06; tw = box.x + box.w - tx; align = "left"; }
+    else { const ch = box.h * 0.42, cw = Math.min(box.w * 0.78, ch * cover.w / cover.h); const h2 = cw * cover.h / cover.w;
+      cr = { x: box.x + (box.w - cw) / 2, y: box.y, w: cw, h: h2 }; }
+  }
+  const wrapped = rows.map(r => ({ ...r, lines: wrapRuns(g, r.runs, r.px, r.base, r.fam, tw) }));
+  const textH = wrapped.reduce((a, r) => a + (r.gapBefore || 0) + r.lines.length * r.px * r.lh, 0);
+  let y;
+  if (cr && !wide){ const gap = box.h * 0.05, total = cr.h + gap + textH; cr.y = box.y + Math.max(0, (box.h - total) / 2); y = cr.y + cr.h + gap; }
+  else y = box.y + (box.h - textH) / 2;
+  if (cr){
+    g.save(); g.shadowColor = "rgba(0,0,0,0.5)"; g.shadowBlur = W * 0.02; g.shadowOffsetY = W * 0.006;
+    g.drawImage(cover.bmp, cr.x, cr.y, cr.w, cr.h); g.restore();
+  }
+  withShadow(g, W, sh, () => {
+    for (const r of wrapped){ y += r.gapBefore || 0; y += drawLines(g, r.lines, tx, y, r.px, r.lh, r.base, r.fam, r.color, align, tw); }
+  });
+}
+const FADE = 400;
+// Opening card at t ms: fades in from black, then the words fade out leaving the background,
+// so the reading starts on time (captions and the story timing don't move).
+function drawOpenAt(g, W, H, fmt, t){
+  const c = state.look.open, D = titleMs(), f = c.fade;
+  g.globalAlpha = 1; g.drawImage(bgLayer(W, H, fmt), 0, 0);
+  g.globalAlpha = f ? Math.max(0, Math.min(1, (D - t) / FADE)) : 1;
+  drawCardContent(g, W, H, fmt, "open"); g.globalAlpha = 1;
+  if (f && t < FADE){ g.fillStyle = `rgba(0,0,0,${1 - Math.max(0, t) / FADE})`; g.fillRect(0, 0, W, H); }
+}
+// Ending card at t ms: fades in over the last frame of the reading (last), and out to black.
+function drawEndAt(g, W, H, fmt, t, last){
+  const c = state.look.end, D = endMs(), f = c.fade;
+  const a = f ? Math.max(0, Math.min(1, t / FADE)) : 1;
+  if (a < 1 && last){ g.globalAlpha = 1; g.drawImage(last, 0, 0, W, H); }
+  g.globalAlpha = a; g.drawImage(bgLayer(W, H, fmt), 0, 0); drawCardContent(g, W, H, fmt, "end"); g.globalAlpha = 1;
+  if (f && t > D - FADE){ g.fillStyle = `rgba(0,0,0,${Math.min(1, (t - (D - FADE)) / FADE)})`; g.fillRect(0, 0, W, H); }
+}
+// Preview-only guide: shades what platform buttons and captions cover on vertical video.
+function drawSafeGuide(g, W, H){
+  const x0 = W * SAFE.l, x1 = W * SAFE.r, y0 = H * SAFE.t, y1 = H * SAFE.b;
+  g.save(); g.fillStyle = "rgba(179,38,30,0.28)";
+  g.fillRect(0, 0, W, y0); g.fillRect(0, y1, W, H - y1); g.fillRect(0, y0, x0, y1 - y0); g.fillRect(x1, y0, W - x1, y1 - y0);
+  g.setLineDash([W * 0.02, W * 0.012]); g.lineWidth = W * 0.004; g.strokeStyle = "rgba(255,255,255,0.85)"; g.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  g.setLineDash([]); g.font = `600 ${Math.round(W * 0.03)}px ${SANS}`; g.fillStyle = "#fff"; g.textAlign = "center";
+  g.fillText("Platform buttons and captions cover the shaded area", W / 2, y1 + H * 0.05); g.textAlign = "left"; g.restore();
+}
 function drawFrame(g, W, H, fmt, ms, vid){
-  const L = layout(fmt, W, H);
-  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
+  const L = layout(fmt, W, H), sh = hasBgImage(fmt);
+  g.globalAlpha = 1; g.drawImage(bgLayer(W, H, fmt), 0, 0);
   // title · author
   const metaText = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
   if (metaText){
     g.font = `400 ${Math.round(L.metaPx)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textBaseline = "top";
     g.textAlign = L.meta.align === "center" ? "center" : L.meta.align === "right" ? "right" : "left";
     const mx = L.meta.align === "center" ? L.meta.x + L.meta.w / 2 : L.meta.align === "right" ? L.meta.x + L.meta.w : L.meta.x;
-    g.fillText(metaText, mx, L.meta.y, L.meta.w); g.textAlign = "left";
+    withShadow(g, W, sh, () => g.fillText(metaText, mx, L.meta.y, L.meta.w)); g.textAlign = "left";
   }
   // face bubble: the take's camera image, cropped square, not mirrored
   const f = L.face;
@@ -1914,18 +2168,10 @@ function drawFrame(g, W, H, fmt, ms, vid){
   const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, txtOf(o.prev), T.prevPx, 400, SERIF, T.w) : [];
   const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
   let y = T.top != null ? T.top : T.bottom - hNow - gap - hPrev;
-  if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, VIDEO.dim, T.align, T.w); y += hPrev + gap; }
-  if (nowL.length) drawLines(g, nowL, T.x, y, T.nowPx, 1.3, 600, SERIF, VIDEO.ink, T.align, T.w);
-}
-function drawTitle(g, W, H, fmt){
-  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
-  const t = state.title.trim() || "Untitled", a = state.author.trim();
-  const tp = fmt === "wide" ? W * 0.055 : W * 0.09, ap = fmt === "wide" ? W * 0.026 : W * 0.045, maxW = W * 0.84;
-  const lines = wrapRuns(g, [{ text: t, b: false, i: false }], tp, 600, SERIF, maxW);
-  const h = lines.length * tp * 1.2 + (a ? ap * 2.2 : 0);
-  let y = (H - h) / 2;
-  y += drawLines(g, lines, (W - maxW) / 2, y, tp, 1.2, 600, SERIF, VIDEO.ink, "center", maxW);
-  if (a){ g.font = `400 ${Math.round(ap)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textAlign = "center"; g.textBaseline = "top"; g.fillText(a, W / 2, y + ap * 0.9, maxW); g.textAlign = "left"; }
+  withShadow(g, W, sh, () => {
+    if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, sh ? "#d5dee6" : VIDEO.dim, T.align, T.w); y += hPrev + gap; }
+    if (nowL.length) drawLines(g, nowL, T.x, y, T.nowPx, 1.3, 600, SERIF, VIDEO.ink, T.align, T.w);
+  });
 }
 const once = (el, ev, ms) => new Promise((res, rej) => {
   const t = setTimeout(() => rej(new Error("timed out waiting for " + ev)), ms || 15000);
@@ -1959,11 +2205,13 @@ async function renderVideo(fmt, withTitle, onProgress){
   const mime = pickExportMime();
   const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
   const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
-  const tMs = withTitle ? 3000 : 0, total = tMs + exportMs();
+  await preloadLook();
+  const tMs = titleMs(), eMs = endMs(), total = tMs + exportMs() + eMs;
   const segLen = k => segs[k][1] - segs[k][0];
-  drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, segs[0][0], P[0]);
+  if (tMs) drawOpenAt(g, W, H, fmt, 0); else drawFrame(g, W, H, fmt, segs[0][0], P[0]);
+  const last = document.createElement("canvas"); last.width = W; last.height = H;   // the reading's last frame, for the ending card's fade
   return new Promise((resolve, reject) => {
-    let raf = 0, started = false, finished = false, ending = false, switching = false, t0 = 0, si = 0, cur = P[0], doneMs = 0, lastMs = segs[0][0];
+    let raf = 0, started = false, finished = false, ending = false, switching = false, t0 = 0, si = 0, cur = P[0], doneMs = 0, lastMs = segs[0][0], tEnd = 0;
     const job = exportJob = { cancel: false };
     const finish = (err) => {
       if (finished) return; finished = true; cancelAnimationFrame(raf); clearInterval(bg);
@@ -1979,8 +2227,13 @@ async function renderVideo(fmt, withTitle, onProgress){
       if (job.cancel){ finish(); return; }
       const el = performance.now() - t0;
       if (!started){
-        if (el < tMs) drawTitle(g, W, H, fmt);
+        if (el < tMs) drawOpenAt(g, W, H, fmt, el);
         else { started = true; cur.play().catch(e => { if (!e || e.name !== "AbortError") finish(e); }); }
+      } else if (ending && eMs){
+        const te = performance.now() - tEnd;
+        drawEndAt(g, W, H, fmt, Math.min(te, eMs), last);
+        doneMs = exportMs() + Math.min(te, eMs);
+        if (te >= eMs + 350){ finish(); return; }     // hold the last (black) frame so the picture lasts as long as the sound
       } else if (ending || switching){
         drawFrame(g, W, H, fmt, lastMs, cur);          // hold the frame: at the end (so picture lasts as long as sound) or while the next player finishes parking
       } else {
@@ -2004,7 +2257,8 @@ async function renderVideo(fmt, withTitle, onProgress){
             }
           } else {
             ending = true; lastMs = ms; cur.pause();
-            setTimeout(() => finish(), 300);
+            if (eMs){ drawFrame(g, W, H, fmt, ms, cur); last.getContext("2d").drawImage(cv, 0, 0); tEnd = performance.now(); }
+            else setTimeout(() => finish(), 300);
           }
         } else {
           lastMs = ms;
@@ -2013,7 +2267,7 @@ async function renderVideo(fmt, withTitle, onProgress){
         }
       }
       onProgress(Math.min(1, (started ? tMs + doneMs : el) / total));
-      if (el > total + 20000 + segs.length * 2000){ finish(); return; }
+      if (el > total + 20000 + segs.length * 2000){ finish(); return; }   // safety net
       raf = requestAnimationFrame(frame);
     };
     // If the tab is hidden, animation frames stop; keep drawing on a slower timer and warn.
@@ -2068,7 +2322,7 @@ $("xGo").addEventListener("click", async () => {
   rvPause();
   lastChecks = [];
   $("xGo").disabled = true; $("xProg").hidden = false; $("xCancel").hidden = false; $("xOut").innerHTML = ""; $("xStat").textContent = "Starting…";
-  const withTitle = $("xTitle").checked;
+  const withTitle = titleMs() > 0;
   try{
     for (const [k, fmt] of fmts.entries()){
       const name = fmt === "wide" ? "Wide 16:9" : "Vertical 9:16";
@@ -2078,7 +2332,7 @@ $("xGo").addEventListener("click", async () => {
       });
       lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
       if (!blob) break;   // cancelled
-      const expectMs = exportMs() + titleMs();
+      const expectMs = exportMs() + titleMs() + endMs();
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
       exported[fmt] = { blob, url: URL.createObjectURL(blob) };
       const ext = extOf(blob.type), file = `${exportBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
@@ -2111,7 +2365,7 @@ function exportCodecLabel(){
 }
 function renderExportInfo(){
   if (!take) return;
-  const len = exportMs() + titleMs(), w = clipWin();
+  const len = exportMs() + titleMs() + endMs(), w = clipWin();
   $("xTime").textContent = fmtClock(len);
   const fmts = [$("xWide").checked && "Wide 16:9", $("xTall").checked && "Vertical 9:16"].filter(Boolean);
   const nCuts = activeCuts().filter(c => !w || (c.b > w.a && c.a < w.b)).length;
@@ -2120,7 +2374,7 @@ function renderExportInfo(){
   const rows = [
     ["Story", a ? `${t} • ${a}` : t],
     ["Range", w ? `${xr.name ? `Clip “${xr.name}”: ` : "Clip: "}lines ${w.from + 1}–${w.to + 1}` : "Whole take"],
-    ["Length", `${fmtClock(len)}${nCuts ? ` (${nCuts} retake ${nCuts === 1 ? "cut" : "cuts"} removed)` : ""}${titleMs() ? ", including the title card" : ""}`],
+    ["Length", `${fmtClock(len)}${nCuts ? ` (${nCuts} retake ${nCuts === 1 ? "cut" : "cuts"} removed)` : ""}${titleMs() || endMs() ? `, including the ${[titleMs() && "opening", endMs() && "ending"].filter(Boolean).join(" and ")} card${titleMs() && endMs() ? "s" : ""}` : ""}`],
     ["Lines", `${spoken} spoken line${spoken === 1 ? "" : "s"}`],
     ["Formats", fmts.length ? fmts.join(" and ") : "None picked"],
     ["Video file", exportCodecLabel()],
@@ -2128,8 +2382,163 @@ function renderExportInfo(){
   ];
   $("xSum").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
 }
-["xTitle", "xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
+["xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
 $("toExport").addEventListener("click", () => setStep("export"));
+
+/* ---------- look: background and cards (Export screen) ---------- */
+const IMG_MAX_FILE = 40 * 1048576, IMG_MAX_PIXELS = 50e6, IMG_BG_SHORT = 1920, IMG_COVER_LONG = 1600, IMG_TARGET = 1.5 * 1048576, PROJECT_IMG_MAX = 8 * 1048576;
+let posFmt = "wide";
+// Read a picked image, shrink it locally if it's bigger than any export needs, and store it in this browser.
+// The original file is only read, never changed.
+async function importImage(file, role){
+  if (!file) return null;
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)){ toast("Use a JPEG, PNG or WebP image."); return null; }
+  if (file.size > IMG_MAX_FILE){ toast(`That image is ${(file.size / 1048576).toFixed(0)} MB. PageCue takes images up to 40 MB.`); return null; }
+  let bmp; try{ bmp = await createImageBitmap(file); }catch(e){ toast("That image couldn't be opened."); return null; }
+  if (bmp.width * bmp.height > IMG_MAX_PIXELS){ toast(`That image is ${Math.round(bmp.width * bmp.height / 1e6)} megapixels. PageCue takes up to 50.`); bmp.close && bmp.close(); return null; }
+  let sc = 1;
+  if (role === "bg"){ const short = Math.min(bmp.width, bmp.height); if (short > IMG_BG_SHORT) sc = IMG_BG_SHORT / short; }
+  else { const long = Math.max(bmp.width, bmp.height); if (long > IMG_COVER_LONG) sc = IMG_COVER_LONG / long; }
+  const w = Math.max(1, Math.round(bmp.width * sc)), h = Math.max(1, Math.round(bmp.height * sc));
+  let blob = file;
+  if (sc < 1 || file.size > IMG_TARGET){
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h; const g = cv.getContext("2d"); g.drawImage(bmp, 0, 0, w, h);
+    let alpha = false;
+    if (file.type !== "image/jpeg"){ const d = g.getImageData(0, 0, w, h).data; for (let i = 3; i < d.length; i += 4 * 61){ if (d[i] < 250){ alpha = true; break; } } }
+    const enc = (type, q) => new Promise(r => cv.toBlob(r, type, q));
+    if (alpha) blob = await enc("image/png");
+    else { for (const q of [0.88, 0.8, 0.72, 0.64]){ blob = await enc("image/jpeg", q); if (blob && blob.size <= IMG_TARGET) break; } }
+    if (!blob){ toast("That image couldn't be prepared."); return null; }
+  }
+  bmp.close && bmp.close();
+  const id = "img-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  try{ await idbTx("assets", "readwrite", st => st.put({ blob, name: file.name, w, h, role }, id)); }
+  catch(e){ toast("This browser has no room to keep that image."); return null; }
+  await loadAsset(id);
+  if (sc < 1) toast(`Image resized to ${w}×${h} for video (your original file isn't changed).`);
+  return id;
+}
+function thumbInto(el, nm, id, empty){
+  const a = id ? assetCache.get(id) : null;
+  el.style.backgroundImage = "";
+  if (a){ const c = document.createElement("canvas"), k = 96 / Math.max(a.w, a.h); c.width = Math.max(1, a.w * k); c.height = Math.max(1, a.h * k); c.getContext("2d").drawImage(a.bmp, 0, 0, c.width, c.height); el.style.backgroundImage = `url(${c.toDataURL()})`; }
+  nm.textContent = a ? `${a.name || "Image"} · ${a.w}×${a.h}` : (id ? "Loading…" : empty);
+}
+function renderLookUI(){
+  const L = state.look, b = L.bg;
+  document.querySelectorAll("[data-bgk]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.bgk === b.kind)));
+  $("bgColorRow").hidden = b.kind !== "color"; $("bgImgBox").hidden = b.kind !== "image";
+  $("bgColor").value = b.color; $("bgDim").value = b.dim; $("bgBlur").value = String(b.blur); $("safeGuide").checked = !!state.safeGuide;
+  document.querySelectorAll("[data-posf]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.posf === posFmt)));
+  const P = b.pos[posFmt]; $("posX").value = Math.round(P.x * 100); $("posY").value = Math.round(P.y * 100); $("posZ").value = Math.round(P.z * 100);
+  thumbInto($("thBg"), $("nmBg"), b.img, "None yet"); thumbInto($("thBgT"), $("nmBgT"), b.imgTall, "Optional: used for 9:16 instead");
+  $("rmBg").hidden = !b.img; $("rmBgT").hidden = !b.imgTall;
+  const o = L.open, e = L.end;
+  $("xTitle").checked = o.on; $("oTitle").value !== o.title && document.activeElement !== $("oTitle") && ($("oTitle").value = o.title);
+  $("oTitle").placeholder = state.title.trim() || "Story title"; $("oAuthor").placeholder = state.author.trim() || "Author";
+  if (document.activeElement !== $("oAuthor")) $("oAuthor").value = o.author; if (document.activeElement !== $("oSub")) $("oSub").value = o.subtitle;
+  $("oSecs").value = o.secs; $("oSecsV").textContent = o.secs + " s"; $("oFade").checked = o.fade;
+  thumbInto($("thOc"), $("nmOc"), o.cover, "Optional"); $("rmOc").hidden = !o.cover;
+  $("xEnd").checked = e.on; if (document.activeElement !== $("eHead")) $("eHead").value = e.headline; if (document.activeElement !== $("eSub")) $("eSub").value = e.sub;
+  $("eSecs").value = e.secs; $("eSecsV").textContent = e.secs + " s"; $("eFade").checked = e.fade;
+  thumbInto($("thEc"), $("nmEc"), e.cover, "Optional"); $("rmEc").hidden = !e.cover;
+  $("sumBg").textContent = b.kind === "image" ? (b.img ? `Image${b.imgTall ? " + vertical image" : ""}` : "Image (none chosen)") : "Plain color";
+  $("sumOpen").textContent = o.on ? `On · ${o.secs} s` : "Off"; $("sumEnd").textContent = e.on ? `On · ${e.secs} s` : "Off";
+}
+// The Record screen's live preview gets the background too (a close match; Review and Export are exact).
+let recBgKey = "";
+function applyRecordLook(){
+  const v = $("vid"); if (!v) return;
+  const b = state.look.bg, fmt = state.fmt === "tall" ? "tall" : "wide", id = b.kind === "image" ? ((fmt === "tall" && b.imgTall) || b.img) : null, a = id ? assetCache.get(id) : null;
+  const key = [fmt, b.kind, b.color, id, !!a, b.dim, b.blur, JSON.stringify(b.pos[fmt])].join("|");
+  if (key === recBgKey) return; recBgKey = key;
+  if (id && !a){ loadAsset(id).then(() => { recBgKey = ""; applyRecordLook(); }); }
+  if (!a){ v.style.background = b.kind === "color" ? b.color : ""; return; }
+  const W = fmt === "wide" ? 640 : 360, H = fmt === "wide" ? 360 : 640, c = document.createElement("canvas"); c.width = W; c.height = H;
+  c.getContext("2d").drawImage(bgLayer(W, H, fmt), 0, 0); bgCache.key = "";
+  v.style.background = `center/cover no-repeat url(${c.toDataURL("image/jpeg", 0.8)})`;
+}
+function lookChanged(){
+  save(); if (presetId){ presetId = ""; renderPresets(); }
+  renderLookUI(); renderExportInfo(); if (take && !(pvCard && !pvCard.still)) drawPreview();
+}
+document.querySelectorAll("[data-bgk]").forEach(x => x.addEventListener("click", () => { state.look.bg.kind = x.dataset.bgk; lookChanged(); }));
+document.querySelectorAll("[data-posf]").forEach(x => x.addEventListener("click", () => { posFmt = x.dataset.posf; if (rFmt !== posFmt){ rFmt = posFmt; applyLook(); } renderLookUI(); drawPreview(); }));
+$("bgColor").addEventListener("input", e => { state.look.bg.color = e.target.value; lookChanged(); });
+$("bgDim").addEventListener("input", e => { state.look.bg.dim = +e.target.value; lookChanged(); });
+$("bgBlur").addEventListener("change", e => { state.look.bg.blur = +e.target.value; lookChanged(); });
+["posX", "posY", "posZ"].forEach(id => $(id).addEventListener("input", () => {
+  const P = state.look.bg.pos[posFmt]; P.x = +$("posX").value / 100; P.y = +$("posY").value / 100; P.z = +$("posZ").value / 100; lookChanged();
+}));
+$("safeGuide").addEventListener("change", e => { state.safeGuide = e.target.checked; save(); if (e.target.checked && rFmt !== "tall"){ rFmt = "tall"; applyLook(); } drawPreview(); });
+const pick = (inputId, role, set) => $(inputId).addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; const id = await importImage(f, role);
+  if (id){ set(id); pvCard = null; lookChanged(); }
+});
+pick("fBg", "bg", id => { state.look.bg.img = id; state.look.bg.kind = "image"; });
+pick("fBgT", "bg", id => { state.look.bg.imgTall = id; state.look.bg.kind = "image"; });
+pick("fOc", "cover", id => { state.look.open.cover = id; state.look.open.on = true; pvCard = { kind: "open", still: true }; });
+pick("fEc", "cover", id => { state.look.end.cover = id; state.look.end.on = true; pvCard = { kind: "end", still: true }; });
+$("rmBg").addEventListener("click", () => { state.look.bg.img = null; lookChanged(); });
+$("rmBgT").addEventListener("click", () => { state.look.bg.imgTall = null; lookChanged(); });
+$("rmOc").addEventListener("click", () => { state.look.open.cover = null; lookChanged(); });
+$("rmEc").addEventListener("click", () => { state.look.end.cover = null; lookChanged(); });
+// Opening and ending card fields: editing shows that card, still, in the preview.
+const cardField = (id, kind, key, conv) => $(id).addEventListener("input", e => {
+  const c = state.look[kind]; c[key] = conv ? conv(e.target) : e.target.value;
+  if (!pvCard || pvCard.kind !== kind || !pvCard.still) pvCard = { kind, still: true };
+  lookChanged();
+});
+cardField("xTitle", "open", "on", t => t.checked); cardField("oTitle", "open", "title"); cardField("oAuthor", "open", "author"); cardField("oSub", "open", "subtitle");
+cardField("oSecs", "open", "secs", t => +t.value); cardField("oFade", "open", "fade", t => t.checked);
+cardField("xEnd", "end", "on", t => t.checked); cardField("eHead", "end", "headline"); cardField("eSub", "end", "sub");
+cardField("eSecs", "end", "secs", t => +t.value); cardField("eFade", "end", "fade", t => t.checked);
+// Opening a card section shows that card; closing it goes back to the reading.
+[["secOpen", "open"], ["secEnd", "end"]].forEach(([sec, kind]) => $(sec).addEventListener("toggle", () => {
+  if ($(sec).open){ rvPause(); pvCard = { kind, still: true }; } else if (pvCard && pvCard.kind === kind) pvCard = null;
+  drawPreview();
+}));
+async function playCard(kind){
+  if (!take) return;
+  rvPause(); await preloadLook();
+  let last = null;
+  if (kind === "end"){       // fade in over the reading's last frame, as the export does
+    const segs = exportSegments(); const endAt = segs.length ? segs[segs.length - 1][1] - 40 : 0;
+    rv.currentTime = Math.max(0, endAt) / 1000; await once(rv, "seeked", 4000).catch(() => {});
+    const W = rFmt === "wide" ? 1920 : 1080, H = rFmt === "wide" ? 1080 : 1920;
+    last = document.createElement("canvas"); last.width = W; last.height = H; pvCard = null; drawFrame(last.getContext("2d"), W, H, rFmt, endAt, rv);
+  }
+  const D = kind === "open" ? titleMs() || state.look.open.secs * 1000 : endMs() || state.look.end.secs * 1000;
+  const was = state.look[kind].on; state.look[kind].on = true;        // so a card that's switched off can still be tried
+  pvCard = { kind, t0: performance.now(), last };
+  const step = () => {
+    if (!pvCard || pvCard.still || pvCard.kind !== kind){ state.look[kind].on = was; return; }
+    drawPreview();
+    if (performance.now() - pvCard.t0 < D) requestAnimationFrame(step);
+    else { state.look[kind].on = was; pvCard = { kind, still: true }; drawPreview(); }
+  };
+  step();
+}
+$("oPlay").addEventListener("click", () => playCard("open"));
+$("ePlay").addEventListener("click", () => playCard("end"));
+// Drag the preview to move the background image.
+(() => {
+  const cvp = $("rcv"); let d = null;
+  cvp.addEventListener("pointerdown", e => {
+    if (state.step !== "export" || !$("secBg").open || state.look.bg.kind !== "image") return;
+    const id = (rFmt === "tall" && state.look.bg.imgTall) || state.look.bg.img, a = id && assetCache.get(id); if (!a) return;
+    posFmt = rFmt; d = { x: e.clientX, y: e.clientY, P: { ...state.look.bg.pos[rFmt] }, a }; cvp.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  cvp.addEventListener("pointermove", e => {
+    if (!d) return;
+    const r = cvp.getBoundingClientRect(), W = cvp.width, H = cvp.height, k = W / r.width;
+    const cr = coverRect(d.a.w, d.a.h, W, H, d.P), P = state.look.bg.pos[rFmt];
+    P.x = Math.max(0, Math.min(1, d.P.x - (e.clientX - d.x) * k / cr.sc / d.a.w));
+    P.y = Math.max(0, Math.min(1, d.P.y - (e.clientY - d.y) * k / cr.sc / d.a.h));
+    lookChanged();
+  });
+  const up = () => { d = null; }; cvp.addEventListener("pointerup", up); cvp.addEventListener("pointercancel", up);
+})();
 
 /* ---------- export presets (this browser only) ---------- */
 const PKEY = "pagecue.presets.v1";
@@ -2153,7 +2562,10 @@ function renderPresets(){
   $("presetDel").hidden = !cur || !!cur.builtin;
 }
 function applyPreset(p){
-  $("xWide").checked = !!p.wide; $("xTall").checked = !!p.tall; $("xTitle").checked = !!p.title;
+  $("xWide").checked = !!p.wide; $("xTall").checked = !!p.tall;
+  if (p.look) state.look = mergeLook(JSON.parse(JSON.stringify(p.look)));      // your presets carry the background and cards
+  else state.look.open.on = !!p.title;                                         // built-ins only switch the opening card
+  renderLookUI();
   if (p.txtMode) state.txtMode = p.txtMode;
   if (p.corner) state.corner = p.corner;
   if (p.shape) state.shape = p.shape;
@@ -2174,7 +2586,7 @@ $("presetSave").addEventListener("click", () => {
   const u = userPresets();
   let p = u.find(x => x.name.toLowerCase() === name.toLowerCase());
   if (!p){ p = { id: "u-" + Date.now().toString(36) }; u.push(p); }
-  Object.assign(p, { name, wide: $("xWide").checked, tall: $("xTall").checked, title: $("xTitle").checked,
+  Object.assign(p, { name, wide: $("xWide").checked, tall: $("xTall").checked, title: state.look.open.on, look: JSON.parse(JSON.stringify(state.look)),
     txtMode: state.txtMode || "two", corner: state.corner || "tr", shape: state.shape || "circle", lead: xr.lead, tail: xr.tail });
   if (!storePresets(u)){ toast("This browser won't let PageCue save presets (private mode or storage blocked)."); return; }
   presetId = p.id; $("presetNameRow").hidden = true; renderPresets(); toast(`Saved preset “${name}”`);
@@ -2185,7 +2597,7 @@ $("presetDel").addEventListener("click", () => {
   storePresets(userPresets().filter(x => x.id !== p.id)); presetId = ""; renderPresets(); toast("Preset deleted");
 });
 // Changing a setting by hand means the preset no longer describes what will export.
-["xWide", "xTall", "xTitle", "clipLead", "clipTail"].forEach(id => $(id).addEventListener("change", () => { if (presetId){ presetId = ""; renderPresets(); } }));
+["xWide", "xTall", "clipLead", "clipTail"].forEach(id => $(id).addEventListener("change", () => { if (presetId){ presetId = ""; renderPresets(); } }));
 
 /* ---------- Clip Creator UI ---------- */
 function clipLabel(i){
@@ -2300,7 +2712,7 @@ renderRetakeKey();                                          // and any take a cr
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog, checks: () => lastChecks, checkExport: (b, f, ms) => checkExport(b, f, ms), ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
+window.__rp = { layout: (f, W, H) => layout(f, W, H), SAFE, look: () => state.look, state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog, checks: () => lastChecks, checkExport: (b, f, ms) => checkExport(b, f, ms), ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
 })();
 </script>
 </body>
