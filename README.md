@@ -16,7 +16,7 @@ In development. Not released yet.
 | 2 | Story import + prompter + tap timing | Done (0.1.0) |
 | 3 | Camera + mic recording | Done (0.2.0) |
 | 4 | Review + timeline fixes | Done (0.3.0) |
-| 5 | Wide + vertical video export, captions, recording recovery | In progress |
+| 5 | Wide + vertical video export, captions, recording recovery | Done (0.4.0) |
 
 ## Run it on your computer
 

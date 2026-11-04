@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 — in testing
+## 0.4.0 — 2026-11-04
 
 Stage 5: export and captions, plus recording recovery.
 
@@ -26,7 +26,7 @@ Stage 5: export and captions, plus recording recovery.
 - Timing and caption edits no longer rewrite the whole video in storage, and the last edit is kept even on a quick reload
 - The Windows launcher no longer freezes when the browser opens a spare connection
 
-## 0.3.0 — in testing
+## 0.3.0 — 2026-11-04
 
 Stage 4: review and timeline.
 
@@ -42,7 +42,7 @@ Stage 4: review and timeline.
 - Local launchers (`Start-PageCue.bat` for Windows, `Start-PageCue.command` for Mac) serve PageCue at http://localhost:8765 so the camera and mic work without uploading anything
 - When PageCue is opened straight from its folder, the Record screen explains how to start it with the launcher instead
 
-## 0.2.0 — in testing
+## 0.2.0 — 2026-11-04
 
 Stage 3: camera and recording.
 
