@@ -199,9 +199,6 @@ body.phone .recover{margin:10px 12px 0}
 .cutchip.off{border-style:dotted;opacity:.75}
 .cutchip .btn{height:30px;padding:0 10px;font-size:12px}
 .blk.skip{text-decoration:line-through;opacity:.55}
-#exportBox label{display:flex;align-items:center;gap:10px;font-size:14px}
-#exportBox input{width:18px;height:18px;accent-color:var(--accent)}
-#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
 
 
 /* ---------- Studio look (warm desk) ---------- */
@@ -293,6 +290,32 @@ nav.steps button:not(:disabled):hover{color:var(--ink)}
 .about h2{margin:0 0 8px;font-size:24px;color:var(--accent)}
 .about small{font-family:var(--sans);font-size:13px;color:var(--ink2);font-weight:400}
 .about form{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* export screen */
+.exportv{flex-grow:1;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,1fr);gap:24px;padding:24px 32px;align-items:start}
+.xleft{display:flex;flex-direction:column;gap:18px;min-width:0}
+#xPrevSlot .rprev{flex:none}
+.xsum h3{margin:0;font-family:var(--serif);font-size:18px}
+.xsum dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0;font-size:14px}
+.xsum dt{color:var(--ink2)}
+.xsum dd{margin:0;font-family:var(--serif);font-size:15px}
+.xset{gap:16px}
+.xset fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px}
+.ftiles{flex-direction:row!important;flex-wrap:wrap}
+.ftiles legend{margin-bottom:8px}
+.ftile{flex:1 1 150px;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--rule2);border-radius:12px;background:var(--paper);cursor:pointer}
+.ftile:has(input:checked){border-color:var(--accent);background:var(--accent-wash)}
+.ftile input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.ftile .ic{width:26px;height:26px;color:var(--accent)}
+.ftile b{display:block;font-family:var(--serif);font-size:16px}
+.ftile small{color:var(--ink2);font-size:13px}
+.xopt{display:flex;align-items:center;gap:10px;font-size:14px}
+.xopt input{width:18px;height:18px;accent-color:var(--accent)}
+.xset .btn.go{min-width:0;width:100%;justify-content:center;gap:12px}
+#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
+#toExport{gap:10px}
+@media (max-width:1000px){ .exportv{grid-template-columns:minmax(0,1fr);padding:16px} }
+body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
@@ -510,20 +533,7 @@ body.phone .toast{top:16px;bottom:auto}
       </fieldset>
       <div style="flex-grow:1"></div>
       <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
-      <fieldset id="exportBox">
-        <legend class="label">Export</legend>
-        <label><input type="checkbox" id="xWide" checked> Wide 16:9 · 1920×1080</label>
-        <label><input type="checkbox" id="xTall" checked> Vertical 9:16 · 1080×1920</label>
-        <label><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
-      </fieldset>
-      <button type="button" class="btn primary" id="xGo">Export videos</button>
-      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
-        <div class="meter"><i id="xBar"></i></div>
-        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
-      </div>
-      <div class="btns" id="xOut"></div>
-      <p class="hint" style="margin:0">Export plays the take in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
-      <div class="btns"><button type="button" class="btn" id="capSrt">Captions (.srt)</button><button type="button" class="btn" id="capVtt">Captions (.vtt)</button></div>
+      <button type="button" class="btn primary" id="toExport">Continue to Export<svg class="ic"><use href="#i-arrow"/></svg></button>
     </aside>
 
     <section class="tl" aria-label="Timeline">
@@ -543,6 +553,42 @@ body.phone .toast{top:16px;bottom:auto}
         <div class="track" id="track"><div class="ph" id="ph"></div></div>
       </div>
     </section>
+  </main>
+
+  <!-- ================= EXPORT ================= -->
+  <main id="exportView" class="exportv" hidden>
+    <div class="xleft">
+      <div id="xPrevSlot"></div>
+      <section class="card xsum" aria-labelledby="xSumH">
+        <h3 id="xSumH">Export summary</h3>
+        <dl id="xSum"></dl>
+      </section>
+    </div>
+    <aside class="card xset" aria-labelledby="xSetH">
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-export"/></svg></span>
+        <div><h2 id="xSetH">Export Settings</h2><p>Make the finished videos and their captions.</p></div></div>
+      <div id="xPresetBox"></div>
+      <div id="xRangeBox"></div>
+      <fieldset class="ftiles" id="exportBox">
+        <legend class="label">Formats · pick one or both</legend>
+        <label class="ftile"><input type="checkbox" id="xWide" checked><svg class="ic"><use href="#i-laptop"/></svg><span><b>Wide 16:9</b><small>1920 × 1080</small></span></label>
+        <label class="ftile"><input type="checkbox" id="xTall" checked><svg class="ic"><use href="#i-phone"/></svg><span><b>Vertical 9:16</b><small>1080 × 1920</small></span></label>
+      </fieldset>
+      <label class="xopt"><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
+      <fieldset class="xcap">
+        <legend class="label">Captions</legend>
+        <div class="btns"><button type="button" class="btn" id="capSrt">Download .srt</button><button type="button" class="btn" id="capVtt">Download .vtt</button></div>
+        <p class="hint" style="margin:0">Built from your script and timing, and matched to this export (cuts, clip and title card). Reader cues are left out.</p>
+      </fieldset>
+      <div style="flex-grow:1"></div>
+      <button type="button" class="btn primary go" id="xGo"><svg class="ic"><use href="#i-export"/></svg>Export Video</button>
+      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
+        <div class="meter"><i id="xBar"></i></div>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
+      </div>
+      <div class="btns" id="xOut"></div>
+      <p class="hint" style="margin:0">Export plays the video in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
+    </aside>
   </main>
 
   <!-- ================= RECORD (prompter) ================= -->
@@ -829,8 +875,8 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 
 /* ---------- steps and device ---------- */
 function setStep(step){
-  if (step === "export"){ setStep("review"); const b = document.querySelector('nav.steps [data-step="export"]'); if (b) b.setAttribute("aria-current", "step");
-    document.querySelector('nav.steps [data-step="review"]').removeAttribute("aria-current"); setTimeout(() => $("exportBox").scrollIntoView({ behavior: "smooth", block: "center" }), 50); return; }
+  if ((step === "export" || step === "review") && !take){ toast("Record a take first"); return; }
+  if (exportJob && step !== "export"){ toast("Wait for the export to finish, or cancel it"); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
   state.step = step; document.body.dataset.step = step;
@@ -840,10 +886,11 @@ function setStep(step){
   $("storyView").hidden = step !== "story";
   $("recordView").hidden = step !== "record";
   $("reviewView").hidden = step !== "review";
+  $("exportView").hidden = step !== "export";
   $("bar").hidden = step !== "record";
-  if (step !== "review") rvPause();
+  rvPause();
   if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); }
-  if (step === "review") enterReview();
+  if (step === "review" || step === "export") enterReview();
 }
 document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
 
@@ -1456,6 +1503,9 @@ function nowMs(){ return (rv.currentTime || 0) * 1000; }
 
 function enterReview(){
   if (!take){ setStep("record"); return; }
+  const pv = document.querySelector(".rprev");                      // one preview, shown on Review or Export
+  if (state.step === "export"){ if (pv.parentNode !== $("xPrevSlot")) $("xPrevSlot").appendChild(pv); }
+  else if (pv.parentNode !== $("reviewView")) $("reviewView").insertBefore(pv, $("reviewView").firstChild);
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
@@ -1599,7 +1649,7 @@ trackEl.addEventListener("pointermove", e => {
 const endDrag = e => { if (!drag) return; drag = null; try{ trackEl.releasePointerCapture(e.pointerId); }catch(err){} rv.currentTime = take.starts[sel] / 1000 + 0.01; };
 trackEl.addEventListener("pointerup", endDrag);
 trackEl.addEventListener("pointercancel", endDrag);
-window.addEventListener("resize", () => { if (state.step === "review" && take) buildTimeline(); });
+window.addEventListener("resize", () => { if ((state.step === "review" || state.step === "export") && take) buildTimeline(); });
 
 function nudge(ms){ if (!take) return; setStart(sel, take.starts[sel] + ms); rv.currentTime = take.starts[sel] / 1000 + 0.01; buildTimeline(); renderReview(); }
 $("resetTiming").addEventListener("click", () => {
@@ -1920,8 +1970,32 @@ $("xGo").addEventListener("click", async () => {
 });
 $("xCancel").addEventListener("click", () => { if (exportJob) exportJob.cancel = true; });
 document.addEventListener("visibilitychange", () => { if (document.hidden && exportJob) toast("Keep PageCue in front while it exports, or the video may stutter.", 6000); });
-function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(keptMs() + titleMs()); }
-$("xTitle").addEventListener("change", renderExportInfo);
+function exportCodecLabel(){
+  const m = pickExportMime();
+  if (/mp4/.test(m)) return /avc1/.test(m) ? "MP4 · H.264 video, AAC sound" : "MP4 (this browser picks the codec; the download button shows which)";
+  if (/webm/.test(m)) return "WebM · " + (/vp9/.test(m) ? "VP9" : "VP8") + " (this browser can't make MP4)";
+  return "Not supported in this browser";
+}
+function renderExportInfo(){
+  if (!take) return;
+  const len = keptMs() + titleMs();
+  $("xTime").textContent = fmtClock(len);
+  const fmts = [$("xWide").checked && "Wide 16:9", $("xTall").checked && "Vertical 9:16"].filter(Boolean);
+  const nCuts = activeCuts().length;
+  const spoken = take.starts.filter((_, i) => !isSkipped(i) && !isCue(i)).length;
+  const t = state.title.trim() || "Untitled story", a = state.author.trim();
+  const rows = [
+    ["Story", a ? `${t} • ${a}` : t],
+    ["Length", `${fmtClock(len)}${nCuts ? ` (${nCuts} retake ${nCuts === 1 ? "cut" : "cuts"} removed)` : ""}${titleMs() ? ", including the title card" : ""}`],
+    ["Lines", `${spoken} spoken line${spoken === 1 ? "" : "s"}`],
+    ["Formats", fmts.length ? fmts.join(" and ") : "None picked"],
+    ["Video file", exportCodecLabel()],
+    ["Export time", fmts.length ? `about ${fmtClock(len * fmts.length)} in real time` : "—"]
+  ];
+  $("xSum").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+}
+["xTitle", "xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
+$("toExport").addEventListener("click", () => setStep("export"));
 
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
@@ -1938,6 +2012,7 @@ document.addEventListener("keydown", e => {
   if (t && ((t.tagName === "INPUT" && t.type !== "radio") || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
+  if (state.step === "export"){ if (k === " "){ e.preventDefault(); rvPlayToggle(); } return; }
   if (state.step === "review"){
     if (k === " "){ e.preventDefault(); rvPlayToggle(); }
     else if (k === "ArrowRight" || k === "ArrowDown"){ e.preventDefault(); select(sel + 1, true); }
