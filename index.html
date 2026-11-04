@@ -317,6 +317,20 @@ nav.steps button:not(:disabled):hover{color:var(--ink)}
 @media (max-width:1000px){ .exportv{grid-template-columns:minmax(0,1fr);padding:16px} }
 body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 
+.xrange .pills{max-width:320px}
+.clipEd{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--rule);border-radius:12px;background:var(--ground)}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.cgrid label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+.cgrid select{height:38px;padding:0 8px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-weight:400;min-width:0}
+.crow{display:flex;gap:8px}
+.crow input{flex:1 1 auto;min-width:0;height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.crow .btn{height:40px}
+.clips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.clipchip{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border:1px solid var(--rule2);border-radius:10px;background:var(--paper);font-size:13px}
+.clipchip.on{border-color:var(--accent);background:var(--accent-wash)}
+.clipchip .link{color:var(--accent);font-size:13px}
+.clipchip .btn{height:28px;padding:0 8px;font-size:12px}
+
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
 .pl.cueline .cue{font-size:.72em}
@@ -568,7 +582,23 @@ body.phone .toast{top:16px;bottom:auto}
       <div class="chead"><span class="tile"><svg class="ic"><use href="#i-export"/></svg></span>
         <div><h2 id="xSetH">Export Settings</h2><p>Make the finished videos and their captions.</p></div></div>
       <div id="xPresetBox"></div>
-      <div id="xRangeBox"></div>
+      <fieldset class="xrange" id="xRangeBox">
+        <legend class="label">What to export</legend>
+        <div class="pills" role="group" aria-label="What to export">
+          <button type="button" data-xr="all" aria-pressed="true">Whole take</button><button type="button" data-xr="clip" aria-pressed="false">A clip</button>
+        </div>
+        <div id="clipEd" class="clipEd" hidden>
+          <div class="cgrid">
+            <label>From line<select id="clipFrom"></select></label>
+            <label>To line<select id="clipTo"></select></label>
+            <label>Lead-in<select id="clipLead"><option value="0">None</option><option value="300" selected>0.3 s</option><option value="500">0.5 s</option><option value="1000">1 s</option></select></label>
+            <label>Tail<select id="clipTail"><option value="0">None</option><option value="300" selected>0.3 s</option><option value="500">0.5 s</option><option value="1000">1 s</option></select></label>
+          </div>
+          <p class="hint" style="margin:0">Lead-in and tail add a little time before the first line and after the last, so a breath or a final word isn't clipped. Retake cuts are still removed.</p>
+          <div class="crow"><input id="clipName" type="text" placeholder="Clip name, e.g. Opening hook" autocomplete="off"><button type="button" class="btn" id="clipSave">Save clip</button></div>
+        </div>
+        <div class="clips" id="clipList"></div>
+      </fieldset>
       <fieldset class="ftiles" id="exportBox">
         <legend class="label">Formats · pick one or both</legend>
         <label class="ftile"><input type="checkbox" id="xWide" checked><svg class="ic"><use href="#i-laptop"/></svg><span><b>Wide 16:9</b><small>1920 × 1080</small></span></label>
@@ -1221,6 +1251,7 @@ async function finishTake(){
   toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
 }
 function setTake(t){
+  xr = { mode: "all", from: 0, to: 0, lead: 300, tail: 300, id: null, name: "" };   // a new take starts with the whole take
   if (takeURL) URL.revokeObjectURL(takeURL);
   if (t && !t.origStarts) t.origStarts = t.starts.slice();
   take = t; takeURL = t ? URL.createObjectURL(t.blob) : null;
@@ -1290,8 +1321,8 @@ async function idbTx(store, mode, fn){
 }
 // The video is stored once ("currentBlob"); timing and caption edits only rewrite the small record ("current").
 function takeRecord(t){
-  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered } = t;
-  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered };
+  const { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered, clips } = t;
+  return { n, type, duration, starts, origStarts, cuts, origCuts, lines, when, capText, skip, recovered, clips };
 }
 async function idbPut(t){
   try{
@@ -1438,7 +1469,7 @@ async function renderRoom(){
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
     title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines, readerCues: cuesOn(),
-    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), clips: (take.clips || []).map(c => ({ name: c.name, fromLine: c.from + 1, toLine: c.to + 1, leadMs: c.lead, tailMs: c.tail })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
 $("projOpen").addEventListener("change", e => {
@@ -1492,6 +1523,23 @@ function keptSegments(){
   return out;
 }
 const keptMs = () => keptSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
+/* Clip Creator: export a range of lines. xr is the range on the Export screen; the clip only
+   applies there (Review always shows the whole take). Times stay in the take's own clock. */
+let xr = { mode: "all", from: 0, to: 0, lead: 300, tail: 300, id: null, name: "" };
+function clipWin(){
+  if (!take || xr.mode !== "clip" || state.step !== "export") return null;
+  const S = take.starts, D = durMs(), n = S.length;
+  const from = Math.max(0, Math.min(n - 1, xr.from)), to = Math.max(from, Math.min(n - 1, xr.to));
+  const a = Math.max(0, S[from] - xr.lead), b = Math.min(D, (to + 1 < n ? S[to + 1] : D) + xr.tail);
+  return { a, b, from, to };
+}
+// The parts of the take that go into the export: kept (not cut), and inside the clip if there is one.
+function exportSegments(){
+  const k = keptSegments(), w = clipWin();
+  if (!w) return k;
+  return k.map(([x, y]) => [Math.max(x, w.a), Math.min(y, w.b)]).filter(([x, y]) => y - x > 30);
+}
+const exportMs = () => exportSegments().reduce((a, sg) => a + sg[1] - sg[0], 0);
 function toEdited(t){ let off = 0; for (const c of activeCuts()){ if (t >= c.b) off += c.b - c.a; else if (t > c.a) off += t - c.a; } return t - off; }
 const inActiveCut = ms => activeCuts().find(c => ms >= c.a && ms < c.b);
 function lineAt(ms){
@@ -1509,7 +1557,9 @@ function enterReview(){
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
-  applyLook(); buildTimeline(); renderReview(); renderExportInfo();
+  applyLook(); buildTimeline();
+  if (state.step === "export"){ renderClipUI(); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
+  renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
   if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
@@ -1609,14 +1659,22 @@ function persistSoon(){
 }
 function rvPlayToggle(){
   if (!take) return;
-  if (rv.paused){ if (nowMs() >= durMs() - 50) rv.currentTime = 0; rv.play().catch(() => {}); loopReview(); }
+  const w = clipWin();
+  if (rv.paused){
+    if (w){ if (nowMs() < w.a || nowMs() >= w.b - 50) rv.currentTime = w.a / 1000 + 0.001; }
+    else if (nowMs() >= durMs() - 50) rv.currentTime = 0;
+    rv.play().catch(() => {}); loopReview();
+  }
   else rvPause();
 }
 function rvPause(){ try{ rv.pause(); }catch(e){} cancelAnimationFrame(rvRAF); if (take) renderReview(); }
 function loopReview(){
   cancelAnimationFrame(rvRAF);
   const step = () => {
-    if (!rv.paused){ const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001; }
+    if (!rv.paused){
+      const c = inActiveCut(nowMs()); if (c) rv.currentTime = c.b / 1000 + 0.001;
+      const w = clipWin(); if (w && nowMs() >= w.b){ rv.pause(); rv.currentTime = w.b / 1000; }
+    }
     renderReview();
     if (!rv.paused){ scrollToMs(nowMs()); rvRAF = requestAnimationFrame(step); }
   };
@@ -1674,15 +1732,20 @@ function overlayAt(ms){
   const restored = (take.cuts || []).find(c => !c.active && ms >= c.a && ms < c.b);   // a restored slip shows the line being read
   const i = restored ? restored.line : lineAt(ms);
   if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
-  return spokenAt(take.lines, i, isSkipped);              // a cue-only line keeps the last spoken line up
+  const w = clipWin();
+  if (!w) return spokenAt(take.lines, i, isSkipped);     // a cue-only line keeps the last spoken line up
+  if (i < w.from) return { now: -1, prev: -1 };           // lead-in: the clip's first line hasn't started
+  const o = spokenAt(take.lines, Math.min(i, w.to), isSkipped);   // tail: keep the clip's last line
+  return { now: o.now >= w.from ? o.now : -1, prev: o.prev >= w.from ? o.prev : -1 };
 }
 function cues(offsetMs){
-  const S = take.starts, D = durMs(), out = [];
-  for (let i = 0; i < S.length; i++){
+  const S = take.starts, D = durMs(), out = [], w = clipWin();
+  const lo = w ? w.from : 0, hi = w ? w.to : S.length - 1, base = w ? toEdited(w.a) : 0;
+  for (let i = lo; i <= hi; i++){
     if (isSkipped(i) || isCue(i)) continue;
-    let n = i + 1; while (n < S.length && isCue(n) && !isSkipped(n)) n++;   // a caption stays up through a following cue, like the video text
-    const end = n < S.length ? S[n] : D;
-    const a = toEdited(S[i]), b = toEdited(end);
+    let n = i + 1; while (n <= hi && isCue(n) && !isSkipped(n)) n++;   // a caption stays up through a following cue, like the video text
+    const end = n <= hi ? S[n] : w ? w.b : (n < S.length ? S[n] : D);
+    const a = toEdited(w ? Math.max(S[i], w.a) : S[i]) - base, b = toEdited(end) - base;
     if (b - a < 50) continue;
     out.push({ a: a + offsetMs, b: b + offsetMs, text: captionText(i) });
   }
@@ -1696,8 +1759,10 @@ function stamp(ms, sep){
 function toSRT(offsetMs){ return cues(offsetMs).map((c, k) => `${k + 1}\n${stamp(c.a, ",")} --> ${stamp(c.b, ",")}\n${c.text}\n`).join("\n"); }
 function toVTT(offsetMs){ return "WEBVTT\n\n" + cues(offsetMs).map(c => `${stamp(c.a, ".")} --> ${stamp(c.b, ".")}\n${c.text}\n`).join("\n"); }
 const titleMs = () => $("xTitle").checked ? 3000 : 0;
-$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${fileBase()}.srt`); });
-$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${fileBase()}.vtt`); });
+const slug = t => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const exportBase = () => clipWin() ? `${fileBase()}-${slug(xr.name) || `lines-${clipWin().from + 1}-${clipWin().to + 1}`}` : fileBase();
+$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${exportBase()}.srt`); });
+$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${exportBase()}.vtt`); });
 
 function fillCapEditor(){
   if (!take) return;
@@ -1849,8 +1914,8 @@ async function renderVideo(fmt, withTitle, onProgress){
   const W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
-  const segs = keptSegments();
-  if (!segs.length) throw new Error("everything in this take is cut");
+  const segs = exportSegments();
+  if (!segs.length) throw new Error(clipWin() ? "everything in this clip is cut" : "everything in this take is cut");
   // Two players of the same take. While one plays a kept section, the other is already
   // parked at the start of the next one, so a cut is a switch, not a seek: no pause, and
   // each section plays exactly like an uncut export (picture and sound from one element).
@@ -1871,7 +1936,7 @@ async function renderVideo(fmt, withTitle, onProgress){
   const mime = pickExportMime();
   const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
   const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
-  const tMs = withTitle ? 3000 : 0, total = tMs + keptMs();
+  const tMs = withTitle ? 3000 : 0, total = tMs + exportMs();
   const segLen = k => segs[k][1] - segs[k][0];
   drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, segs[0][0], P[0]);
   return new Promise((resolve, reject) => {
@@ -1955,7 +2020,7 @@ $("xGo").addEventListener("click", async () => {
       if (!blob) break;   // cancelled
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
       exported[fmt] = { blob, url: URL.createObjectURL(blob) };
-      const ext = extOf(blob.type), file = `${fileBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
+      const ext = extOf(blob.type), file = `${exportBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
       const a = document.createElement("a"); a.className = "btn"; a.href = exported[fmt].url; a.download = file;
       const codec = /avc1|h264/i.test(blob.type) ? "H.264" : /vp9/i.test(blob.type) ? "VP9" : /vp8/i.test(blob.type) ? "VP8" : "";
       a.textContent = `Download ${name} (${(blob.size / 1048576).toFixed(1)} MB ${ext.toUpperCase()}${codec ? " · " + codec : ""})`;
@@ -1978,14 +2043,15 @@ function exportCodecLabel(){
 }
 function renderExportInfo(){
   if (!take) return;
-  const len = keptMs() + titleMs();
+  const len = exportMs() + titleMs(), w = clipWin();
   $("xTime").textContent = fmtClock(len);
   const fmts = [$("xWide").checked && "Wide 16:9", $("xTall").checked && "Vertical 9:16"].filter(Boolean);
-  const nCuts = activeCuts().length;
-  const spoken = take.starts.filter((_, i) => !isSkipped(i) && !isCue(i)).length;
+  const nCuts = activeCuts().filter(c => !w || (c.b > w.a && c.a < w.b)).length;
+  const spoken = take.starts.filter((_, i) => !isSkipped(i) && !isCue(i) && (!w || (i >= w.from && i <= w.to))).length;
   const t = state.title.trim() || "Untitled story", a = state.author.trim();
   const rows = [
     ["Story", a ? `${t} • ${a}` : t],
+    ["Range", w ? `${xr.name ? `Clip “${xr.name}”: ` : "Clip: "}lines ${w.from + 1}–${w.to + 1}` : "Whole take"],
     ["Length", `${fmtClock(len)}${nCuts ? ` (${nCuts} retake ${nCuts === 1 ? "cut" : "cuts"} removed)` : ""}${titleMs() ? ", including the title card" : ""}`],
     ["Lines", `${spoken} spoken line${spoken === 1 ? "" : "s"}`],
     ["Formats", fmts.length ? fmts.join(" and ") : "None picked"],
@@ -1996,6 +2062,62 @@ function renderExportInfo(){
 }
 ["xTitle", "xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
 $("toExport").addEventListener("click", () => setStep("export"));
+
+/* ---------- Clip Creator UI ---------- */
+function clipLabel(i){
+  const L = take.lines[i], t = isCueLine(L) ? plain(L) : plain(stripCues(L));
+  return `${i + 1} · ${t.length > 44 ? t.slice(0, 43) + "…" : t}`;
+}
+function renderClipUI(){
+  if (!take) return;
+  document.querySelectorAll("[data-xr]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xr === xr.mode)));
+  $("clipEd").hidden = xr.mode !== "clip";
+  const n = take.starts.length;
+  xr.from = Math.max(0, Math.min(n - 1, xr.from)); xr.to = Math.max(xr.from, Math.min(n - 1, xr.to));
+  const opts = Array.from({ length: n }, (_, i) => `<option value="${i}">${esc(clipLabel(i))}</option>`).join("");
+  if ($("clipFrom").options.length !== n){ $("clipFrom").innerHTML = opts; $("clipTo").innerHTML = opts; }
+  $("clipFrom").value = xr.from; $("clipTo").value = xr.to;
+  $("clipLead").value = xr.lead; $("clipTail").value = xr.tail;
+  if (document.activeElement !== $("clipName")) $("clipName").value = xr.name;
+  const cl = take.clips || [];
+  $("clipList").innerHTML = cl.length ? `<span class="label">Saved clips</span>` + cl.map(c =>
+    `<span class="clipchip${c.id === xr.id ? " on" : ""}"><button type="button" class="link" data-clip="${c.id}" data-act="load">${esc(c.name)} · lines ${c.from + 1}–${c.to + 1}</button>`
+    + `<button type="button" class="btn" data-clip="${c.id}" data-act="del" aria-label="Delete clip ${esc(c.name)}">Delete</button></span>`).join("") : "";
+  renderExportInfo();
+}
+function clipChanged(seek){
+  if (seek && clipWin()){ rvPause(); rv.currentTime = clipWin().a / 1000 + 0.001; }
+  renderClipUI(); if (take) renderReview();
+}
+document.querySelectorAll("[data-xr]").forEach(b => b.addEventListener("click", () => {
+  xr.mode = b.dataset.xr;
+  if (xr.mode === "clip" && xr.to === 0 && take.starts.length > 1){ xr.from = Math.min(sel, take.starts.length - 1); xr.to = Math.min(take.starts.length - 1, xr.from + 2); }
+  clipChanged(true);
+}));
+$("clipFrom").addEventListener("change", e => { xr.from = +e.target.value; if (xr.to < xr.from) xr.to = xr.from; clipChanged(true); });
+$("clipTo").addEventListener("change", e => { xr.to = +e.target.value; if (xr.from > xr.to) xr.from = xr.to; clipChanged(true); });
+$("clipLead").addEventListener("change", e => { xr.lead = +e.target.value; clipChanged(true); });
+$("clipTail").addEventListener("change", e => { xr.tail = +e.target.value; clipChanged(false); });
+$("clipName").addEventListener("input", e => { xr.name = e.target.value; renderExportInfo(); });
+$("clipSave").addEventListener("click", () => {
+  if (!take) return;
+  const name = $("clipName").value.trim() || `Lines ${xr.from + 1}–${xr.to + 1}`;
+  take.clips = take.clips || [];
+  let c = take.clips.find(c => c.id === xr.id && c.name === name);
+  if (!c){ c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }; take.clips.push(c); }
+  Object.assign(c, { name, from: xr.from, to: xr.to, lead: xr.lead, tail: xr.tail });
+  xr.id = c.id; xr.name = name; persistSoon(); renderClipUI(); toast(`Saved clip “${name}”`);
+});
+$("clipList").addEventListener("click", e => {
+  const b = e.target.closest("[data-clip]"); if (!b || !take) return;
+  const c = (take.clips || []).find(c => c.id === b.dataset.clip); if (!c) return;
+  if (b.dataset.act === "del"){
+    if (!confirm(`Delete the clip “${c.name}”? The take itself isn't changed.`)) return;
+    take.clips = take.clips.filter(x => x !== c); if (xr.id === c.id) xr.id = null; persistSoon(); renderClipUI(); return;
+  }
+  Object.assign(xr, { mode: "clip", from: c.from, to: c.to, lead: c.lead, tail: c.tail, id: c.id, name: c.name });
+  clipChanged(true);
+});
 
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
