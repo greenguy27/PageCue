@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — in testing
+## 0.1.0 — 2026-11-04
 
 First build: stage 2 of the plan (story + prompter).
 

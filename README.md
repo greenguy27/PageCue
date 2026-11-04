@@ -13,14 +13,14 @@ In development. Not released yet.
 | Stage | What | State |
 |---|---|---|
 | 1 | UI direction (Studio) | Done |
-| 2 | Story import + prompter + tap timing | Built, in testing (`v0.1` branch) |
-| 3 | Camera + mic recording | Next |
+| 2 | Story import + prompter + tap timing | Done (0.1.0) |
+| 3 | Camera + mic recording | In progress |
 | 4 | Review + timeline fixes | Planned |
 | 5 | Wide + vertical video export | Planned |
 
 ## License
 
-To be decided before the first public release.
+MIT. See [LICENSE](LICENSE). The name PageCue and its branding are not covered by the license.
 
 ---
 
