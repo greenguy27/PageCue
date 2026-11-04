@@ -18,6 +18,7 @@ In development. Not released yet.
 | 4 | Review + timeline fixes | Done (0.3.0) |
 | 5 | Wide + vertical video export, captions, recording recovery | Done (0.4.0) |
 | 6 | Retake mode: stumble key, cut markers, edited export | Done (0.5.0) |
+| 7 | Export screen, Clip Creator, presets, reader cues | In testing (0.6.0) |
 
 ## Run it on your computer
 
@@ -39,6 +40,14 @@ Stumbled on a line? Press **R** (or the Retake button) while recording. PageCue 
 - Change the key on the Record screen
 - In Review, every cut is listed; play it, or restore it if you'd rather keep that part
 - Cuts are saved while you record, so they survive a crash along with the take
+
+## Reader cues
+
+Put directions for yourself in square brackets: `[Pause 2 seconds]`, `[Whisper]`, `[Look at camera]`. They show on the prompter as notes and are never put on the video or in the captions. Give a cue its own line to make it its own prompter line. If your story uses brackets as story text (text messages, game screens), turn cues off on the Story screen.
+
+## Clips
+
+On the Export screen, choose **A clip**, pick the first and last line, and export just that part: retake cuts are still removed, and the captions match the clip. Name and save clips to export them again later. Presets remember your usual export settings.
 
 ## Support
 

@@ -336,6 +336,11 @@ body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 .prow select,.prow input{flex:1 1 180px;min-width:0;height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--field);font-family:var(--serif);font-size:15px}
 .prow .btn{height:40px}
 
+#xOut{flex-direction:column;align-items:stretch}
+.xfile{display:flex;flex-direction:column;gap:4px}
+.xchk{font-size:13px;color:var(--accent)}
+.xchk.bad{color:#8a4b00}
+
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
 .pl.cueline .cue{font-size:.72em}
@@ -2017,7 +2022,43 @@ async function renderVideo(fmt, withTitle, onProgress){
     rec.start(1000); t0 = performance.now(); frame();
   });
 }
-let lastExportLog = [];
+let lastExportLog = [], lastChecks = [];
+/* Export check: reopen the finished file the way a viewer's player would, and confirm it plays,
+   is the right size and length, and decodes both picture and sound. Nothing leaves the device. */
+function checkExport(blob, fmt, expectMs){
+  return new Promise(res => {
+    const v = document.createElement("video"), url = URL.createObjectURL(blob), W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
+    let done = false, timer = 0;
+    const end = r => { if (done) return; done = true; clearTimeout(timer); try{ v.pause(); }catch(e){} v.removeAttribute("src"); v.load(); URL.revokeObjectURL(url); res(r); };
+    v.muted = true; v.playsInline = true; v.preload = "auto";
+    v.onerror = () => end({ ok: false, problems: ["the file wouldn't open"] });
+    timer = setTimeout(() => end({ ok: false, problems: ["checking took too long"] }), 15000);
+    const measure = async () => {
+      let d = v.duration;
+      if (!isFinite(d)){                      // recorded files often don't state their length; seeking to the end makes the player find it
+        v.currentTime = 1e7;
+        await new Promise(r => { const t = setTimeout(r, 4000); v.addEventListener("durationchange", () => { if (isFinite(v.duration)){ clearTimeout(t); r(); } }); });
+        d = v.duration; v.currentTime = 0; await once(v, "seeked", 3000).catch(() => {});
+      }
+      const problems = [], lenMs = isFinite(d) ? d * 1000 : 0;
+      if (v.videoWidth !== W || v.videoHeight !== H) problems.push(`the picture is ${v.videoWidth}×${v.videoHeight}, not ${W}×${H}`);
+      if (!lenMs) problems.push("its length couldn't be read");
+      else if (Math.abs(lenMs - expectMs) > 1000 + expectMs * 0.02) problems.push(`it's ${fmtClock(lenMs)} long instead of about ${fmtClock(expectMs)}`);
+      // Play a moment (muted) and see whether picture and sound actually decode.
+      let pic = null, snd = null;
+      if ("webkitVideoDecodedByteCount" in v){
+        try{ await v.play(); }catch(e){}
+        await new Promise(r => setTimeout(r, 700)); v.pause();
+        pic = v.webkitVideoDecodedByteCount > 0; snd = v.webkitAudioDecodedByteCount > 0;
+        if (!pic) problems.push("no picture decoded");
+        if (!snd) problems.push("no sound decoded");
+      }
+      end({ ok: !problems.length, problems, lenMs, w: v.videoWidth, h: v.videoHeight, pic, snd });
+    };
+    v.addEventListener("loadedmetadata", measure, { once: true });
+    v.src = url;
+  });
+}
 const exported = {};    // fmt -> { blob, url }
 $("xGo").addEventListener("click", async () => {
   if (!take || exportJob) return;
@@ -2025,6 +2066,7 @@ $("xGo").addEventListener("click", async () => {
   if (!fmts.length){ toast("Pick wide, vertical, or both."); return; }
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ toast("This browser can't export video. Try Chrome or Edge."); return; }
   rvPause();
+  lastChecks = [];
   $("xGo").disabled = true; $("xProg").hidden = false; $("xCancel").hidden = false; $("xOut").innerHTML = ""; $("xStat").textContent = "Starting…";
   const withTitle = $("xTitle").checked;
   try{
@@ -2036,15 +2078,23 @@ $("xGo").addEventListener("click", async () => {
       });
       lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
       if (!blob) break;   // cancelled
+      const expectMs = exportMs() + titleMs();
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
       exported[fmt] = { blob, url: URL.createObjectURL(blob) };
       const ext = extOf(blob.type), file = `${exportBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
       const a = document.createElement("a"); a.className = "btn"; a.href = exported[fmt].url; a.download = file;
       const codec = /avc1|h264/i.test(blob.type) ? "H.264" : /vp9/i.test(blob.type) ? "VP9" : /vp8/i.test(blob.type) ? "VP8" : "";
       a.textContent = `Download ${name} (${(blob.size / 1048576).toFixed(1)} MB ${ext.toUpperCase()}${codec ? " · " + codec : ""})`;
-      $("xOut").appendChild(a);
+      const row = document.createElement("div"); row.className = "xfile"; row.appendChild(a);
+      const chk = document.createElement("span"); chk.className = "xchk"; chk.textContent = "Checking the file…"; row.appendChild(chk);
+      $("xOut").appendChild(row);
+      $("xStat").textContent = `Checking ${name}…`;
+      const r = await checkExport(blob, fmt, expectMs); lastChecks.push(Object.assign({ fmt }, r));
+      if (r.ok) chk.textContent = `✓ Checked: opens and plays, ${r.w}×${r.h}, ${fmtClock(r.lenMs)}${r.pic ? ", picture and sound" : ""}.`;
+      else { chk.className = "xchk bad"; chk.textContent = `⚠ This file may not play everywhere: ${r.problems.join("; ")}. Try exporting again; if it keeps happening, try Chrome or Edge.`; }
     }
-    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : "Done. Download your videos below.";
+    const bad = lastChecks.filter(c => !c.ok).length;
+    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : bad ? `Done, but ${bad === 1 ? "one file" : bad + " files"} didn't pass the check. See below.` : "Done. Every file was checked. Download your videos below.";
   }catch(e){
     $("xStat").textContent = "Export stopped: " + (e && e.message || e);
   }finally{
@@ -2250,7 +2300,7 @@ renderRetakeKey();                                          // and any take a cr
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog , ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
+window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog, checks: () => lastChecks, checkExport: (b, f, ms) => checkExport(b, f, ms), ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
 })();
 </script>
 </body>
