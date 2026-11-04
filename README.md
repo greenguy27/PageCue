@@ -17,6 +17,7 @@ In development. Not released yet.
 | 3 | Camera + mic recording | Done (0.2.0) |
 | 4 | Review + timeline fixes | Done (0.3.0) |
 | 5 | Wide + vertical video export, captions, recording recovery | Done (0.4.0) |
+| 6 | Retake mode: stumble key, cut markers, edited export | Done (0.5.0) |
 
 ## Run it on your computer
 
@@ -29,6 +30,15 @@ Browsers only allow the camera and microphone on a secure address, and a file op
 | Anything else | `python3 -m http.server 8765 --bind 127.0.0.1` in the PageCue folder | Then open http://localhost:8765 |
 
 Keep the launcher window open while you use PageCue; close it to stop.
+
+## Retakes
+
+Stumbled on a line? Press **R** (or the Retake button) while recording. PageCue jumps back to the start of that line, counts down 3-2-1, and you read it again. The camera never stops: the failed attempt is marked as a cut and left out of the exported video and captions.
+
+- Press R again during the countdown to start over without adding a second cut
+- Change the key on the Record screen
+- In Review, every cut is listed; play it, or restore it if you'd rather keep that part
+- Cuts are saved while you record, so they survive a crash along with the take
 
 ## Support
 

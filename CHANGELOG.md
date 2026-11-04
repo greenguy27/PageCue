@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.5.0 — 2026-11-04
+
+Stage 6: retake mode.
+
+- Press the retake key (R by default, changeable on the Record screen) or the Retake button when you stumble; the prompter goes back to the start of that line and counts down 3-2-1 before you read it again
+- Recording never stops: the failed attempt becomes a cut marker, and the line's timing restarts after the countdown
+- Retake the same line as many times as you need; pressing the key again during a countdown restarts the countdown without adding another cut
+- Review lists every cut with its line and length; play a cut, restore it to keep that part, or cut it again. "Reset timing to the take" also brings back the original cuts
+- Cuts show on the timeline, and the preview skips them during playback
+- Export and captions leave out every active cut; the exported length is the take minus the cuts
+- Audio and picture stay in sync across cuts: export switches between two players that are already waiting at the next section, so nothing pauses or seeks mid-recording
+- Cuts are saved while you record; after a crash, recovered takes keep their cuts, and a retake that was still counting down becomes a cut to the end of the take
+
+**New look**
+- Warmer Studio design: a compact one-line header with the logo, icon tabs, a project menu (edit title and author, save or open a project file), and redesigned Story and Prompter Setup cards
+- Footer with an About PageCue box and the support link
+- Optional desk scene on the Story screen (books, mug, plants); drop your own images into `assets/`, or PageCue draws placeholders
+
 ## 0.4.0 — 2026-11-04
 
 Stage 5: export and captions, plus recording recovery.
