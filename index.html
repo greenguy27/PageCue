@@ -294,6 +294,15 @@ nav.steps button:not(:disabled):hover{color:var(--ink)}
 .about small{font-family:var(--sans);font-size:13px;color:var(--ink2);font-weight:400}
 .about form{display:flex;justify-content:flex-end;margin-top:8px}
 
+/* reader cues */
+.cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
+.pl.cueline .cue{font-size:.72em}
+.pl.past .cue,.pl.far .cue{opacity:.75}
+.blk.cueblk{font-style:italic;color:var(--gold);background:var(--gold-wash);border-style:dashed}
+.cuetog{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink2);line-height:1.45}
+.cuetog input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent);flex:0 0 auto}
+.cuetog b{color:var(--ink);font-weight:600}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
 body.phone .bname i,body.phone .projwrap,body.phone .desk,body.phone .deco,body.phone .storyfoot .sep{display:none}
@@ -426,6 +435,7 @@ body.phone .toast{top:16px;bottom:auto}
         <button type="button" class="btn" id="resplit" title="Rebuild the lines from the story"><svg class="ic"><use href="#i-redo"/></svg>Split Again</button>
       </div>
       <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete a line break to merge two.</p>
+      <label class="cuetog"><input type="checkbox" id="cueToggle" checked> <span><b>[Brackets] are reader cues</b>, like [Pause 2 seconds] or [Whisper]: shown on the prompter, never on the video or in captions. Put a cue on its own line to make it its own prompter line.</span></label>
       <label for="linesBox" class="sr">Prompter lines, one per row</label>
       <textarea id="linesBox" spellcheck="false"></textarea>
       <div class="row gorow">
@@ -635,8 +645,8 @@ const state = {
 
 function save(){
   try{
-    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape} = state;
-    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape}));
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape,cues}));
   }catch(e){ /* private mode or storage blocked: the app still works */ }
 }
 function load(){
@@ -658,6 +668,32 @@ function md(line){
   return h;
 }
 const isHeading = l => /^#{1,6}\s+/.test(l);
+
+/* Reader cues: [Pause 2 seconds], [Whisper], [Look at camera]. Shown on the prompter only;
+   never in the video text or captions. A bracket needs a letter inside, and a markdown link
+   [text](url) is not a cue. The project switch turns cues off for stories that use brackets as story text. */
+const CUE_RE = /\[([^\[\]\n]*[A-Za-z][^\[\]\n]*)\](?!\()/g;
+const cuesOn = () => state.cues !== false;
+function stripCues(l){
+  if (!cuesOn() || l.indexOf("[") < 0) return l;
+  return l.replace(CUE_RE, " ").replace(/\*\*\s*\*\*|(^|\s)\*\s*\*(?=\s|$)/g, "$1").replace(/[ \t]{2,}/g, " ")
+          .replace(/\s+([,.;:!?…])/g, "$1").trim();
+}
+const isCueLine = l => cuesOn() && l.indexOf("[") >= 0 && stripCues(l).replace(/^#{1,6}\s+/, "").replace(/[\s*_—–-]/g, "") === "";
+// The prompter's version of a line: cues kept, styled as notes for the reader.
+function mdP(line){
+  const h = md(line);
+  return cuesOn() ? h.replace(CUE_RE, '<span class="cue">[$1]</span>') : h;
+}
+// What viewers see for line i of lines L: the last line at or before i that isn't a cue-only line
+// (so a [Pause] keeps the previous line on screen). skip(i) marks lines left off the video.
+function spokenAt(L, i, skip){
+  let k = i;
+  while (k >= 0 && isCueLine(L[k])) k--;
+  if (k < 0 || (skip && skip(k))) return { now: -1, prev: -1 };
+  let p = k - 1; while (p >= 0 && (isCueLine(L[p]) || (skip && skip(p)))) p--;
+  return { now: k, prev: p };
+}
 
 // Keep ** and * pairs balanced when a split falls inside them.
 function balance(lines){
@@ -682,9 +718,20 @@ function splitStory(raw, mode){
   // (and any closing quote or bracket), but not after common abbreviations.
   const abbr = /\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|Mt|vs|etc|e\.g|i\.e)\.$/i;
   const out = [];
+  const chunks = [];
   for (const para of text.split(/\n\s*\n/)){
+    if (!cuesOn()){ chunks.push(para); continue; }
+    let buf = [];
+    for (const ln of para.split("\n")){
+      if (ln.trim() && isCueLine(ln.trim())){ if (buf.length) chunks.push(buf.join("\n")); buf = []; chunks.push(ln.trim()); }
+      else buf.push(ln);
+    }
+    if (buf.length) chunks.push(buf.join("\n"));
+  }
+  for (const para of chunks){
     const p = para.replace(/\s*\n\s*/g, " ").trim();
     if (!p) continue;
+    if (isCueLine(p)){ out.push(p); continue; }
     if (isHeading(p)){ out.push(p); continue; }
     const parts = p.split(/(?<=[.!?…]+[”"’')\]*_]*)\s+(?=[“"‘'(\[*_]*[A-Z0-9“"‘])/);
     const merged = [];
@@ -741,6 +788,13 @@ $("raw").addEventListener("input", e => {
 });
 $("split").addEventListener("change", e => { state.split = e.target.value; state.linesEdited = false; resplit(); });
 $("resplit").addEventListener("click", () => { state.linesEdited = false; resplit(); toast("Lines rebuilt from the story"); });
+$("cueToggle").addEventListener("change", e => {
+  state.cues = e.target.checked;
+  if (!state.linesEdited) resplit(); else save();
+  renderPrompter();
+  if (typeof take !== "undefined" && take && state.step === "review"){ buildTimeline(); renderReview(); }
+  toast(state.cues ? "Brackets are reader cues: on the prompter only" : "Brackets are story text: they'll show on the video and in captions");
+});
 $("linesBox").addEventListener("input", () => {
   state.lines = linesFromBox(); state.linesEdited = true;
   if (state.idx >= state.lines.length) state.idx = Math.max(0, state.lines.length - 1);
@@ -835,17 +889,19 @@ document.querySelectorAll("[data-fmt]").forEach(b => b.addEventListener("click",
 function renderPrompter(){
   const L = state.lines, i = state.idx, box = $("plines");
   const out = [];
-  if (i > 0) out.push(`<p class="pl past${isHeading(L[i-1])?" h":""}">${md(L[i-1])}</p>`);
-  out.push(`<p class="pl cur${isHeading(L[i])?" h":""}" aria-current="true">${md(L[i] || "")}</p>`);
+  const cls = k => (isHeading(L[k]) ? " h" : "") + (isCueLine(L[k]) ? " cueline" : "");
+  if (i > 0) out.push(`<p class="pl past${cls(i-1)}">${mdP(L[i-1])}</p>`);
+  out.push(`<p class="pl cur${cls(i)}" aria-current="true">${mdP(L[i] || "")}</p>`);
   for (let k = i + 1; k < Math.min(L.length, i + 4); k++)
-    out.push(`<p class="pl${k > i + 1 ? " far" : ""}${isHeading(L[k])?" h":""}">${md(L[k])}</p>`);
+    out.push(`<p class="pl${k > i + 1 ? " far" : ""}${cls(k)}">${mdP(L[k])}</p>`);
   if (i === L.length - 1) out.push(`<p class="pl end">End of story. ${state.run && !state.run.done ? "Press Stop to finish the run." : ""}</p>`);
   box.innerHTML = out.join("");
 
   const where = `Line ${i + 1} of ${L.length}`;
   $("where").textContent = where; $("pWhere").textContent = where;
-  $("vPrev").innerHTML = i > 0 ? md(L[i-1]) : "";
-  $("vNow").innerHTML = md(L[i] || "");
+  const vs = spokenAt(L, i);
+  $("vPrev").innerHTML = vs.prev >= 0 ? md(stripCues(L[vs.prev])) : "";
+  $("vNow").innerHTML = vs.now >= 0 ? md(stripCues(L[vs.now])) : "";
   const t = state.title.trim(), a = state.author.trim();
   $("vMeta").textContent = [t, a].filter(Boolean).join(" · ");
   $("backBtn").disabled = i === 0;
@@ -1334,7 +1390,7 @@ async function renderRoom(){
 /* ---------- project file (story, lines, timing; never the video) ---------- */
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
-    title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
+    title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines, readerCues: cuesOn(),
     timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), cutsMs: (take.cuts || []).map(c => ({ from: Math.round(c.a), to: Math.round(c.b), line: c.line + 1, active: c.active })), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
@@ -1345,7 +1401,7 @@ $("projOpen").addEventListener("change", e => {
     let p; try{ p = JSON.parse(String(r.result)); }catch(err){ toast("That isn't a PageCue project file."); return; }
     if (!p || p.app !== "PageCue" || !Array.isArray(p.lines)){ toast("That isn't a PageCue project file."); return; }
     state.title = String(p.title || ""); state.author = String(p.author || ""); state.raw = String(p.story || "");
-    state.split = p.split === "line" ? "line" : "sentence";
+    state.split = p.split === "line" ? "line" : "sentence"; state.cues = p.readerCues !== false; $("cueToggle").checked = cuesOn();
     state.lines = p.lines.map(String); state.linesEdited = true; state.importedTiming = p.timing || null;
     $("title").value = state.title; $("author").value = state.author; $("raw").value = state.raw;
     $("split").value = state.split; $("linesBox").value = state.lines.join("\n");
@@ -1441,12 +1497,12 @@ function buildTimeline(){
   for (let i = 0; i < S.length; i++){
     const end = i + 1 < S.length ? S[i + 1] : D;
     const b = document.createElement("div");
-    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "");
+    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "") + (isCue(i) ? " cueblk" : "");
     b.dataset.i = i;
     b.style.left = (S[i] / 1000 * PPS) + "px";
     b.style.width = Math.max(4, (end - S[i]) / 1000 * PPS) + "px";
     b.title = `Line ${i + 1}: ${plain(take.lines[i])}`;
-    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(captionText(i))}`;
+    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(isCue(i) ? plain(take.lines[i]) : captionText(i))}`;
     frag.appendChild(b);
   }
   (take.cuts || []).forEach((c, k) => {
@@ -1558,22 +1614,24 @@ document.querySelectorAll("[data-rfmt]").forEach(b => b.addEventListener("click"
 /* ---------- captions: script-aligned, editable per line ---------- */
 const capOf = i => (take.capText && take.capText[i] != null) ? take.capText[i] : null;     // a corrected caption, as plain text
 const isSkipped = i => !!(take.skip && take.skip[i]);
-function captionText(i){ const c = capOf(i); return c != null ? c : plain(take.lines[i]); }
-function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(take.lines[i]); }
+const defCap = i => plain(stripCues(take.lines[i]));                                    // the caption PageCue would write
+function captionText(i){ const c = capOf(i); return c != null ? c : defCap(i); }
+function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(stripCues(take.lines[i])); }
+const isCue = i => isCueLine(take.lines[i]);
 // What is on screen at time ms: the current spoken line and the spoken line before it.
 function overlayAt(ms){
   if (inActiveCut(ms)) return { now: -1, prev: -1 };
   const restored = (take.cuts || []).find(c => !c.active && ms >= c.a && ms < c.b);   // a restored slip shows the line being read
   const i = restored ? restored.line : lineAt(ms);
   if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
-  let p = i - 1; while (p >= 0 && isSkipped(p)) p--;
-  return { now: i, prev: p };
+  return spokenAt(take.lines, i, isSkipped);              // a cue-only line keeps the last spoken line up
 }
 function cues(offsetMs){
   const S = take.starts, D = durMs(), out = [];
   for (let i = 0; i < S.length; i++){
-    if (isSkipped(i)) continue;
-    const end = i + 1 < S.length ? S[i + 1] : D;
+    if (isSkipped(i) || isCue(i)) continue;
+    let n = i + 1; while (n < S.length && isCue(n) && !isSkipped(n)) n++;   // a caption stays up through a following cue, like the video text
+    const end = n < S.length ? S[n] : D;
     const a = toEdited(S[i]), b = toEdited(end);
     if (b - a < 50) continue;
     out.push({ a: a + offsetMs, b: b + offsetMs, text: captionText(i) });
@@ -1594,7 +1652,10 @@ $("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT
 function fillCapEditor(){
   if (!take) return;
   const c = capOf(sel);
-  $("capEdit").value = c != null ? c : plain(take.lines[sel]);
+  const cueOnly = isCue(sel);
+  $("capEdit").value = cueOnly ? "" : (c != null ? c : defCap(sel));
+  $("capEdit").disabled = cueOnly; $("capSkip").disabled = cueOnly;
+  $("capEdit").placeholder = cueOnly ? "Reader cue: shown on the prompter only, never on the video or in captions" : "";
   $("capSkip").checked = isSkipped(sel);
   $("capReset").hidden = c == null;
 }
@@ -1602,7 +1663,7 @@ $("capEdit").addEventListener("input", e => {
   if (!take) return;
   take.capText = take.capText || {};
   const v = e.target.value;
-  if (v === plain(take.lines[sel])) delete take.capText[sel]; else take.capText[sel] = v;
+  if (v === defCap(sel)) delete take.capText[sel]; else take.capText[sel] = v;
   $("capReset").hidden = capOf(sel) == null;
   persistSoon(); buildTimeline(); renderReview();
 });
@@ -1710,8 +1771,9 @@ function drawFrame(g, W, H, fmt, ms, vid){
   // story text
   if (ms == null) return;
   const o = overlayAt(ms), T = L.txt;
-  const nowL = o.now >= 0 ? wrapRuns(g, runsOf(capOf(o.now) != null ? capOf(o.now) : take.lines[o.now], capOf(o.now) != null), T.nowPx, 600, SERIF, T.w) : [];
-  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, runsOf(capOf(o.prev) != null ? capOf(o.prev) : take.lines[o.prev], capOf(o.prev) != null), T.prevPx, 400, SERIF, T.w) : [];
+  const txtOf = k => capOf(k) != null ? runsOf(capOf(k), true) : runsOf(stripCues(take.lines[k]), false);
+  const nowL = o.now >= 0 ? wrapRuns(g, txtOf(o.now), T.nowPx, 600, SERIF, T.w) : [];
+  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, txtOf(o.prev), T.prevPx, 400, SERIF, T.w) : [];
   const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
   let y = T.top != null ? T.top : T.bottom - hNow - gap - hPrev;
   if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, VIDEO.dim, T.align, T.w); y += hPrev + gap; }
@@ -1909,6 +1971,7 @@ $("title").value = state.title; $("author").value = state.author;
 $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
+$("cueToggle").checked = cuesOn();
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
 idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
 checkRecovery();
@@ -1916,7 +1979,7 @@ renderRetakeKey();                                          // and any take a cr
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog };
+window.__rp = { state, splitStory, md, take: () => take, exp: () => exportJob, exportLog: () => lastExportLog , ov: ms => { const o = overlayAt(ms); return [o.now, o.prev]; }, srt: () => toSRT(0) };
 })();
 </script>
 </body>
