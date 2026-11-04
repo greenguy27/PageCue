@@ -188,6 +188,15 @@ body.phone .recover{margin:10px 12px 0}
 .vid.tall.c-tl .meta{bottom:7%}
 .vid.one .prev{display:none}
 
+.capedit{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.capedit input[type=text]{flex:1 1 320px;height:38px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.capedit .skipl{display:flex;align-items:center;gap:6px;font-size:14px}
+.capedit .btn{height:38px;font-size:13px}
+.blk.skip{text-decoration:line-through;opacity:.55}
+#exportBox label{display:flex;align-items:center;gap:10px;font-size:14px}
+#exportBox input{width:18px;height:18px;accent-color:var(--accent)}
+#xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
 body.phone .brand span{display:none}
@@ -228,7 +237,7 @@ body.phone .toast{top:16px;bottom:auto}
       <button type="button" data-step="story" aria-current="step">Story</button>
       <button type="button" data-step="record">Record</button>
       <button type="button" data-step="review" disabled title="Record a take first">Review</button>
-      <button type="button" disabled title="Coming in stage 5">Export</button>
+      <button type="button" data-step="export" disabled title="Record a take first">Export</button>
     </nav>
     <div class="seg" role="group" aria-label="Device mode">
       <button type="button" data-device="laptop" aria-pressed="true">Laptop</button>
@@ -328,12 +337,31 @@ body.phone .toast{top:16px;bottom:auto}
       </fieldset>
       <div style="flex-grow:1"></div>
       <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
-      <p class="hint" style="margin:0">Exporting the finished videos arrives in the next version.</p>
+      <fieldset id="exportBox">
+        <legend class="label">Export</legend>
+        <label><input type="checkbox" id="xWide" checked> Wide 16:9 · 1920×1080</label>
+        <label><input type="checkbox" id="xTall" checked> Vertical 9:16 · 1080×1920</label>
+        <label><input type="checkbox" id="xTitle"> Start with a 3-second title card</label>
+      </fieldset>
+      <button type="button" class="btn primary" id="xGo">Export videos</button>
+      <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
+        <div class="meter"><i id="xBar"></i></div>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><span class="hint" id="xStat"></span><button type="button" class="btn" id="xCancel" style="height:34px;font-size:13px">Cancel</button></div>
+      </div>
+      <div class="btns" id="xOut"></div>
+      <p class="hint" style="margin:0">Export plays the take in real time, about <span id="xTime">0:00</span> per format. Keep PageCue in front until it finishes.</p>
+      <div class="btns"><button type="button" class="btn" id="capSrt">Captions (.srt)</button><button type="button" class="btn" id="capVtt">Captions (.vtt)</button></div>
     </aside>
 
     <section class="tl" aria-label="Timeline">
       <div class="tlinfo">
         <span class="selinfo" id="selInfo">Line 1</span>
+        <div class="capedit">
+          <label for="capEdit" class="label">Caption</label>
+          <input id="capEdit" type="text" autocomplete="off" spellcheck="true">
+          <label class="skipl"><input type="checkbox" id="capSkip"> Not spoken</label>
+          <button type="button" class="btn" id="capReset" hidden>Use the script</button>
+        </div>
         <span class="hint">Drag a line's left edge to move its start, or select it and nudge 0.1 s with <kbd>,</kbd> and <kbd>.</kbd> (hold Shift for 1 s). <kbd>Space</kbd> plays or pauses, <kbd>←</kbd> <kbd>→</kbd> change lines.</span>
       </div>
       <div class="tlscroll" id="tlScroll">
@@ -576,6 +604,8 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 
 /* ---------- steps and device ---------- */
 function setStep(step){
+  if (step === "export"){ setStep("review"); const b = document.querySelector('nav.steps [data-step="export"]'); if (b) b.setAttribute("aria-current", "step");
+    document.querySelector('nav.steps [data-step="review"]').removeAttribute("aria-current"); setTimeout(() => $("exportBox").scrollIntoView({ behavior: "smooth", block: "center" }), 50); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
   state.step = step;
@@ -838,6 +868,7 @@ function setTake(t){
   rvLoaded = null;
   const rb = document.querySelector('nav.steps [data-step="review"]');
   rb.disabled = !t; rb.title = t ? "" : "Record a take first";
+  const xb = document.querySelector('nav.steps [data-step="export"]'); xb.disabled = !t; xb.title = rb.title;
   const p = $("takePlayer"); p.pause(); p.removeAttribute("src"); p.load(); p.hidden = true;
   renderTake();
 }
@@ -898,13 +929,27 @@ async function idbTx(store, mode, fn){
     tx.onerror = tx.onabort = () => rej(tx.error || new Error("storage error"));
   });
 }
+// The video is stored once ("currentBlob"); timing and caption edits only rewrite the small record ("current").
 function takeRecord(t){
-  const { n, blob, type, duration, starts, origStarts, lines, when, capText, skip, recovered } = t;
-  return { n, blob, type, duration, starts, origStarts, lines, when, capText, skip, recovered };
+  const { n, type, duration, starts, origStarts, lines, when, capText, skip, recovered } = t;
+  return { n, type, duration, starts, origStarts, lines, when, capText, skip, recovered };
 }
-async function idbPut(t){ try{ await idbTx("takes", "readwrite", st => st.put(takeRecord(t), "current")); return true; }catch(e){ return false; } }
-async function idbGet(){ try{ return await idbTx("takes", "readonly", st => st.get("current")); }catch(e){ return null; } }
-async function idbDel(){ try{ await idbTx("takes", "readwrite", st => st.delete("current")); }catch(e){} }
+async function idbPut(t){
+  try{
+    if (t._savedBlob !== t.blob){ await idbTx("takes", "readwrite", st => st.put(t.blob, "currentBlob")); t._savedBlob = t.blob; }
+    await idbTx("takes", "readwrite", st => st.put(takeRecord(t), "current"));
+    return true;
+  }catch(e){ return false; }
+}
+async function idbGet(){
+  try{
+    const t = await idbTx("takes", "readonly", st => st.get("current"));
+    if (t && !t.blob) t.blob = await idbTx("takes", "readonly", st => st.get("currentBlob"));
+    if (t && t.blob) t._savedBlob = t.blob;
+    return t;
+  }catch(e){ return null; }
+}
+async function idbDel(){ try{ await idbTx("takes", "readwrite", st => { st.delete("currentBlob"); return st.delete("current"); }); }catch(e){} }
 
 /* ---------- crash-safe recording ---------- */
 const chunkKey = (sid, i) => sid + ":" + String(i).padStart(7, "0");
@@ -1025,7 +1070,7 @@ async function renderRoom(){
 $("projSave").addEventListener("click", () => {
   const p = { app: "PageCue", format: 1, savedAt: new Date().toISOString(),
     title: state.title, author: state.author, story: state.raw, split: state.split, lines: state.lines,
-    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
+    timing: take ? { take: take.n, durationMs: Math.round(take.duration), startsMs: take.starts.map(Math.round), lines: take.lines, captions: take.capText || {}, notSpoken: Object.keys(take.skip || {}).map(Number), video: `${fileBase()}-take${take.n}.${extOf(take.type)}` } : null };
   download(new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${fileBase()}.pagecue.json`);
 });
 $("projOpen").addEventListener("change", e => {
@@ -1075,7 +1120,7 @@ function enterReview(){
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
-  applyLook(); buildTimeline(); renderReview();
+  applyLook(); buildTimeline(); renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
   if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
@@ -1085,14 +1130,16 @@ function enterReview(){
 function renderReview(){
   if (!take) return;
   const ms = nowMs(), i = lineAt(ms), L = take.lines;
-  $("rNow").innerHTML = i >= 0 ? md(L[i]) : "";
-  $("rPrev").innerHTML = i > 0 ? md(L[i - 1]) : "";
+  const o = overlayAt(ms);
+  $("rNow").innerHTML = o.now >= 0 ? captionHTML(o.now) : "";
+  $("rPrev").innerHTML = o.prev >= 0 ? captionHTML(o.prev) : "";
   $("rMeta").textContent = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
   $("rvTime").textContent = fmtT(ms) + " / " + fmtClock(durMs());
   $("rvIcon").setAttribute("d", rv.paused ? "M7 4l13 8-13 8z" : "M6 4h4v16H6zM14 4h4v16h-4z");
   $("rvPlay").setAttribute("aria-label", rv.paused ? "Play" : "Pause");
   const ph = $("ph"); ph.style.left = (ms / 1000 * PPS) + "px";
   const s = take.starts[sel];
+  if (document.activeElement !== $("capEdit")) fillCapEditor();
   $("selInfo").textContent = `Line ${sel + 1} starts at ${fmtT(s)}: ${plain(L[sel]).slice(0, 70)}${plain(L[sel]).length > 70 ? "…" : ""}`;
 }
 function buildTimeline(){
@@ -1111,12 +1158,12 @@ function buildTimeline(){
   for (let i = 0; i < S.length; i++){
     const end = i + 1 < S.length ? S[i + 1] : D;
     const b = document.createElement("div");
-    b.className = "blk" + (i === sel ? " sel" : "");
+    b.className = "blk" + (i === sel ? " sel" : "") + (isSkipped(i) ? " skip" : "");
     b.dataset.i = i;
     b.style.left = (S[i] / 1000 * PPS) + "px";
     b.style.width = Math.max(4, (end - S[i]) / 1000 * PPS) + "px";
     b.title = `Line ${i + 1}: ${plain(take.lines[i])}`;
-    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(plain(take.lines[i]))}`;
+    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(captionText(i))}`;
     frag.appendChild(b);
   }
   tr.appendChild(frag);
@@ -1140,7 +1187,7 @@ function setStart(i, ms){
 }
 function persistSoon(){
   clearTimeout(saveT);
-  saveT = setTimeout(async () => { if (take) { const ok = await idbPut(take); take.unsafe = !ok; renderTake(); } }, 400);
+  saveT = setTimeout(async () => { saveT = null; if (take) { const ok = await idbPut(take); take.unsafe = !ok; renderTake(); } }, 120);
 }
 function rvPlayToggle(){
   if (!take) return;
@@ -1156,6 +1203,7 @@ function loopReview(){
   };
   step();
 }
+window.addEventListener("pagehide", () => { if (saveT){ clearTimeout(saveT); saveT = null; if (take) idbPut(take); } });   // don't lose the last edit
 rv.addEventListener("ended", () => { cancelAnimationFrame(rvRAF); renderReview(); });
 rv.addEventListener("seeked", renderReview);
 $("rvPlay").addEventListener("click", rvPlayToggle);
@@ -1193,6 +1241,262 @@ document.querySelectorAll('input[name="txtmode"]').forEach(r => r.addEventListen
 document.querySelectorAll("[data-corner]").forEach(b => b.addEventListener("click", () => { state.corner = b.dataset.corner; save(); applyLook(); }));
 document.querySelectorAll("[data-shape]").forEach(b => b.addEventListener("click", () => { state.shape = b.dataset.shape; save(); applyLook(); }));
 document.querySelectorAll("[data-rfmt]").forEach(b => b.addEventListener("click", () => { rFmt = b.dataset.rfmt; applyLook(); }));
+
+/* ---------- captions: script-aligned, editable per line ---------- */
+const capOf = i => (take.capText && take.capText[i] != null) ? take.capText[i] : null;     // a corrected caption, as plain text
+const isSkipped = i => !!(take.skip && take.skip[i]);
+function captionText(i){ const c = capOf(i); return c != null ? c : plain(take.lines[i]); }
+function captionHTML(i){ const c = capOf(i); return c != null ? esc(c) : md(take.lines[i]); }
+// What is on screen at time ms: the current spoken line and the spoken line before it.
+function overlayAt(ms){
+  const i = lineAt(ms);
+  if (i < 0 || isSkipped(i)) return { now: -1, prev: -1 };
+  let p = i - 1; while (p >= 0 && isSkipped(p)) p--;
+  return { now: i, prev: p };
+}
+function cues(offsetMs){
+  const S = take.starts, D = durMs(), out = [];
+  for (let i = 0; i < S.length; i++){
+    if (isSkipped(i)) continue;
+    const end = i + 1 < S.length ? S[i + 1] : D;
+    out.push({ a: S[i] + offsetMs, b: end + offsetMs, text: captionText(i) });
+  }
+  return out;
+}
+function stamp(ms, sep){
+  ms = Math.max(0, Math.round(ms));
+  const h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, s = Math.floor(ms / 1000) % 60, x = ms % 1000;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}${sep}${String(x).padStart(3, "0")}`;
+}
+function toSRT(offsetMs){ return cues(offsetMs).map((c, k) => `${k + 1}\n${stamp(c.a, ",")} --> ${stamp(c.b, ",")}\n${c.text}\n`).join("\n"); }
+function toVTT(offsetMs){ return "WEBVTT\n\n" + cues(offsetMs).map(c => `${stamp(c.a, ".")} --> ${stamp(c.b, ".")}\n${c.text}\n`).join("\n"); }
+const titleMs = () => $("xTitle").checked ? 3000 : 0;
+$("capSrt").addEventListener("click", () => { if (take) download(new Blob([toSRT(titleMs())], { type: "text/plain" }), `${fileBase()}.srt`); });
+$("capVtt").addEventListener("click", () => { if (take) download(new Blob([toVTT(titleMs())], { type: "text/vtt" }), `${fileBase()}.vtt`); });
+
+function fillCapEditor(){
+  if (!take) return;
+  const c = capOf(sel);
+  $("capEdit").value = c != null ? c : plain(take.lines[sel]);
+  $("capSkip").checked = isSkipped(sel);
+  $("capReset").hidden = c == null;
+}
+$("capEdit").addEventListener("input", e => {
+  if (!take) return;
+  take.capText = take.capText || {};
+  const v = e.target.value;
+  if (v === plain(take.lines[sel])) delete take.capText[sel]; else take.capText[sel] = v;
+  $("capReset").hidden = capOf(sel) == null;
+  persistSoon(); buildTimeline(); renderReview();
+});
+$("capSkip").addEventListener("change", e => {
+  if (!take) return;
+  take.skip = take.skip || {};
+  if (e.target.checked) take.skip[sel] = true; else delete take.skip[sel];
+  persistSoon(); buildTimeline(); renderReview();
+});
+$("capReset").addEventListener("click", () => { if (take && take.capText){ delete take.capText[sel]; fillCapEditor(); persistSoon(); buildTimeline(); renderReview(); } });
+
+/* ---------- export: draw each frame on a canvas and record it, in real time ---------- */
+const VIDEO = { bg: "#1b2430", ink: "#fbf3e2", dim: "#9fb0bf", meta: "#c9d3dc", face: "#2c3a48", fig: "#55687a" };
+const SERIF = getComputedStyle(document.documentElement).getPropertyValue("--serif").trim() || "Georgia, serif";
+const SANS = getComputedStyle(document.documentElement).getPropertyValue("--sans").trim() || "system-ui, sans-serif";
+function pickExportMime(){
+  const c = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"];
+  for (const m of c) if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  return "";
+}
+// Markdown line -> runs of { text, b, i }. Plain text (a corrected caption) is one run.
+function runsOf(text, isPlain){
+  if (isPlain) return [{ text, b: false, i: false }];
+  const src = text.replace(/^#{1,6}\s+/, ""), out = [];
+  let b = false, it = false;
+  for (const part of src.split(/(\*\*|\*|_(?=\S)|(?<=\S)_)/)){
+    if (part === "**"){ b = !b; continue; }
+    if (part === "*" || part === "_"){ it = !it; continue; }
+    if (part) out.push({ text: part, b, i: it });
+  }
+  return out;
+}
+function fontOf(run, px, base, family){ return `${run.i ? "italic " : ""}${run.b ? 700 : base} ${Math.round(px)}px ${family}`; }
+// Word-wrap runs into lines no wider than maxW.
+function wrapRuns(g, runs, px, base, family, maxW){
+  const lines = [[]]; let w = 0;
+  for (const r of runs){
+    for (const tok of r.text.split(/(\s+)/)){
+      if (!tok) continue;
+      g.font = fontOf(r, px, base, family);
+      const tw = g.measureText(tok).width, space = /^\s+$/.test(tok);
+      if (space && w === 0) continue;
+      if (!space && w > 0 && w + tw > maxW){ lines.push([]); w = 0; }
+      if (space && w + tw > maxW) continue;
+      lines[lines.length - 1].push({ ...r, text: tok, w: tw }); w += tw;
+    }
+  }
+  return lines.map(l => { while (l.length && /^\s+$/.test(l[l.length - 1].text)) l.pop(); return l; }).filter(l => l.length);
+}
+function drawLines(g, lines, x, y, px, lh, base, family, color, align, maxW){
+  g.fillStyle = color; g.textBaseline = "alphabetic";
+  lines.forEach((l, k) => {
+    const lw = l.reduce((a, r) => a + r.w, 0);
+    let cx = align === "center" ? x + (maxW - lw) / 2 : align === "right" ? x + maxW - lw : x;
+    const by = y + k * px * lh + px;
+    for (const r of l){ g.font = fontOf(r, px, base, family); g.fillText(r.text, cx, by); cx += r.w; }
+  });
+  return lines.length * px * lh;
+}
+// Geometry matches the on-screen preview (the .vid CSS) so what you saw is what you get.
+function layout(fmt, W, H){
+  const corner = state.corner || "tr", one = state.txtMode === "one", rounded = state.shape === "rounded";
+  if (fmt === "wide"){
+    const fs = W * 0.24;
+    const face = { s: fs, x: corner === "tl" ? W * 0.05 : W - W * 0.05 - fs, y: corner === "bottom" ? H - H * 0.10 - fs : H * 0.08 };
+    const meta = corner === "tl" ? { x: W * 0.34, w: W * 0.59, align: "right" } : { x: W * 0.07, w: W * 0.59, align: "left" };
+    return { face, rounded, one, metaPx: W * 0.026, meta: { ...meta, y: H * 0.07 },
+      txt: { x: W * 0.07, w: W * 0.63, bottom: H - H * 0.13, align: "left", nowPx: W * 0.048, prevPx: W * 0.030, gap: W * 0.016 } };
+  }
+  let fs = W * 0.44, fx = (W - fs) / 2, fy = H * 0.07, metaY = H - H * 0.07 - W * 0.044 * 1.3, txtTop = H * 0.41;
+  if (corner === "tl"){ fs = W * 0.36; fx = W * 0.08; }
+  if (corner === "bottom"){ fy = H - H * 0.12 - fs; txtTop = H * 0.16; metaY = H * 0.06; }
+  return { face: { s: fs, x: fx, y: fy }, rounded, one, metaPx: W * 0.044, meta: { x: W * 0.08, w: W * 0.84, y: metaY, align: "center" },
+    txt: { x: W * 0.08, w: W * 0.84, top: txtTop, align: "center", nowPx: W * 0.084, prevPx: W * 0.052, gap: W * 0.03 } };
+}
+function facePath(g, f, rounded){
+  g.beginPath();
+  if (rounded){ const r = f.s * 0.16; g.roundRect ? g.roundRect(f.x, f.y, f.s, f.s, r) : g.rect(f.x, f.y, f.s, f.s); }
+  else g.arc(f.x + f.s / 2, f.y + f.s / 2, f.s / 2, 0, Math.PI * 2);
+}
+function drawFrame(g, W, H, fmt, ms, vid){
+  const L = layout(fmt, W, H);
+  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
+  // title · author
+  const metaText = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
+  if (metaText){
+    g.font = `400 ${Math.round(L.metaPx)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textBaseline = "top";
+    g.textAlign = L.meta.align === "center" ? "center" : L.meta.align === "right" ? "right" : "left";
+    const mx = L.meta.align === "center" ? L.meta.x + L.meta.w / 2 : L.meta.align === "right" ? L.meta.x + L.meta.w : L.meta.x;
+    g.fillText(metaText, mx, L.meta.y, L.meta.w); g.textAlign = "left";
+  }
+  // face bubble: the take's camera image, cropped square, not mirrored
+  const f = L.face;
+  g.save(); facePath(g, f, L.rounded); g.clip();
+  if (vid && vid.readyState >= 2 && vid.videoWidth){
+    const vw = vid.videoWidth, vh = vid.videoHeight, side = Math.min(vw, vh);
+    g.drawImage(vid, (vw - side) / 2, (vh - side) * 0.4, side, side, f.x, f.y, f.s, f.s);
+  } else {
+    g.fillStyle = VIDEO.face; g.fillRect(f.x, f.y, f.s, f.s);
+    g.fillStyle = VIDEO.fig; g.beginPath(); g.arc(f.x + f.s / 2, f.y + f.s * 0.40, f.s * 0.17, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(f.x + f.s / 2, f.y + f.s * 1.02, f.s * 0.32, f.s * 0.36, 0, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+  g.lineWidth = Math.max(3, W * 0.006); g.strokeStyle = VIDEO.ink; facePath(g, f, L.rounded); g.stroke();
+  // story text
+  if (ms == null) return;
+  const o = overlayAt(ms), T = L.txt;
+  const nowL = o.now >= 0 ? wrapRuns(g, runsOf(capOf(o.now) != null ? capOf(o.now) : take.lines[o.now], capOf(o.now) != null), T.nowPx, 600, SERIF, T.w) : [];
+  const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, runsOf(capOf(o.prev) != null ? capOf(o.prev) : take.lines[o.prev], capOf(o.prev) != null), T.prevPx, 400, SERIF, T.w) : [];
+  const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
+  let y = T.top != null ? T.top : T.bottom - hNow - gap - hPrev;
+  if (prevL.length){ drawLines(g, prevL, T.x, y, T.prevPx, 1.35, 400, SERIF, VIDEO.dim, T.align, T.w); y += hPrev + gap; }
+  if (nowL.length) drawLines(g, nowL, T.x, y, T.nowPx, 1.3, 600, SERIF, VIDEO.ink, T.align, T.w);
+}
+function drawTitle(g, W, H, fmt){
+  g.fillStyle = VIDEO.bg; g.fillRect(0, 0, W, H);
+  const t = state.title.trim() || "Untitled", a = state.author.trim();
+  const tp = fmt === "wide" ? W * 0.055 : W * 0.09, ap = fmt === "wide" ? W * 0.026 : W * 0.045, maxW = W * 0.84;
+  const lines = wrapRuns(g, [{ text: t, b: false, i: false }], tp, 600, SERIF, maxW);
+  const h = lines.length * tp * 1.2 + (a ? ap * 2.2 : 0);
+  let y = (H - h) / 2;
+  y += drawLines(g, lines, (W - maxW) / 2, y, tp, 1.2, 600, SERIF, VIDEO.ink, "center", maxW);
+  if (a){ g.font = `400 ${Math.round(ap)}px ${SANS}`; g.fillStyle = VIDEO.meta; g.textAlign = "center"; g.textBaseline = "top"; g.fillText(a, W / 2, y + ap * 0.9, maxW); g.textAlign = "left"; }
+}
+const once = (el, ev, ms) => new Promise((res, rej) => {
+  const t = setTimeout(() => rej(new Error("timed out waiting for " + ev)), ms || 15000);
+  el.addEventListener(ev, () => { clearTimeout(t); res(); }, { once: true });
+  el.addEventListener("error", () => { clearTimeout(t); rej(new Error("the take couldn't be loaded")); }, { once: true });
+});
+let exportJob = null;
+async function renderVideo(fmt, withTitle, onProgress){
+  const W = fmt === "wide" ? 1920 : 1080, H = fmt === "wide" ? 1080 : 1920;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d");
+  const xv = document.createElement("video"); xv.playsInline = true; xv.preload = "auto"; xv.src = takeURL;
+  await once(xv, "loadeddata");
+  const ac = new (window.AudioContext || window.webkitAudioContext)(); await ac.resume().catch(() => {});
+  const dest = ac.createMediaStreamDestination(); ac.createMediaElementSource(xv).connect(dest);   // goes to the file, not the speakers
+  const out = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+  const mime = pickExportMime();
+  const rec = new MediaRecorder(out, Object.assign({ videoBitsPerSecond: 8000000, audioBitsPerSecond: 160000 }, mime ? { mimeType: mime } : {}));
+  const parts = []; rec.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
+  const tMs = withTitle ? 3000 : 0, total = tMs + durMs();
+  drawTitle(g, W, H, fmt); if (!withTitle) drawFrame(g, W, H, fmt, 0, xv);
+  return new Promise((resolve, reject) => {
+    let raf = 0, started = false, finished = false, t0 = 0;
+    const job = exportJob = { cancel: false };
+    const finish = (err) => {
+      if (finished) return; finished = true; cancelAnimationFrame(raf); clearInterval(bg);
+      try{ xv.pause(); }catch(e){}
+      rec.onstop = () => {
+        out.getTracks().forEach(t => t.stop()); ac.close().catch(() => {}); xv.removeAttribute("src"); xv.load();
+        if (err) reject(err); else if (job.cancel) resolve(null); else resolve(new Blob(parts, { type: rec.mimeType || mime || "video/webm" }));
+      };
+      if (rec.state !== "inactive") rec.stop(); else rec.onstop();
+    };
+    const frame = () => {
+      if (job.cancel){ finish(); return; }
+      const el = performance.now() - t0;
+      if (el < tMs) drawTitle(g, W, H, fmt);
+      else {
+        if (!started){ started = true; xv.currentTime = 0; xv.play().catch(e => finish(e)); }
+        drawFrame(g, W, H, fmt, xv.currentTime * 1000, xv);
+      }
+      onProgress(Math.min(1, el / total));
+      if (started && (xv.ended || xv.currentTime * 1000 >= durMs() + 150)){ setTimeout(() => finish(), 250); return; }
+      if (el > total + 8000){ finish(); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    // If the tab is hidden, animation frames stop; keep drawing on a slower timer and warn.
+    const bg = setInterval(() => { if (document.hidden && !finished) frame(); }, 100);
+    rec.onerror = e => finish(e.error || new Error("recording failed"));
+    rec.start(1000); t0 = performance.now(); frame();
+  });
+}
+const exported = {};    // fmt -> { blob, url }
+$("xGo").addEventListener("click", async () => {
+  if (!take || exportJob) return;
+  const fmts = [$("xWide").checked && "wide", $("xTall").checked && "tall"].filter(Boolean);
+  if (!fmts.length){ toast("Pick wide, vertical, or both."); return; }
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ toast("This browser can't export video. Try Chrome or Edge."); return; }
+  rvPause();
+  $("xGo").disabled = true; $("xProg").hidden = false; $("xCancel").hidden = false; $("xOut").innerHTML = ""; $("xStat").textContent = "Starting…";
+  const withTitle = $("xTitle").checked;
+  try{
+    for (const [k, fmt] of fmts.entries()){
+      const name = fmt === "wide" ? "Wide 16:9" : "Vertical 9:16";
+      const blob = await renderVideo(fmt, withTitle, p => {
+        $("xBar").style.width = Math.round(((k + p) / fmts.length) * 100) + "%";
+        $("xStat").textContent = `Exporting ${name} (${k + 1} of ${fmts.length}): ${Math.round(p * 100)}%`;
+      });
+      if (!blob) break;   // cancelled
+      if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
+      exported[fmt] = { blob, url: URL.createObjectURL(blob) };
+      const ext = extOf(blob.type), file = `${fileBase()}-${fmt === "wide" ? "wide" : "vertical"}.${ext}`;
+      const a = document.createElement("a"); a.className = "btn"; a.href = exported[fmt].url; a.download = file;
+      const codec = /avc1|h264/i.test(blob.type) ? "H.264" : /vp9/i.test(blob.type) ? "VP9" : /vp8/i.test(blob.type) ? "VP8" : "";
+      a.textContent = `Download ${name} (${(blob.size / 1048576).toFixed(1)} MB ${ext.toUpperCase()}${codec ? " · " + codec : ""})`;
+      $("xOut").appendChild(a);
+    }
+    $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : "Done. Download your videos below.";
+  }catch(e){
+    $("xStat").textContent = "Export stopped: " + (e && e.message || e);
+  }finally{
+    exportJob = null; $("xGo").disabled = false; $("xCancel").hidden = true;
+  }
+});
+$("xCancel").addEventListener("click", () => { if (exportJob) exportJob.cancel = true; });
+document.addEventListener("visibilitychange", () => { if (document.hidden && exportJob) toast("Keep PageCue in front while it exports, or the video may stutter.", 6000); });
+function renderExportInfo(){ if (take) $("xTime").textContent = fmtClock(durMs() + titleMs()); }
+$("xTitle").addEventListener("change", renderExportInfo);
 
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));

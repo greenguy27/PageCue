@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.0 — in testing
+
+Stage 5: export and captions, plus recording recovery.
+
+**Export**
+- Export the take as a wide 16:9 (1920×1080) and/or vertical 9:16 (1080×1920) video, with the story text and face bubble exactly as previewed
+- Optional 3-second title card with the title and author
+- MP4 with H.264/AAC where the browser supports it; the download button shows the codec used
+- Runs in real time with a progress bar and Cancel; keep PageCue in front while it exports
+- The Export step is now active (it opens the export settings)
+
+**Captions**
+- Download captions as SRT or VTT, built from your script and timing (no speech recognition; names are always spelled right)
+- Fix a caption's text per line in Review, or mark a line as not spoken so it's left off the video and the captions
+- Captions shift automatically when the title card is on
+
+**Recording recovery**
+- Every second of a take, and every tap, is saved in the browser while you record
+- If the browser crashes, the computer freezes, or the tab closes mid-take, PageCue offers to recover the take next time it opens; recovered takes play back and export normally
+- Takes are recorded as WebM where possible, because Chrome's MP4 recorder holds the whole take in memory until Stop and can't be saved as it goes; if a browser can only record that way, PageCue says crash protection is off instead of pretending
+- Shows how many minutes of crash-protected recording the browser has room for; if storage fills up mid-take, it warns you, keeps recording, and the take still finishes
+
+**Fixes**
+- Timing and caption edits no longer rewrite the whole video in storage, and the last edit is kept even on a quick reload
+- The Windows launcher no longer freezes when the browser opens a spare connection
+
 ## 0.3.0 — in testing
 
 Stage 4: review and timeline.
