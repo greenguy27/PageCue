@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PageCue</title>
+<meta name="theme-color" content="#f6f1e7">
+<style>
+/* PageCue v0.1 (stage 2: story + prompter). Direction B "Studio".
+   One file, no network requests, nothing leaves the device. */
+:root{
+  --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
+  --ink:#22201b; --ink2:#5e584c; --past:#8b8475; --rule:#ddd4c3; --rule2:#cfc5b2;
+  --accent:#1f5f5b; --accent-ink:#ffffff; --accent-wash:rgba(31,95,91,.08);
+  --rec:#b3261e; --meter:#e7dfcf;
+  --video:#1b2430; --video-ink:#fbf3e2; --video-dim:#9fb0bf; --video-meta:#c9d3dc; --face:#2c3a48; --face-fig:#55687a;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,Menlo,Consolas,monospace;
+  --fs:40px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.app{min-height:100%;display:flex;flex-direction:column}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:12px;flex-grow:1;min-width:0}
+.brand b{font-family:var(--serif);font-size:20px;font-weight:600}
+.brand span{color:var(--ink2);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav.steps{display:flex;gap:18px}
+nav.steps button{border:0;background:none;padding:8px 0;color:var(--ink2);border-bottom:2px solid transparent}
+nav.steps button[aria-current="step"]{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+nav.steps button:disabled{color:var(--past);cursor:not-allowed}
+.seg{display:flex;border:1px solid var(--rule);border-radius:99px;padding:3px}
+.seg button{border:0;border-radius:99px;background:transparent;padding:6px 14px;color:var(--ink2);font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+
+.btn{height:44px;padding:0 16px;border:1px solid var(--rule2);border-radius:10px;background:var(--paper);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{border-color:var(--ink2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{background:transparent;border-color:var(--rec);color:var(--rec);font-weight:600}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+kbd{font-family:var(--mono);font-size:12px;padding:1px 6px;border:1px solid var(--rule2);border-radius:5px;background:var(--paper);color:var(--ink2)}
+.btn.primary kbd{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.35);color:#fff}
+.label{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--ink2);text-transform:uppercase}
+.hint{font-size:13px;color:var(--ink2)}
+
+/* ---------- Story step ---------- */
+.story{flex-grow:1;display:flex;flex-wrap:wrap;gap:24px;padding:24px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.story .src{flex:1 1 420px}
+.story .lines{flex:1 1 420px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600}
+.field input,.field select{height:42px;padding:0 12px;border:1px solid var(--rule2);border-radius:8px;background:var(--ground)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.row .field{flex:1 1 180px}
+textarea{width:100%;min-height:300px;padding:14px;border:1px solid var(--rule2);border-radius:10px;background:var(--ground);resize:vertical;line-height:1.55}
+#raw{font-family:var(--serif);font-size:16px}
+#linesBox{font-family:var(--mono);font-size:14px;white-space:pre;overflow-wrap:normal;overflow-x:auto}
+.count{font-size:13px;color:var(--ink2)}
+.drop{border:1px dashed var(--rule2);border-radius:10px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.drop.over{border-color:var(--accent);background:var(--accent-wash)}
+
+/* ---------- Record step ---------- */
+.record{flex-grow:1;display:flex;flex-wrap:wrap;gap:24px;padding:24px;min-height:0}
+.prompter{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:calc(var(--fs)*.42);padding:32px 44px;background:var(--paper);border:1px solid var(--rule);border-radius:14px;font-family:var(--serif);overflow:hidden;cursor:pointer;user-select:none;min-height:420px;position:relative}
+.prompter .label{font-family:var(--sans)}
+.pl{margin:0;font-size:calc(var(--fs)*.8);line-height:1.35;color:var(--ink2);transition:color .2s,font-size .2s}
+.pl.past{font-size:calc(var(--fs)*.6);color:var(--past)}
+.pl.cur{font-size:var(--fs);line-height:1.3;color:var(--ink)}
+.pl.far{color:var(--past)}
+.pl.h{font-weight:600}
+.pl.end{font-family:var(--sans);font-size:15px;color:var(--ink2)}
+.pl strong{font-weight:600}
+.side{flex:1 1 380px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.side .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fmt{display:flex;gap:4px}
+.fmt button{height:32px;padding:0 12px;border:1px solid var(--rule);border-radius:8px;background:transparent;color:var(--ink2);font-size:13px}
+.fmt button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+.vid{position:relative;width:100%;border-radius:10px;overflow:hidden;background:var(--video);font-family:var(--serif);container-type:inline-size}
+.vid.wide{aspect-ratio:16/9}
+.vid.tall{aspect-ratio:9/16;max-width:300px;align-self:center}
+.vid .meta{position:absolute;top:7%;left:7%;right:34%;font-family:var(--sans);font-size:max(11px,2.6cqw);color:var(--video-meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vid .txt{position:absolute;left:7%;right:30%;bottom:13%;display:flex;flex-direction:column;gap:1.6cqw}
+.vid .prev{font-size:3cqw;line-height:1.35;color:var(--video-dim)}
+.vid .now{font-size:4.8cqw;line-height:1.3;color:var(--video-ink);font-weight:600}
+.vid .now strong,.vid .prev strong{font-weight:700}
+.vid .face{position:absolute;top:8%;right:5%;width:24%;aspect-ratio:1;border-radius:50%;overflow:hidden;background:var(--face);border:3px solid var(--video-ink)}
+.vid.tall .meta{top:auto;bottom:7%;left:0;right:0;text-align:center;font-size:4.4cqw}
+.vid.tall .face{top:7%;left:50%;right:auto;width:44%;transform:translateX(-50%)}
+.vid.tall .txt{left:8%;right:8%;top:41%;bottom:auto;text-align:center;gap:3cqw}
+.vid.tall .prev{font-size:5.2cqw}
+.vid.tall .now{font-size:8.4cqw}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-family:var(--mono);font-size:15px;font-weight:500}
+.stat span{font-size:12px;color:var(--ink2)}
+
+footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px 24px;border-top:1px solid var(--rule);background:var(--band)}
+.status{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink2);min-width:140px}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--rule2)}
+.status.live{color:var(--accent)}
+.status.live .dot{background:var(--accent)}
+.where{font-size:14px;color:var(--ink2);flex-grow:1}
+#nextBtn{min-width:240px;height:52px;font-size:17px}
+.size{display:flex;gap:4px}
+.size .btn{min-width:44px;padding:0 10px}
+
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+
+/* ---------- Phone device mode ---------- */
+body.phone header.top{padding:10px 14px}
+body.phone .brand span{display:none}
+body.phone nav.steps{gap:12px}
+body.phone .story,body.phone .record{padding:12px;gap:12px}
+body.phone .prompter{padding:20px 20px;min-height:0;flex:1 1 auto;--fs:28px}
+body.phone .record{flex-direction:column;flex-wrap:nowrap}
+body.phone .side{flex:0 0 auto;flex-direction:row;align-items:center}
+body.phone .side .head,body.phone .side .stats,body.phone .side .hint{display:none}
+body.phone .vid{width:72px;flex:0 0 72px;aspect-ratio:9/16;border-radius:8px}
+body.phone .vid .meta{display:none}
+body.phone .phoneinfo{display:flex}
+.phoneinfo{display:none;flex-direction:column;gap:4px;flex-grow:1}
+body.phone footer.bar{padding:12px}
+body.phone #nextBtn{order:-1;flex:1 1 100%;height:68px;font-size:19px}
+body.phone footer.bar .where,body.phone footer.bar .status,body.phone .size{display:none}
+body.phone footer.bar .btn:not(#nextBtn){flex:1 1 0}
+body.phone footer.bar kbd{display:none}
+body.phone .toast{top:16px;bottom:auto}
+@media (max-width:700px){
+  .prompter{padding:22px;--fs:28px}
+  nav.steps{order:3;width:100%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><b>PageCue</b><span id="byline">Untitled story</span></div>
+    <nav class="steps" aria-label="Steps">
+      <button type="button" data-step="story" aria-current="step">Story</button>
+      <button type="button" data-step="record">Record</button>
+      <button type="button" disabled title="Coming in stage 4">Review</button>
+      <button type="button" disabled title="Coming in stage 5">Export</button>
+    </nav>
+    <div class="seg" role="group" aria-label="Device mode">
+      <button type="button" data-device="laptop" aria-pressed="true">Laptop</button>
+      <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+    </div>
+  </header>
+
+  <!-- ================= STORY ================= -->
+  <main id="storyView" class="story">
+    <section class="card src" aria-labelledby="srcH">
+      <h2 id="srcH" class="label" style="margin:0">Your story</h2>
+      <div class="row">
+        <div class="field"><label for="title">Title</label><input id="title" placeholder="The Twelfth Storm"></div>
+        <div class="field"><label for="author">Author</label><input id="author" placeholder="Your name"></div>
+      </div>
+      <div class="drop" id="drop">
+        <label class="btn" for="file" style="cursor:pointer">Load .txt or .md</label>
+        <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" class="sr">
+        <span class="hint">or drop a file here, or paste below. Markdown <b>**bold**</b> and <i>*italics*</i> are kept.</span>
+      </div>
+      <label for="raw" class="sr">Story text</label>
+      <textarea id="raw" spellcheck="true" placeholder="Paste your story here…"></textarea>
+    </section>
+
+    <section class="card lines" aria-labelledby="linesH">
+      <h2 id="linesH" class="label" style="margin:0">Prompter lines</h2>
+      <div class="row">
+        <div class="field"><label for="split">Split into lines by</label>
+          <select id="split">
+            <option value="sentence">Sentence</option>
+            <option value="line">Line break</option>
+          </select>
+        </div>
+        <button type="button" class="btn" id="resplit">Split again from story</button>
+      </div>
+      <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete the line break to merge two.</p>
+      <label for="linesBox" class="sr">Prompter lines, one per row</label>
+      <textarea id="linesBox" spellcheck="false"></textarea>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <span class="count" id="count">0 lines</span>
+        <button type="button" class="btn primary" id="toRecord">Go to the prompter</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= RECORD (prompter) ================= -->
+  <main id="recordView" class="record" hidden>
+    <section class="prompter" id="prompter" aria-label="Prompter" aria-live="polite">
+      <span class="label">You read</span>
+      <div id="plines" style="display:flex;flex-direction:column;gap:inherit"></div>
+    </section>
+    <section class="side" aria-label="What viewers will see">
+      <div class="head">
+        <span class="label">Viewers see</span>
+        <div class="fmt" role="group" aria-label="Preview format">
+          <button type="button" data-fmt="wide" aria-pressed="true">Wide 16:9</button>
+          <button type="button" data-fmt="tall" aria-pressed="false">Vertical 9:16</button>
+        </div>
+      </div>
+      <div class="vid wide" id="vid" aria-hidden="true">
+        <div class="meta" id="vMeta"></div>
+        <div class="txt"><span class="prev" id="vPrev"></span><span class="now" id="vNow"></span></div>
+        <div class="face"><svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="40" r="17" fill="var(--face-fig)"/><path d="M18 100c3-24 16-34 32-34s29 10 32 34z" fill="var(--face-fig)"/></svg></div>
+      </div>
+      <div class="phoneinfo">
+        <span class="status" id="pStatus"><span class="dot"></span><span>Ready</span></span>
+        <span class="count" id="pWhere"></span>
+      </div>
+      <p class="hint" style="margin:0">A preview of the export look. Camera and recording arrive in the next stage; for now a practice run logs your tap timing.</p>
+      <div class="stats">
+        <div class="stat"><b id="sTaps">0</b><span>taps logged</span></div>
+        <div class="stat"><b id="sLast">–</b><span>last tap</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bar" id="bar" hidden>
+    <span class="status" id="status"><span class="dot"></span><span>Ready</span></span>
+    <span class="where" id="where">Line 1 of 1</span>
+    <div class="size"><button type="button" class="btn" id="smaller" aria-label="Smaller text">A−</button><button type="button" class="btn" id="bigger" aria-label="Larger text">A+</button></div>
+    <button type="button" class="btn" id="backBtn">Back a line <kbd>←</kbd></button>
+    <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd></button>
+    <button type="button" class="btn" id="runBtn">Start practice run</button>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const KEY = "pagecue.v1";
+
+/* ---------- state ---------- */
+const state = {
+  title: "", author: "", raw: "", split: "sentence", lines: [],
+  fs: 40, device: "laptop", fmt: "wide", step: "story",
+  idx: 0,
+  run: null          // {t0, starts:[ms per line index], done:false}
+};
+
+function save(){
+  try{
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt}));
+  }catch(e){ /* private mode or storage blocked: the app still works */ }
+}
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (s && typeof s === "object") Object.assign(state, s);
+  }catch(e){}
+}
+
+/* ---------- text: splitting and markdown ---------- */
+function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+// Inline markdown for one line: **bold**, *italic* / _italic_. Escapes HTML first.
+function md(line){
+  let h = esc(line.replace(/^#{1,6}\s+/, ""));
+  h = h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  h = h.replace(/(^|[^*\w])\*(?!\s)(.+?)\*(?!\w)/g, "$1<em>$2</em>");
+  h = h.replace(/(^|[^\w])_(?!\s)(.+?)_(?!\w)/g, "$1<em>$2</em>");
+  return h;
+}
+const isHeading = l => /^#{1,6}\s+/.test(l);
+
+// Keep ** and * pairs balanced when a split falls inside them.
+function balance(lines){
+  const out = []; let carry = "";
+  for (let l of lines){
+    l = carry + l; carry = "";
+    const bold = (l.match(/\*\*/g) || []).length;
+    if (bold % 2){ l += "**"; carry = "**"; }
+    const single = (l.replace(/\*\*/g, "").match(/\*/g) || []).length;
+    if (single % 2){ l += "*"; carry += "*"; }
+    out.push(l);
+  }
+  return out;
+}
+
+function splitStory(raw, mode){
+  const text = raw.replace(/\r\n?/g, "\n").replace(/ /g, " ");
+  if (mode === "line"){
+    return text.split("\n").map(s => s.trim()).filter(Boolean);
+  }
+  // Sentence mode: paragraphs always break; inside a paragraph, break after . ! ? …
+  // (and any closing quote or bracket), but not after common abbreviations.
+  const abbr = /\b(Mr|Mrs|Ms|Dr|St|Jr|Sr|Mt|vs|etc|e\.g|i\.e)\.$/i;
+  const out = [];
+  for (const para of text.split(/\n\s*\n/)){
+    const p = para.replace(/\s*\n\s*/g, " ").trim();
+    if (!p) continue;
+    if (isHeading(p)){ out.push(p); continue; }
+    const parts = p.split(/(?<=[.!?…]+[”"’')\]*_]*)\s+(?=[“"‘'(\[*_]*[A-Z0-9“"‘])/);
+    const merged = [];
+    for (const s of parts){
+      if (merged.length && abbr.test(merged[merged.length-1])) merged[merged.length-1] += " " + s;
+      else merged.push(s);
+    }
+    out.push(...balance(merged.map(s => s.trim()).filter(Boolean)));
+  }
+  return out;
+}
+
+/* ---------- UI: story step ---------- */
+function linesFromBox(){ return $("linesBox").value.split("\n").map(s => s.trim()).filter(Boolean); }
+function renderCount(){
+  const n = state.lines.length;
+  $("count").textContent = n === 1 ? "1 line" : n + " lines";
+  $("toRecord").disabled = n === 0;
+}
+function renderByline(){
+  const t = state.title.trim() || "Untitled story";
+  $("byline").textContent = state.author.trim() ? t + " · " + state.author.trim() : t;
+}
+function resplit(){
+  state.lines = splitStory(state.raw, state.split);
+  $("linesBox").value = state.lines.join("\n");
+  state.idx = 0; resetRun();
+  renderCount(); save();
+}
+
+$("title").addEventListener("input", e => { state.title = e.target.value; renderByline(); save(); });
+$("author").addEventListener("input", e => { state.author = e.target.value; renderByline(); save(); });
+let rawTimer = null;
+$("raw").addEventListener("input", e => {
+  state.raw = e.target.value;
+  clearTimeout(rawTimer);
+  // Re-split automatically only while the line list has not been hand-edited.
+  rawTimer = setTimeout(() => { if (!state.linesEdited) resplit(); else save(); }, 300);
+});
+$("split").addEventListener("change", e => { state.split = e.target.value; state.linesEdited = false; resplit(); });
+$("resplit").addEventListener("click", () => { state.linesEdited = false; resplit(); toast("Lines rebuilt from the story"); });
+$("linesBox").addEventListener("input", () => {
+  state.lines = linesFromBox(); state.linesEdited = true;
+  if (state.idx >= state.lines.length) state.idx = Math.max(0, state.lines.length - 1);
+  resetRun(); renderCount(); save();
+});
+
+function readFile(f){
+  if (!f) return;
+  if (f.size > 5 * 1024 * 1024){ toast("That file is over 5 MB. Is it really a text file?"); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    state.raw = String(r.result || "");
+    $("raw").value = state.raw;
+    if (!state.title.trim()){
+      const m = state.raw.match(/^#\s+(.+)$/m);
+      state.title = m ? m[1].trim() : f.name.replace(/\.[^.]+$/, "");
+      $("title").value = state.title; renderByline();
+    }
+    state.linesEdited = false; resplit();
+    toast("Loaded " + f.name);
+  };
+  r.readAsText(f);
+}
+$("file").addEventListener("change", e => { readFile(e.target.files[0]); e.target.value = ""; });
+const drop = $("drop");
+["dragenter","dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
+$("toRecord").addEventListener("click", () => setStep("record"));
+
+/* ---------- steps and device ---------- */
+function setStep(step){
+  if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
+  state.step = step;
+  document.querySelectorAll("nav.steps [data-step]").forEach(b => {
+    if (b.dataset.step === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+  });
+  $("storyView").hidden = step !== "story";
+  $("recordView").hidden = step !== "record";
+  $("bar").hidden = step !== "record";
+  if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); }
+}
+document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
+
+function setDevice(d){
+  state.device = d;
+  document.body.classList.toggle("phone", d === "phone");
+  document.querySelectorAll("[data-device]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.device === d)));
+  if (d === "phone") setFmt("tall", true);
+  save();
+}
+document.querySelectorAll("[data-device]").forEach(b => b.addEventListener("click", () => setDevice(b.dataset.device)));
+
+function setFmt(f, quiet){
+  state.fmt = f;
+  $("vid").className = "vid " + f;
+  document.querySelectorAll("[data-fmt]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fmt === f)));
+  if (!quiet) save();
+}
+document.querySelectorAll("[data-fmt]").forEach(b => b.addEventListener("click", () => setFmt(b.dataset.fmt)));
+
+/* ---------- prompter ---------- */
+function renderPrompter(){
+  const L = state.lines, i = state.idx, box = $("plines");
+  const out = [];
+  if (i > 0) out.push(`<p class="pl past${isHeading(L[i-1])?" h":""}">${md(L[i-1])}</p>`);
+  out.push(`<p class="pl cur${isHeading(L[i])?" h":""}" aria-current="true">${md(L[i] || "")}</p>`);
+  for (let k = i + 1; k < Math.min(L.length, i + 4); k++)
+    out.push(`<p class="pl${k > i + 1 ? " far" : ""}${isHeading(L[k])?" h":""}">${md(L[k])}</p>`);
+  if (i === L.length - 1) out.push(`<p class="pl end">End of story. ${state.run && !state.run.done ? "Press Stop to finish the run." : ""}</p>`);
+  box.innerHTML = out.join("");
+
+  const where = `Line ${i + 1} of ${L.length}`;
+  $("where").textContent = where; $("pWhere").textContent = where;
+  $("vPrev").innerHTML = i > 0 ? md(L[i-1]) : "";
+  $("vNow").innerHTML = md(L[i] || "");
+  const t = state.title.trim(), a = state.author.trim();
+  $("vMeta").textContent = [t, a].filter(Boolean).join(" · ");
+  $("backBtn").disabled = i === 0;
+  $("nextBtn").disabled = i >= L.length - 1;
+  document.documentElement.style.setProperty("--fs", state.fs + "px");
+  renderRun();
+}
+
+function next(){
+  if (state.idx >= state.lines.length - 1) return;
+  state.idx++;
+  if (state.run && !state.run.done){
+    state.run.starts[state.idx] = performance.now() - state.run.t0;
+  }
+  renderPrompter();
+}
+function back(){
+  if (state.idx === 0) return;
+  if (state.run && !state.run.done){
+    state.run.starts.length = state.idx;   // drop this line's tap; re-tap to log it again
+  }
+  state.idx--;
+  renderPrompter();
+}
+
+/* ---------- practice run (timing log) ---------- */
+let tick = null;
+function fmtT(ms){
+  const s = ms / 1000, m = Math.floor(s / 60), r = s - m * 60;
+  return m + ":" + (r < 10 ? "0" : "") + r.toFixed(1);
+}
+function resetRun(){ state.run = null; clearInterval(tick); }
+function startRun(){
+  state.idx = 0;
+  state.run = { t0: performance.now(), starts: [0], done: false };
+  clearInterval(tick); tick = setInterval(renderRun, 200);
+  renderPrompter();
+}
+function stopRun(){
+  if (!state.run) return;
+  state.run.done = true; state.run.total = performance.now() - state.run.t0;
+  clearInterval(tick);
+  const n = state.run.starts.length;
+  toast(`Practice run: ${n} of ${state.lines.length} lines timed in ${fmtT(state.run.total)}`);
+  renderPrompter();
+}
+function renderRun(){
+  const r = state.run, live = r && !r.done;
+  const label = live ? "Practice " + fmtT(performance.now() - r.t0) : r ? "Run finished" : "Ready";
+  for (const id of ["status","pStatus"]){
+    $(id).classList.toggle("live", !!live);
+    $(id).lastElementChild.textContent = label;
+  }
+  $("runBtn").textContent = live ? "Stop" : (r ? "New practice run" : "Start practice run");
+  $("runBtn").classList.toggle("danger", !!live);
+  $("sTaps").textContent = r ? Math.max(0, r.starts.length - 1) : 0;
+  const last = r && r.starts.length > 1 ? r.starts[r.starts.length - 1] : null;
+  $("sLast").textContent = last == null ? "–" : fmtT(last);
+}
+$("runBtn").addEventListener("click", () => (state.run && !state.run.done) ? stopRun() : startRun());
+$("nextBtn").addEventListener("click", next);
+$("backBtn").addEventListener("click", back);
+$("prompter").addEventListener("click", next);   // tap anywhere on the prompter
+$("smaller").addEventListener("click", () => { state.fs = Math.max(24, state.fs - 4); renderPrompter(); save(); });
+$("bigger").addEventListener("click", () => { state.fs = Math.min(80, state.fs + 4); renderPrompter(); save(); });
+
+// Keys. Presentation clickers send PageDown/PageUp or arrow keys.
+document.addEventListener("keydown", e => {
+  if (state.step !== "record") return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key;
+  if (k === " " || k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === "Enter"){ e.preventDefault(); next(); }
+  else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace"){ e.preventDefault(); back(); }
+  else if (k === "Escape" && state.run && !state.run.done){ e.preventDefault(); stopRun(); }
+});
+
+/* ---------- misc ---------- */
+let toastT = null;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* ---------- start ---------- */
+load();
+$("title").value = state.title; $("author").value = state.author;
+$("raw").value = state.raw; $("split").value = state.split;
+$("linesBox").value = state.lines.join("\n");
+state.idx = 0; state.run = null; state.step = "story";
+renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device);
+// Expose for testing in the console only; nothing reads it.
+window.__rp = { state, splitStory, md };
+})();
+</script>
+</body>
+</html>
