@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PageCue</title>
-<meta name="theme-color" content="#f6f1e7">
+<meta name="theme-color" content="#f6efe3">
 <style>
-/* PageCue v0.5 (retake mode). Direction B "Studio".
+/* PageCue v0.5 (retake mode). Direction B "Studio", warm desk look.
    One file, no network requests, nothing leaves the device. */
 :root{
-  --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
+  --ground:#f6efe3; --paper:#fffcf6; --band:#efe7d8; --field:#f4ede1; --gold:#b98a3e; --gold-wash:#f6ecda;
+  --shadow:0 1px 2px rgba(80,60,30,.06),0 10px 28px rgba(80,60,30,.08);
   --ink:#22201b; --ink2:#5e584c; --past:#8b8475; --rule:#ddd4c3; --rule2:#cfc5b2;
   --accent:#1f5f5b; --accent-ink:#ffffff; --accent-wash:rgba(31,95,91,.08);
   --rec:#b3261e; --meter:#e7dfcf;
@@ -142,7 +143,6 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .recover{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:16px 24px 0;padding:14px 18px;border:1px solid #d9b37a;border-radius:12px;background:#fbf1de;color:var(--ink);font-size:14px}
 .recover span{flex:1 1 320px}
 body.phone .recover{margin:10px 12px 0}
-.credit{flex:1 1 100%;margin:0;text-align:center;font-size:13px;color:var(--ink2)}
 .projrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid var(--rule)}
 
 /* ---------- Review + timeline (v0.3) ---------- */
@@ -203,9 +203,108 @@ body.phone .recover{margin:10px 12px 0}
 #exportBox input{width:18px;height:18px;accent-color:var(--accent)}
 #xOut .btn{height:40px;font-size:14px;text-decoration:none;color:var(--ink)}
 
+
+/* ---------- Studio look (warm desk) ---------- */
+body{background:radial-gradient(1200px 700px at 50% 30%,#fbf6ee 0,var(--ground) 70%) fixed,var(--ground)}
+.ic{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic.fill{fill:currentColor;stroke:none}
+.ic.gold{color:var(--gold)}
+header.top{padding:12px 32px;gap:10px 22px;background:rgba(255,252,246,.72);border-bottom:1px solid var(--rule);box-shadow:0 1px 0 rgba(255,255,255,.7) inset}
+.brand{flex-grow:0;align-items:center;gap:12px;padding-right:22px;border-right:1px solid var(--rule)}
+.logo{width:40px;height:44px;flex:0 0 auto}
+.bname{display:flex;flex-direction:column;line-height:1.1}
+.bname b{font-family:var(--serif);font-size:27px;font-weight:700;color:var(--accent);letter-spacing:.005em}
+.bname i{font-family:var(--serif);font-size:15px;color:var(--gold);margin-top:2px}
+.projwrap{position:relative;flex-grow:1;min-width:0}
+.projchip{display:inline-flex;align-items:center;gap:10px;max-width:100%;height:42px;padding:0 12px;border:1px solid var(--rule2);border-radius:10px;background:var(--paper);font-family:var(--serif);font-size:15px}
+.projchip .ic{color:var(--gold)}
+.projchip .chev{color:var(--ink2);width:18px;height:18px}
+.projchip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.projmenu{position:absolute;top:48px;left:0;z-index:20;min-width:240px;padding:6px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.projmenu button{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border:0;border-radius:8px;background:none;text-align:left;font-size:14px}
+.projmenu button:hover,.projmenu button:focus-visible{background:var(--gold-wash)}
+.projmenu .ic{color:var(--gold);width:18px;height:18px}
+nav.steps{gap:6px;align-self:stretch;margin:-12px 0}
+nav.steps button{display:inline-flex;align-items:center;gap:8px;padding:0 16px;border-bottom:3px solid transparent;font-family:var(--serif);font-size:17px;color:var(--ink2)}
+nav.steps button .ic{width:22px;height:22px}
+nav.steps button[aria-current="step"]{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
+nav.steps button:not(:disabled):hover{color:var(--ink)}
+.seg{padding:4px;border-color:var(--rule2);background:var(--paper);margin-left:8px}
+.seg button{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 16px;font-family:var(--serif);font-size:14px}
+.seg button .ic{width:19px;height:19px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 6px rgba(31,95,91,.25)}
+
+.btn{border-radius:10px;font-family:var(--serif);font-size:16px;color:var(--ink)}
+.btn.primary{box-shadow:0 2px 8px rgba(31,95,91,.25)}
+.btn:not(.primary):not(:disabled):hover{background:#fffaf0;border-color:var(--gold)}
+.btn .ic{width:19px;height:19px}
+.card,.panel,.prompter,.stat{box-shadow:var(--shadow)}
+.card{border-radius:18px;border-color:#e6dccb}
+.field input,.field select,textarea,.panel select{background:var(--field)}
+
+.story{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;gap:28px;padding:30px 36px 0}
+#raw,#linesBox{flex-grow:1}
+.story .card{position:relative;z-index:1;padding:26px 30px}
+.chead{display:flex;align-items:flex-start;gap:16px;margin-bottom:6px}
+.tile{width:54px;height:54px;border-radius:14px;background:var(--gold-wash);border:1px solid #efe0c4;display:flex;align-items:center;justify-content:center;color:var(--gold);flex:0 0 auto}
+.tile .ic{width:30px;height:30px;stroke-width:1.6}
+.chead h2{margin:2px 0 2px;font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.15;color:var(--ink)}
+.chead p{margin:0;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--ink2)}
+.story .field label{font-family:var(--serif);font-size:16px;font-weight:600}
+.story .field input,.story .field select{height:46px;font-family:var(--serif);font-size:16px;border-radius:10px}
+.drop{border:1.5px dashed #d8c39b;border-radius:12px;padding:16px 18px;gap:18px;background:rgba(255,250,240,.6);flex-wrap:nowrap}
+.drop .btn{flex:0 0 auto;height:48px;padding:0 20px;font-weight:600;color:var(--accent)}
+.drop .btn .ic{color:var(--accent)}
+.drop .hint{border-left:1px solid var(--rule);padding-left:18px;font-size:14px;line-height:1.6}
+.drop .hint em{color:var(--ink2);font-size:13px}
+#raw{min-height:290px;padding:16px 22px;font-size:17px;line-height:1.6}
+#linesBox{min-height:250px;padding:16px 18px;font-size:15px;line-height:1.6}
+#resplit{height:46px;color:var(--accent);font-weight:600}
+#resplit .ic{color:var(--accent)}
+.gorow{justify-content:space-between;align-items:center}
+.count{display:inline-flex;align-items:center;gap:10px;font-family:var(--serif);font-size:16px;color:var(--ink2)}
+.btn.go{height:54px;min-width:300px;padding:0 26px;font-size:21px;border-radius:12px;justify-content:space-between}
+.btn.go .ic{width:24px;height:24px}
+.projrow{padding-top:16px;gap:12px;border-top-color:var(--rule)}
+.projrow .ic.gold{width:30px;height:30px}
+.projrow .hint{flex:1 1 150px!important;min-width:0}
+.projrow .btn{height:46px}
+.storyfoot{position:relative;z-index:1;grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;margin:4px auto 0;padding:10px 18px;border-radius:99px;font-family:var(--serif);font-size:15px;color:var(--ink2)}
+.storyfoot b{color:var(--ink)}
+.storyfoot .sep{width:1px;height:18px;background:var(--rule2);margin:0 8px}
+.storyfoot a,.storyfoot .link{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.link{border:0;background:none;padding:0;font:inherit;cursor:pointer}
+
+/* desk scene: optional images in assets/, drawn placeholders otherwise */
+.desk{grid-column:1/-1;position:relative;height:56px;margin:0 -36px;background:linear-gradient(180deg,#d9b48a 0,#c99c6e 18%,#b98a5d 60%,#a87a50 100%);box-shadow:0 -1px 0 #e9cfae inset}
+.desk::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 90px),repeating-linear-gradient(90deg,rgba(90,55,25,.06) 0 1px,transparent 1px 37px)}
+.deco{position:absolute;pointer-events:none;user-select:none;z-index:0}
+.deco img,.deco .dph{display:block;width:100%;height:auto}
+.deco img ~ .dph{display:none}
+.books{left:24px;bottom:30px;width:230px}
+.mug{right:60px;bottom:30px;width:140px}
+.plant-l{left:-28px;bottom:150px;width:120px;opacity:.95}
+.plant-r{right:-30px;bottom:170px;width:120px;opacity:.95}
+@media (max-width:1180px){.plant-l,.plant-r{display:none}.books{width:170px}.mug{width:100px}}
+@media (max-width:900px){.story{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.desk{display:none}.drop{flex-wrap:wrap}.drop .hint{border-left:0;padding-left:0}.btn.go{min-width:0;flex:1 1 100%}}
+
+.about{max-width:440px;border:1px solid var(--rule);border-radius:16px;padding:24px 26px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow);font-family:var(--serif)}
+.about::backdrop{background:rgba(34,32,27,.35)}
+.about h2{margin:0 0 8px;font-size:24px;color:var(--accent)}
+.about small{font-family:var(--sans);font-size:13px;color:var(--ink2);font-weight:400}
+.about form{display:flex;justify-content:flex-end;margin-top:8px}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
-body.phone .brand span{display:none}
+body.phone .bname i,body.phone .projwrap,body.phone .desk,body.phone .deco,body.phone .storyfoot .sep{display:none}
+body.phone .brand{border-right:0;padding-right:0;flex-grow:1}
+body.phone .bname b{font-size:22px}
+body.phone nav.steps button{padding:0 6px;font-size:15px}
+body.phone nav.steps button .ic{display:none}
+body.phone .seg button{padding:0 10px}
+body.phone .chead h2{font-size:24px}
+body.phone .story{padding:12px 12px 0;gap:12px;grid-template-columns:minmax(0,1fr);grid-template-rows:none}
+body.phone .story .card{padding:18px}
 body.phone nav.steps{gap:12px}
 body.phone .story,body.phone .record{padding:12px;gap:12px}
 body.phone .prompter{padding:20px 20px;min-height:0;flex:1 1 auto;--fs:28px}
@@ -229,25 +328,61 @@ body.phone footer.bar .where,body.phone footer.bar .status,body.phone .size{disp
 body.phone footer.bar .btn:not(#nextBtn){flex:1 1 0}
 body.phone footer.bar kbd{display:none}
 body.phone .toast{top:16px;bottom:auto}
+@media (max-width:1240px){ nav.steps button .ic{display:none} nav.steps button{padding:0 10px} }
+@media (max-width:1060px){ nav.steps{order:3;width:100%;margin:0;justify-content:center} nav.steps button{height:42px} .projwrap{flex-grow:1} }
 @media (max-width:700px){
   .prompter{padding:22px;--fs:28px}
-  nav.steps{order:3;width:100%}
+  .bname i,.brand{border-right:0}
+  .story{padding:16px 12px 0}
+  .seg button .ic{display:none}
 }
 </style>
 </head>
 <body>
 <div class="app">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5c2.6-1 5.6-1 9 1 3.4-2 6.4-2 9-1v13c-2.6-1-5.6-1-9 1-3.4-2-6.4-2-9-1z"/><path d="M12 6.5v13"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 4.8v14.4L19 12z"/></symbol>
+      <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 13.5V19h14v-5.5"/></symbol>
+      <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.8" width="10" height="18.4" rx="2"/><path d="M11 17.8h2"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A2 2 0 0 1 5 5.5h4l2 2h8a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11M4 6.5h1.5M4 12h1.5M4 17.5h1.5"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 11a3.75 3.75 0 0 1-.5 7.5"/><path d="M12 12.5v7M9.2 15.2 12 12.5l2.8 2.7"/></symbol>
+      <symbol id="i-redo" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.5H15"/></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8.5 4v4.5h6V4M8 20v-6h8v6"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
+    </defs>
+  </svg>
   <header class="top">
-    <div class="brand"><b>PageCue</b><span id="byline">Untitled story</span></div>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 44 48" aria-hidden="true"><path d="M8 4h19l9 9v27a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linejoin="round"/><path d="M27 4v9h9" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linejoin="round"/><path d="M11 18h14M11 24h17M11 30h9" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/><path d="M26 30v15l13-7.5z" fill="var(--accent)" stroke="var(--paper)" stroke-width="2" stroke-linejoin="round"/></svg>
+      <div class="bname"><b>PageCue</b><i>Read. Record. Share.</i></div>
+    </div>
+    <div class="projwrap">
+      <button type="button" class="projchip" id="projChip" aria-haspopup="true" aria-expanded="false" title="Story and project file">
+        <svg class="ic"><use href="#i-folder"/></svg><span id="byline">Untitled story</span><svg class="ic chev"><use href="#i-chev"/></svg>
+      </button>
+      <div class="projmenu" id="projMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-pm="edit"><svg class="ic"><use href="#i-pen"/></svg>Edit title and author</button>
+        <button type="button" role="menuitem" data-pm="save"><svg class="ic"><use href="#i-save"/></svg>Save project file</button>
+        <button type="button" role="menuitem" data-pm="open"><svg class="ic"><use href="#i-folder"/></svg>Open project file</button>
+      </div>
+    </div>
     <nav class="steps" aria-label="Steps">
-      <button type="button" data-step="story" aria-current="step">Story</button>
-      <button type="button" data-step="record">Record</button>
-      <button type="button" data-step="review" disabled title="Record a take first">Review</button>
-      <button type="button" data-step="export" disabled title="Record a take first">Export</button>
+      <button type="button" data-step="story" aria-current="step"><svg class="ic"><use href="#i-book"/></svg>Story</button>
+      <button type="button" data-step="record"><svg class="ic"><use href="#i-mic"/></svg>Record</button>
+      <button type="button" data-step="review" disabled title="Record a take first"><svg class="ic"><use href="#i-play"/></svg>Review</button>
+      <button type="button" data-step="export" disabled title="Record a take first"><svg class="ic"><use href="#i-export"/></svg>Export</button>
     </nav>
     <div class="seg" role="group" aria-label="Device mode">
-      <button type="button" data-device="laptop" aria-pressed="true">Laptop</button>
-      <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+      <button type="button" data-device="laptop" aria-pressed="true"><svg class="ic"><use href="#i-laptop"/></svg>Laptop</button>
+      <button type="button" data-device="phone" aria-pressed="false"><svg class="ic"><use href="#i-phone"/></svg>Phone</button>
     </div>
   </header>
 
@@ -259,23 +394,28 @@ body.phone .toast{top:16px;bottom:auto}
 
   <!-- ================= STORY ================= -->
   <main id="storyView" class="story">
+    <div class="deco plant-l" aria-hidden="true"><img src="assets/scene-plant-left.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M10 220C30 170 40 120 30 60c25 40 30 100 0 160z"/><path d="M18 200C55 170 85 150 115 140c-25 30-55 50-97 60z"/><path d="M14 160C40 120 70 100 100 92c-18 30-45 52-86 68z" fill="#a3b77c"/><path d="M8 120C20 90 40 60 70 40c-5 35-25 60-62 80z" fill="#9db374"/></g></svg></div>
+    <div class="deco plant-r" aria-hidden="true"><img src="assets/scene-plant-right.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M110 220C90 170 80 120 90 60c-25 40-30 100 0 160z"/><path d="M102 200C65 170 35 150 5 140c25 30 55 50 97 60z"/><path d="M106 150C80 115 50 98 20 90c18 30 45 50 86 60z" fill="#a3b77c"/></g></svg></div>
+
     <section class="card src" aria-labelledby="srcH">
-      <h2 id="srcH" class="label" style="margin:0">Your story</h2>
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
+        <div><h2 id="srcH">Story Setup</h2><p>Add your story, or import a text or Markdown file to get started.</p></div></div>
       <div class="row">
         <div class="field"><label for="title">Title</label><input id="title" placeholder="The Twelfth Storm"></div>
         <div class="field"><label for="author">Author</label><input id="author" placeholder="Your name"></div>
       </div>
       <div class="drop" id="drop">
-        <label class="btn" for="file" style="cursor:pointer">Load .txt or .md</label>
+        <label class="btn" for="file" style="cursor:pointer"><svg class="ic"><use href="#i-cloud"/></svg>Import File</label>
         <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" class="sr">
-        <span class="hint">or drop a file here, or paste below. Markdown <b>**bold**</b> and <i>*italics*</i> are kept.</span>
+        <span class="hint">Or drag and drop a .txt or .md file here, or paste your text below.<br><em>Markdown supported (**bold**, *italic*, etc.).</em></span>
       </div>
       <label for="raw" class="sr">Story text</label>
       <textarea id="raw" spellcheck="true" placeholder="Paste your story here…"></textarea>
     </section>
 
     <section class="card lines" aria-labelledby="linesH">
-      <h2 id="linesH" class="label" style="margin:0">Prompter lines</h2>
+      <div class="chead"><span class="tile"><svg class="ic"><use href="#i-list"/></svg></span>
+        <div><h2 id="linesH">Prompter Setup</h2><p>Turn your story into easy-to-follow reading lines for the prompter.</p></div></div>
       <div class="row">
         <div class="field"><label for="split">Split into lines by</label>
           <select id="split">
@@ -283,24 +423,41 @@ body.phone .toast{top:16px;bottom:auto}
             <option value="line">Line break</option>
           </select>
         </div>
-        <button type="button" class="btn" id="resplit">Split again from story</button>
+        <button type="button" class="btn" id="resplit" title="Rebuild the lines from the story"><svg class="ic"><use href="#i-redo"/></svg>Split Again</button>
       </div>
-      <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete the line break to merge two.</p>
+      <p class="hint" style="margin:0">One prompter line per row. Edit freely: press Enter to split a line, delete a line break to merge two.</p>
       <label for="linesBox" class="sr">Prompter lines, one per row</label>
       <textarea id="linesBox" spellcheck="false"></textarea>
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <span class="count" id="count">0 lines</span>
-        <button type="button" class="btn primary" id="toRecord">Go to the prompter</button>
+      <div class="row gorow">
+        <span class="count"><svg class="ic"><use href="#i-list"/></svg><span id="count">0 lines</span></span>
+        <button type="button" class="btn primary go" id="toRecord"><svg class="ic fill"><use href="#i-play"/></svg>Go to Prompter<svg class="ic"><use href="#i-arrow"/></svg></button>
       </div>
       <div class="projrow">
-        <span class="hint" style="flex-grow:1">Project file: your story, lines and timing (the video is saved separately).</span>
-        <button type="button" class="btn" id="projSave">Save project file</button>
-        <label class="btn" for="projOpen" style="cursor:pointer">Open project file</label>
+        <svg class="ic gold"><use href="#i-folder"/></svg>
+        <span class="hint" style="flex-grow:1">Project file: your story, lines, and timing<br>(video saved separately).</span>
+        <button type="button" class="btn" id="projSave"><svg class="ic"><use href="#i-save"/></svg>Save Project</button>
+        <label class="btn" for="projOpen" style="cursor:pointer"><svg class="ic"><use href="#i-folder"/></svg>Open Project</label>
         <input id="projOpen" type="file" accept=".json,application/json" class="sr">
       </div>
     </section>
-    <p class="credit">PageCue is free and private: your story and recordings never leave this device. By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a> · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support PageCue (Buy Me a Coffee)</a></p>
+
+    <footer class="storyfoot">
+      <svg class="ic gold"><use href="#i-lock"/></svg><b>Local-first &amp; private.</b><span>Your story and recordings never leave this device.</span>
+      <i class="sep"></i><button type="button" class="link" id="aboutBtn">About PageCue</button>
+      <i class="sep"></i><a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support</a>
+    </footer>
+
+    <div class="desk" aria-hidden="true">
+      <div class="deco books"><img src="assets/scene-books.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 240 110"><rect x="8" y="58" width="220" height="44" rx="5" fill="#6b3b2a"/><rect x="8" y="58" width="220" height="44" rx="5" fill="none" stroke="#4d2a1d" stroke-width="2"/><path d="M40 58v44M196 58v44" stroke="#c7a25a" stroke-width="4"/><rect x="226" y="62" width="8" height="36" rx="2" fill="#efe4cc"/><rect x="22" y="14" width="196" height="44" rx="5" fill="#3f5a45"/><rect x="22" y="14" width="196" height="44" rx="5" fill="none" stroke="#2c4231" stroke-width="2"/><path d="M52 14v44M186 14v44" stroke="#c7a25a" stroke-width="4"/><rect x="216" y="18" width="8" height="36" rx="2" fill="#efe4cc"/></svg></div>
+      <div class="deco mug"><img src="assets/scene-mug.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 150 130"><path d="M112 42c22 0 26 34 2 40" fill="none" stroke="#d9c7a6" stroke-width="10" stroke-linecap="round"/><path d="M14 22h100v74a26 26 0 0 1-26 26H40a26 26 0 0 1-26-26z" fill="#efe3cc" stroke="#d4c09c" stroke-width="2"/><ellipse cx="64" cy="22" rx="50" ry="9" fill="#5a3a24" stroke="#d4c09c" stroke-width="2"/><g fill="#c9b48e" opacity=".5"><circle cx="34" cy="60" r="1.6"/><circle cx="58" cy="78" r="1.6"/><circle cx="84" cy="54" r="1.6"/><circle cx="96" cy="86" r="1.6"/><circle cx="44" cy="96" r="1.6"/></g></svg></div>
+    </div>
   </main>
+  <dialog id="about" class="about">
+    <h2>PageCue <small>0.5.0</small></h2>
+    <p>A free, private reading prompter for authors. Your story and recordings stay on this device: no uploads, no accounts, no tracking.</p>
+    <p>By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a><br>MIT license · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Buy me a coffee</a></p>
+    <form method="dialog"><button class="btn primary">Close</button></form>
+  </dialog>
 
   <!-- ================= REVIEW (stage 4) ================= -->
   <main id="reviewView" class="review" hidden>
@@ -564,7 +721,7 @@ function renderCount(){
 }
 function renderByline(){
   const t = state.title.trim() || "Untitled story";
-  $("byline").textContent = state.author.trim() ? t + " · " + state.author.trim() : t;
+  $("byline").textContent = state.author.trim() ? t + " • " + state.author.trim() : t;
 }
 function resplit(){
   state.lines = splitStory(state.raw, state.split);
@@ -622,7 +779,7 @@ function setStep(step){
     document.querySelector('nav.steps [data-step="review"]').removeAttribute("aria-current"); setTimeout(() => $("exportBox").scrollIntoView({ behavior: "smooth", block: "center" }), 50); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
-  state.step = step;
+  state.step = step; document.body.dataset.step = step;
   document.querySelectorAll("nav.steps [data-step]").forEach(b => {
     if (b.dataset.step === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
   });
@@ -644,6 +801,27 @@ function setDevice(d){
   save();
 }
 document.querySelectorAll("[data-device]").forEach(b => b.addEventListener("click", () => setDevice(b.dataset.device)));
+
+/* ---------- project menu and about ---------- */
+function projMenu(open){
+  $("projMenu").hidden = !open; $("projChip").setAttribute("aria-expanded", String(open));
+  if (open) $("projMenu").querySelector("button").focus();
+}
+$("projChip").addEventListener("click", e => { e.stopPropagation(); projMenu($("projMenu").hidden); });
+$("projMenu").addEventListener("click", e => {
+  const b = e.target.closest("[data-pm]"); if (!b) return; projMenu(false);
+  if (b.dataset.pm === "edit"){ if (state.step !== "story") setStep("story"); if (state.step === "story"){ $("title").focus(); $("title").select(); } }
+  else if (b.dataset.pm === "save") $("projSave").click();
+  else if (b.dataset.pm === "open") $("projOpen").click();
+});
+document.addEventListener("click", e => { if (!$("projMenu").hidden && !e.target.closest(".projwrap")) projMenu(false); });
+$("projMenu").addEventListener("keydown", e => {
+  if (e.key === "Escape"){ e.stopPropagation(); projMenu(false); $("projChip").focus(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); e.stopPropagation();
+    const items = [...$("projMenu").querySelectorAll("button")], i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus(); }
+});
+$("aboutBtn").addEventListener("click", () => { const d = $("about"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
 
 function setFmt(f, quiet){
   state.fmt = f;
