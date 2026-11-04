@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 — in testing
+
+Stage 4: review and timeline.
+
+- New Review step (unlocks once you have a take)
+- Your take plays inside the face bubble with the story text on top, exactly as it will export; wide or vertical
+- Timeline of every timed line: click a line to jump to it, click empty space to seek, drag a line's left edge to move its start
+- Nudge the selected line 0.1 s with `,` and `.` (Shift for 1 s); Space plays or pauses; ← → move between lines
+- Lines can't overlap or shrink below 0.15 s
+- Timing edits are saved with the take, so they survive a reload; "Reset timing to the take" restores your original taps
+- Video settings: story text as one line at a time, or the current line plus the one before; face bubble top left, top right or bottom; circle or rounded square. The record preview follows the same settings
+- Short takes stretch to fill the timeline; long takes scroll and follow the playhead
+- Warns when the take ended before the last lines, or when the lines changed after recording
+
 ## 0.2.0 — in testing
 
 Stage 3: camera and recording.

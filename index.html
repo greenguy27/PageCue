@@ -6,7 +6,7 @@
 <title>PageCue</title>
 <meta name="theme-color" content="#f6f1e7">
 <style>
-/* PageCue v0.2 (stage 3: camera + recording). Direction B "Studio".
+/* PageCue v0.3 (stage 4: review + timeline). Direction B "Studio".
    One file, no network requests, nothing leaves the device. */
 :root{
   --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
@@ -142,6 +142,49 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .credit{flex:1 1 100%;margin:0;text-align:center;font-size:13px;color:var(--ink2)}
 .projrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid var(--rule)}
 
+/* ---------- Review + timeline (v0.3) ---------- */
+.review{flex-grow:1;display:flex;flex-wrap:wrap;gap:24px;padding:24px 24px 0;align-content:flex-start}
+.rprev{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.rprev .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#rvid.wide{max-width:900px}
+.vid .face video{transform:none}
+#cam{transform:scaleX(-1)}
+.transport{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.play{width:44px;height:44px;border:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center}
+.time{font-family:var(--mono);font-size:14px;color:var(--ink2);min-width:130px}
+.rset{flex:1 1 320px;gap:16px}
+.rset fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px}
+.rset legend{margin-bottom:6px}
+.rset label{display:flex;align-items:center;gap:10px;font-size:14px}
+.rset input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
+.pills{display:flex;gap:4px}
+.pills button{flex:1 1 0;height:38px;border:1px solid var(--rule);border-radius:8px;background:var(--ground);color:var(--ink2);font-size:13px}
+.pills button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-wash);color:var(--ink);font-weight:600}
+.tl{flex:1 1 100%;margin:0 -24px;padding:14px 24px 18px;background:var(--band);border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;min-width:0}
+.tlinfo{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+.selinfo{font-size:14px;font-weight:600;color:var(--accent)}
+.tlscroll{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
+.ruler{position:relative;height:18px;font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.ruler span{position:absolute;top:0;white-space:nowrap}
+.ruler i{position:absolute;bottom:0;width:1px;height:5px;background:var(--rule2)}
+.track{position:relative;height:60px;border-radius:10px;background:var(--paper);border:1px solid var(--rule);cursor:pointer;touch-action:none;user-select:none}
+.blk{position:absolute;top:8px;bottom:8px;border-radius:6px;background:var(--ground);border:1px solid var(--rule);padding:0 8px 0 12px;font-family:var(--serif);font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;display:flex;align-items:center;box-sizing:border-box}
+.blk.sel{top:5px;bottom:5px;border:2px solid var(--accent);background:var(--accent-wash);color:var(--ink);font-weight:600;z-index:1}
+.blk .h{position:absolute;left:0;top:0;bottom:0;width:10px;cursor:ew-resize;background:linear-gradient(90deg,var(--rule2) 0 2px,transparent 2px)}
+.blk.sel .h{background:linear-gradient(90deg,var(--accent) 0 3px,transparent 3px)}
+.ph{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--rec);pointer-events:none;z-index:2}
+/* bubble placement and shape, shared by the record preview and the review */
+.vid.shape-rounded .face{border-radius:16%}
+.vid.wide.c-tl .face{left:5%;right:auto}
+.vid.wide.c-tl .meta{left:34%;right:7%;text-align:right}
+.vid.wide.c-bottom .face{top:auto;bottom:10%}
+.vid.tall.c-bottom .face{top:auto;bottom:12%}
+.vid.tall.c-bottom .txt{top:16%}
+.vid.tall.c-bottom .meta{top:6%;bottom:auto}
+.vid.tall.c-tl .face{left:8%;transform:none;width:36%}
+.vid.tall.c-tl .meta{bottom:7%}
+.vid.one .prev{display:none}
+
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
 body.phone .brand span{display:none}
@@ -155,8 +198,11 @@ body.phone .side{flex-wrap:wrap;gap:10px}
 body.phone .panel{flex:1 1 100%;padding:10px 12px}
 body.phone #camPanel .row2,body.phone #camPanel h3{display:none}
 body.phone .take-player{max-height:200px}
-body.phone .vid{width:72px;flex:0 0 72px;aspect-ratio:9/16;border-radius:8px}
-body.phone .vid .meta{display:none}
+body.phone .review{padding:12px 12px 0;gap:12px}
+body.phone .tl{margin:0 -12px;padding:12px}
+body.phone .rprev .hint{display:none}
+body.phone #vid{width:72px;flex:0 0 72px;aspect-ratio:9/16;border-radius:8px}
+body.phone #vid .meta{display:none}
 body.phone .phoneinfo{display:flex}
 .phoneinfo{display:none;flex-direction:column;gap:4px;flex-grow:1}
 body.phone footer.bar{padding:12px}
@@ -178,7 +224,7 @@ body.phone .toast{top:16px;bottom:auto}
     <nav class="steps" aria-label="Steps">
       <button type="button" data-step="story" aria-current="step">Story</button>
       <button type="button" data-step="record">Record</button>
-      <button type="button" disabled title="Coming in stage 4">Review</button>
+      <button type="button" data-step="review" disabled title="Record a take first">Review</button>
       <button type="button" disabled title="Coming in stage 5">Export</button>
     </nav>
     <div class="seg" role="group" aria-label="Device mode">
@@ -230,6 +276,62 @@ body.phone .toast{top:16px;bottom:auto}
       </div>
     </section>
     <p class="credit">PageCue is free and private: your story and recordings never leave this device. By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a> · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support PageCue (Buy Me a Coffee)</a></p>
+  </main>
+
+  <!-- ================= REVIEW (stage 4) ================= -->
+  <main id="reviewView" class="review" hidden>
+    <section class="rprev" aria-label="Preview of the take">
+      <div class="head">
+        <span class="label">Viewers see</span>
+        <div class="fmt" role="group" aria-label="Preview format">
+          <button type="button" data-rfmt="wide" aria-pressed="true">Wide 16:9</button>
+          <button type="button" data-rfmt="tall" aria-pressed="false">Vertical 9:16</button>
+        </div>
+      </div>
+      <div class="vid wide" id="rvid">
+        <div class="meta" id="rMeta"></div>
+        <div class="txt"><span class="prev" id="rPrev"></span><span class="now" id="rNow"></span></div>
+        <div class="face"><video id="rv" playsinline preload="auto"></video></div>
+      </div>
+      <div class="transport">
+        <button type="button" class="play" id="rvPlay" aria-label="Play"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path id="rvIcon" d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button>
+        <span class="time" id="rvTime">0:00.0 / 0:00</span>
+        <span class="hint">Your take plays in the bubble with the story text exactly as it will export.</span>
+      </div>
+      <p class="warn" id="rWarn" hidden></p>
+    </section>
+
+    <aside class="card rset" aria-label="Video settings">
+      <h2 style="margin:0;font-family:var(--serif);font-size:20px;font-weight:600">Video settings</h2>
+      <fieldset>
+        <legend class="label">Story text on the video</legend>
+        <label><input type="radio" name="txtmode" value="two"> Current line plus the line before</label>
+        <label><input type="radio" name="txtmode" value="one"> One line at a time</label>
+      </fieldset>
+      <fieldset>
+        <legend class="label">Face bubble</legend>
+        <div class="pills" role="group" aria-label="Bubble corner">
+          <button type="button" data-corner="tl">Top left</button><button type="button" data-corner="tr">Top right</button><button type="button" data-corner="bottom">Bottom</button>
+        </div>
+        <div class="pills" role="group" aria-label="Bubble shape">
+          <button type="button" data-shape="circle">Circle</button><button type="button" data-shape="rounded">Rounded square</button>
+        </div>
+      </fieldset>
+      <div style="flex-grow:1"></div>
+      <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
+      <p class="hint" style="margin:0">Exporting the finished videos arrives in the next version.</p>
+    </aside>
+
+    <section class="tl" aria-label="Timeline">
+      <div class="tlinfo">
+        <span class="selinfo" id="selInfo">Line 1</span>
+        <span class="hint">Drag a line's left edge to move its start, or select it and nudge 0.1 s with <kbd>,</kbd> and <kbd>.</kbd> (hold Shift for 1 s). <kbd>Space</kbd> plays or pauses, <kbd>←</kbd> <kbd>→</kbd> change lines.</span>
+      </div>
+      <div class="tlscroll" id="tlScroll">
+        <div class="ruler" id="ruler"></div>
+        <div class="track" id="track"><div class="ph" id="ph"></div></div>
+      </div>
+    </section>
   </main>
 
   <!-- ================= RECORD (prompter) ================= -->
@@ -323,8 +425,8 @@ const state = {
 
 function save(){
   try{
-    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId} = state;
-    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId}));
+    const {title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape} = state;
+    localStorage.setItem(KEY, JSON.stringify({title,author,raw,split,lines,linesEdited,fs,device,fmt,camId,micId,txtMode,corner,shape}));
   }catch(e){ /* private mode or storage blocked: the app still works */ }
 }
 function load(){
@@ -471,8 +573,11 @@ function setStep(step){
   });
   $("storyView").hidden = step !== "story";
   $("recordView").hidden = step !== "record";
+  $("reviewView").hidden = step !== "review";
   $("bar").hidden = step !== "record";
+  if (step !== "review") rvPause();
   if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); }
+  if (step === "review") enterReview();
 }
 document.querySelectorAll("nav.steps [data-step]").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
 
@@ -487,7 +592,7 @@ document.querySelectorAll("[data-device]").forEach(b => b.addEventListener("clic
 
 function setFmt(f, quiet){
   state.fmt = f;
-  $("vid").className = "vid " + f;
+  $("vid").className = "vid " + f + lookClasses();
   document.querySelectorAll("[data-fmt]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fmt === f)));
   if (!quiet) save();
 }
@@ -700,14 +805,18 @@ async function finishTake(){
   const blob = new Blob(chunks, { type }); chunks = []; recorder = null;
   $("camSel").disabled = $("micSel").disabled = $("camStop").disabled = false;
   const n = take ? take.n + 1 : 1;
-  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
+  setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
   take.unsafe = !(await idbPut(take));
   renderTake();
   toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
 }
 function setTake(t){
   if (takeURL) URL.revokeObjectURL(takeURL);
+  if (t && !t.origStarts) t.origStarts = t.starts.slice();
   take = t; takeURL = t ? URL.createObjectURL(t.blob) : null;
+  rvLoaded = null;
+  const rb = document.querySelector('nav.steps [data-step="review"]');
+  rb.disabled = !t; rb.title = t ? "" : "Record a take first";
   const p = $("takePlayer"); p.pause(); p.removeAttribute("src"); p.load(); p.hidden = true;
   renderTake();
 }
@@ -758,7 +867,7 @@ async function idbTx(mode, fn){
   });
 }
 async function idbPut(t){
-  try{ const { n, blob, type, duration, starts, lines, when } = t; await idbTx("readwrite", st => st.put({ n, blob, type, duration, starts, lines, when }, "current")); return true; }
+  try{ const { n, blob, type, duration, starts, origStarts, lines, when } = t; await idbTx("readwrite", st => st.put({ n, blob, type, duration, starts, origStarts, lines, when }, "current")); return true; }
   catch(e){ return false; }
 }
 async function idbGet(){ try{ return await idbTx("readonly", st => st.get("current")); }catch(e){ return null; } }
@@ -788,6 +897,155 @@ $("projOpen").addEventListener("change", e => {
   r.readAsText(f);
 });
 
+/* ---------- review: play the take with the overlay, fix timing ---------- */
+let PPS = 24;                         // timeline pixels per second; stretched so short takes fill the width
+const MIN_GAP = 150;                  // shortest a line can be, in ms
+let sel = 0, rvRAF = 0, rvLoaded = null, rFmt = "wide", saveT = null;
+const rv = $("rv");
+function lookClasses(){
+  return (state.txtMode === "one" ? " one" : "") + " c-" + (state.corner || "tr") + " shape-" + (state.shape || "circle");
+}
+function applyLook(){
+  $("rvid").className = "vid " + rFmt + lookClasses();
+  setFmt(state.fmt, true);
+  document.querySelectorAll('input[name="txtmode"]').forEach(r => r.checked = r.value === (state.txtMode || "two"));
+  document.querySelectorAll("[data-corner]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.corner === (state.corner || "tr"))));
+  document.querySelectorAll("[data-shape]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.shape === (state.shape || "circle"))));
+  document.querySelectorAll("[data-rfmt]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.rfmt === rFmt)));
+}
+const plain = l => l.replace(/^#{1,6}\s+/, "").replace(/\*+|_/g, "");
+const durMs = () => take ? Math.max(take.duration, (take.starts[take.starts.length - 1] || 0) + MIN_GAP) : 0;
+function lineAt(ms){
+  const s = take.starts; if (ms < s[0]) return -1;
+  let i = 0; while (i + 1 < s.length && s[i + 1] <= ms) i++;
+  return i;
+}
+function nowMs(){ return (rv.currentTime || 0) * 1000; }
+
+function enterReview(){
+  if (!take){ setStep("record"); return; }
+  if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
+  rFmt = state.fmt || "wide";
+  if (sel >= take.starts.length) sel = 0;
+  applyLook(); buildTimeline(); renderReview();
+  const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
+  const w = [];
+  if (changed) w.push("Your prompter lines changed after this take. Review uses the lines as they were when you recorded.");
+  if (missing > 0) w.push(`The take ended before the last ${missing === 1 ? "line" : missing + " lines"}, so ${missing === 1 ? "it isn't" : "they aren't"} on the timeline.`);
+  $("rWarn").hidden = !w.length; $("rWarn").textContent = w.join(" ");
+}
+function renderReview(){
+  if (!take) return;
+  const ms = nowMs(), i = lineAt(ms), L = take.lines;
+  $("rNow").innerHTML = i >= 0 ? md(L[i]) : "";
+  $("rPrev").innerHTML = i > 0 ? md(L[i - 1]) : "";
+  $("rMeta").textContent = [state.title.trim(), state.author.trim()].filter(Boolean).join(" · ");
+  $("rvTime").textContent = fmtT(ms) + " / " + fmtClock(durMs());
+  $("rvIcon").setAttribute("d", rv.paused ? "M7 4l13 8-13 8z" : "M6 4h4v16H6zM14 4h4v16h-4z");
+  $("rvPlay").setAttribute("aria-label", rv.paused ? "Play" : "Pause");
+  const ph = $("ph"); ph.style.left = (ms / 1000 * PPS) + "px";
+  const s = take.starts[sel];
+  $("selInfo").textContent = `Line ${sel + 1} starts at ${fmtT(s)}: ${plain(L[sel]).slice(0, 70)}${plain(L[sel]).length > 70 ? "…" : ""}`;
+}
+function buildTimeline(){
+  const sc = $("tlScroll"), tr = $("track"), ru = $("ruler");
+  const secs = durMs() / 1000;
+  PPS = Math.max(24, (sc.clientWidth - 40) / Math.max(1, secs));
+  const w = Math.max(sc.clientWidth - 2, secs * PPS + 40);
+  tr.style.width = ru.style.width = w + "px";
+  const stepS = [1, 2, 5, 10, 15, 30, 60, 120].find(x => x * PPS >= 70) || 300;   // a label every ~70 px or more
+  const ticks = [];
+  for (let t = 0; t <= secs + 0.01; t += stepS)
+    ticks.push(`<i style="left:${t * PPS}px"></i><span style="left:${t * PPS + 3}px">${fmtClock(t * 1000)}</span>`);
+  ru.innerHTML = ticks.join("");
+  tr.querySelectorAll(".blk").forEach(b => b.remove());
+  const S = take.starts, D = durMs(), frag = document.createDocumentFragment();
+  for (let i = 0; i < S.length; i++){
+    const end = i + 1 < S.length ? S[i + 1] : D;
+    const b = document.createElement("div");
+    b.className = "blk" + (i === sel ? " sel" : "");
+    b.dataset.i = i;
+    b.style.left = (S[i] / 1000 * PPS) + "px";
+    b.style.width = Math.max(4, (end - S[i]) / 1000 * PPS) + "px";
+    b.title = `Line ${i + 1}: ${plain(take.lines[i])}`;
+    b.innerHTML = `<span class="h" data-i="${i}" aria-hidden="true"></span>${i + 1} ${esc(plain(take.lines[i]))}`;
+    frag.appendChild(b);
+  }
+  tr.appendChild(frag);
+}
+function select(i, seek){
+  if (!take) return;
+  sel = Math.max(0, Math.min(take.starts.length - 1, i));
+  if (seek){ rv.currentTime = take.starts[sel] / 1000 + 0.01; }
+  buildTimeline(); renderReview(); scrollToMs(take.starts[sel]);
+}
+function scrollToMs(ms){
+  const sc = $("tlScroll"), x = ms / 1000 * PPS;
+  if (x < sc.scrollLeft + 40 || x > sc.scrollLeft + sc.clientWidth - 80) sc.scrollLeft = Math.max(0, x - sc.clientWidth / 3);
+}
+function setStart(i, ms){
+  const S = take.starts;
+  const lo = i === 0 ? 0 : S[i - 1] + MIN_GAP;
+  const hi = (i + 1 < S.length ? S[i + 1] : durMs()) - MIN_GAP;
+  S[i] = Math.round(Math.max(lo, Math.min(hi, ms)));
+  persistSoon();
+}
+function persistSoon(){
+  clearTimeout(saveT);
+  saveT = setTimeout(async () => { if (take) { const ok = await idbPut(take); take.unsafe = !ok; renderTake(); } }, 400);
+}
+function rvPlayToggle(){
+  if (!take) return;
+  if (rv.paused){ if (nowMs() >= durMs() - 50) rv.currentTime = 0; rv.play().catch(() => {}); loopReview(); }
+  else rvPause();
+}
+function rvPause(){ try{ rv.pause(); }catch(e){} cancelAnimationFrame(rvRAF); if (take) renderReview(); }
+function loopReview(){
+  cancelAnimationFrame(rvRAF);
+  const step = () => {
+    renderReview();
+    if (!rv.paused){ scrollToMs(nowMs()); rvRAF = requestAnimationFrame(step); }
+  };
+  step();
+}
+rv.addEventListener("ended", () => { cancelAnimationFrame(rvRAF); renderReview(); });
+rv.addEventListener("seeked", renderReview);
+$("rvPlay").addEventListener("click", rvPlayToggle);
+
+// Timeline: drag a line's left edge to move its start; click a line to select it; click empty track to seek.
+const trackEl = $("track");
+let drag = null;
+function msFromEvent(e){ const r = trackEl.getBoundingClientRect(); return Math.max(0, (e.clientX - r.left) / PPS * 1000); }
+trackEl.addEventListener("pointerdown", e => {
+  if (!take) return;
+  const h = e.target.closest(".h"), blk = e.target.closest(".blk");
+  if (h){
+    drag = { i: +h.dataset.i }; sel = drag.i; trackEl.setPointerCapture(e.pointerId); e.preventDefault();
+    buildTimeline(); renderReview(); return;
+  }
+  if (blk){ select(+blk.dataset.i, true); return; }
+  rv.currentTime = msFromEvent(e) / 1000; renderReview();
+});
+trackEl.addEventListener("pointermove", e => {
+  if (!drag) return;
+  setStart(drag.i, msFromEvent(e));
+  buildTimeline(); renderReview();
+});
+const endDrag = e => { if (!drag) return; drag = null; try{ trackEl.releasePointerCapture(e.pointerId); }catch(err){} rv.currentTime = take.starts[sel] / 1000 + 0.01; };
+trackEl.addEventListener("pointerup", endDrag);
+trackEl.addEventListener("pointercancel", endDrag);
+window.addEventListener("resize", () => { if (state.step === "review" && take) buildTimeline(); });
+
+function nudge(ms){ if (!take) return; setStart(sel, take.starts[sel] + ms); rv.currentTime = take.starts[sel] / 1000 + 0.01; buildTimeline(); renderReview(); }
+$("resetTiming").addEventListener("click", () => {
+  if (!take || !confirm("Put every line back where you tapped it during the take?")) return;
+  take.starts = take.origStarts.slice(); persistSoon(); buildTimeline(); renderReview(); toast("Timing reset to the take");
+});
+document.querySelectorAll('input[name="txtmode"]').forEach(r => r.addEventListener("change", () => { state.txtMode = r.value; save(); applyLook(); renderReview(); }));
+document.querySelectorAll("[data-corner]").forEach(b => b.addEventListener("click", () => { state.corner = b.dataset.corner; save(); applyLook(); }));
+document.querySelectorAll("[data-shape]").forEach(b => b.addEventListener("click", () => { state.shape = b.dataset.shape; save(); applyLook(); }));
+document.querySelectorAll("[data-rfmt]").forEach(b => b.addEventListener("click", () => { rFmt = b.dataset.rfmt; applyLook(); }));
+
 /* ---------- controls and keys ---------- */
 $("runBtn").addEventListener("click", () => live() ? stopRun() : beginRun("practice"));
 $("recBtn").addEventListener("click", () => cd ? cancelCountdown() : recording() ? stopRun() : startCountdown());
@@ -799,11 +1057,19 @@ $("bigger").addEventListener("click", () => { state.fs = Math.min(80, state.fs +
 
 // Presentation clickers send PageDown/PageUp or arrow keys.
 document.addEventListener("keydown", e => {
-  if (state.step !== "record") return;
   const t = e.target;
-  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+  if (t && ((t.tagName === "INPUT" && t.type !== "radio") || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
+  if (state.step === "review"){
+    if (k === " "){ e.preventDefault(); rvPlayToggle(); }
+    else if (k === "ArrowRight" || k === "ArrowDown"){ e.preventDefault(); select(sel + 1, true); }
+    else if (k === "ArrowLeft" || k === "ArrowUp"){ e.preventDefault(); select(sel - 1, true); }
+    else if (k === "," || k === "<"){ e.preventDefault(); nudge(e.shiftKey ? -1000 : -100); }
+    else if (k === "." || k === ">"){ e.preventDefault(); nudge(e.shiftKey ? 1000 : 100); }
+    return;
+  }
+  if (state.step !== "record") return;
   if (k === "Escape"){ if (cd){ e.preventDefault(); cancelCountdown(); } else if (live()){ e.preventDefault(); stopRun(); } return; }
   if (cd) { if (k === " ") e.preventDefault(); return; }
   if (k === " " || k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === "Enter"){ e.preventDefault(); next(); }
