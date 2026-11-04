@@ -331,6 +331,11 @@ body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 .clipchip .link{color:var(--accent);font-size:13px}
 .clipchip .btn{height:28px;padding:0 8px;font-size:12px}
 
+.xpreset{display:flex;flex-direction:column;gap:8px}
+.prow{display:flex;gap:8px;flex-wrap:wrap}
+.prow select,.prow input{flex:1 1 180px;min-width:0;height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--field);font-family:var(--serif);font-size:15px}
+.prow .btn{height:40px}
+
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
 .pl.cueline .cue{font-size:.72em}
@@ -581,7 +586,20 @@ body.phone .toast{top:16px;bottom:auto}
     <aside class="card xset" aria-labelledby="xSetH">
       <div class="chead"><span class="tile"><svg class="ic"><use href="#i-export"/></svg></span>
         <div><h2 id="xSetH">Export Settings</h2><p>Make the finished videos and their captions.</p></div></div>
-      <div id="xPresetBox"></div>
+      <div class="xpreset" id="xPresetBox">
+        <label class="label" for="presetSel">Preset</label>
+        <div class="prow">
+          <select id="presetSel"></select>
+          <button type="button" class="btn" id="presetNew">Save as preset</button>
+          <button type="button" class="btn" id="presetDel" hidden>Delete</button>
+        </div>
+        <div class="prow" id="presetNameRow" hidden>
+          <input id="presetName" type="text" placeholder="Preset name, e.g. YouTube upload" autocomplete="off">
+          <button type="button" class="btn primary" id="presetSave">Save</button>
+          <button type="button" class="btn" id="presetCancel">Cancel</button>
+        </div>
+        <p class="hint" id="presetHint" style="margin:0">A preset remembers formats, the title card, the story text and face bubble look, and clip lead-in and tail. Presets are kept in this browser only.</p>
+      </div>
       <fieldset class="xrange" id="xRangeBox">
         <legend class="label">What to export</legend>
         <div class="pills" role="group" aria-label="What to export">
@@ -1558,7 +1576,7 @@ function enterReview(){
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
   applyLook(); buildTimeline();
-  if (state.step === "export"){ renderClipUI(); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
+  if (state.step === "export"){ renderPresets(); renderClipUI(); const w = clipWin(); if (w && (nowMs() < w.a || nowMs() > w.b)) rv.currentTime = w.a / 1000 + 0.001; }
   renderReview(); renderExportInfo();
   const changed = !sameLines(take.lines, state.lines), missing = take.lines.length - take.starts.length;
   const w = [];
@@ -2062,6 +2080,62 @@ function renderExportInfo(){
 }
 ["xTitle", "xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
 $("toExport").addEventListener("click", () => setStep("export"));
+
+/* ---------- export presets (this browser only) ---------- */
+const PKEY = "pagecue.presets.v1";
+const BUILTIN_PRESETS = [
+  { id: "b-wide", name: "Wide video", builtin: true, wide: true, tall: false, title: true },
+  { id: "b-short", name: "Vertical short", builtin: true, wide: false, tall: true, title: false },
+  { id: "b-both", name: "Both formats", builtin: true, wide: true, tall: true, title: true }
+];
+function userPresets(){ try{ const a = JSON.parse(localStorage.getItem(PKEY) || "[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function storePresets(a){ try{ localStorage.setItem(PKEY, JSON.stringify(a)); return true; }catch(e){ return false; } }
+const allPresets = () => BUILTIN_PRESETS.concat(userPresets());
+let presetId = "";
+function renderPresets(){
+  const u = userPresets();
+  $("presetSel").innerHTML = `<option value="">Choose a preset…</option><optgroup label="Built in">` +
+    BUILTIN_PRESETS.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("") + `</optgroup>` +
+    (u.length ? `<optgroup label="Your presets">` + u.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("") + `</optgroup>` : "");
+  if (!allPresets().some(p => p.id === presetId)) presetId = "";
+  $("presetSel").value = presetId;
+  const cur = allPresets().find(p => p.id === presetId);
+  $("presetDel").hidden = !cur || !!cur.builtin;
+}
+function applyPreset(p){
+  $("xWide").checked = !!p.wide; $("xTall").checked = !!p.tall; $("xTitle").checked = !!p.title;
+  if (p.txtMode) state.txtMode = p.txtMode;
+  if (p.corner) state.corner = p.corner;
+  if (p.shape) state.shape = p.shape;
+  if (p.lead != null) xr.lead = p.lead;
+  if (p.tail != null) xr.tail = p.tail;
+  save(); applyLook(); renderClipUI(); if (take) renderReview();
+}
+$("presetSel").addEventListener("change", e => {
+  presetId = e.target.value; const p = allPresets().find(x => x.id === presetId);
+  if (p){ applyPreset(p); toast(`Preset “${p.name}” applied`); }
+  renderPresets();
+});
+$("presetNew").addEventListener("click", () => { $("presetNameRow").hidden = false; const cur = userPresets().find(p => p.id === presetId); $("presetName").value = cur ? cur.name : ""; $("presetName").focus(); });
+$("presetCancel").addEventListener("click", () => { $("presetNameRow").hidden = true; });
+$("presetName").addEventListener("keydown", e => { if (e.key === "Enter") $("presetSave").click(); if (e.key === "Escape") $("presetCancel").click(); });
+$("presetSave").addEventListener("click", () => {
+  const name = $("presetName").value.trim(); if (!name){ toast("Give the preset a name"); return; }
+  const u = userPresets();
+  let p = u.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (!p){ p = { id: "u-" + Date.now().toString(36) }; u.push(p); }
+  Object.assign(p, { name, wide: $("xWide").checked, tall: $("xTall").checked, title: $("xTitle").checked,
+    txtMode: state.txtMode || "two", corner: state.corner || "tr", shape: state.shape || "circle", lead: xr.lead, tail: xr.tail });
+  if (!storePresets(u)){ toast("This browser won't let PageCue save presets (private mode or storage blocked)."); return; }
+  presetId = p.id; $("presetNameRow").hidden = true; renderPresets(); toast(`Saved preset “${name}”`);
+});
+$("presetDel").addEventListener("click", () => {
+  const p = userPresets().find(x => x.id === presetId); if (!p) return;
+  if (!confirm(`Delete the preset “${p.name}”?`)) return;
+  storePresets(userPresets().filter(x => x.id !== p.id)); presetId = ""; renderPresets(); toast("Preset deleted");
+});
+// Changing a setting by hand means the preset no longer describes what will export.
+["xWide", "xTall", "xTitle", "clipLead", "clipTail"].forEach(id => $(id).addEventListener("change", () => { if (presetId){ presetId = ""; renderPresets(); } }));
 
 /* ---------- Clip Creator UI ---------- */
 function clipLabel(i){
