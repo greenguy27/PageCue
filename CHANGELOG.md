@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 — in testing
+## 0.6.0 — 2026-11-04
 
 Stage 7: Export screen, Clip Creator, presets and reader cues.
 
