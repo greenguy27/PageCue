@@ -385,6 +385,21 @@ function splitStory(raw, mode){
   return out;
 }
 
+// Is this text already laid out one prompter line per row?
+// Yes when many paragraphs span several short lines that break at punctuation
+// (a phrase end). Hard-wrapped prose breaks mid-phrase, so it says no, and so
+// does ordinary prose with one line per paragraph.
+function looksLineByLine(raw){
+  const paras = raw.replace(/\r\n?/g, "\n").split(/\n\s*\n/).map(p => p.split("\n").map(s => s.trim()).filter(Boolean)).filter(p => p.length);
+  const lines = paras.flat().filter(l => !isHeading(l));
+  if (lines.length < 6) return false;
+  const multi = paras.filter(p => p.length > 1).length / paras.length;
+  const avgWords = lines.reduce((a, l) => a + l.split(/\s+/).length, 0) / lines.length;
+  const inner = paras.filter(p => p.length > 1).flatMap(p => p.slice(0, -1));
+  const phraseEnds = inner.filter(l => /[.,:;!?…"”’)*—-]$/.test(l)).length / Math.max(1, inner.length);
+  return multi >= 0.3 && avgWords <= 12 && phraseEnds >= 0.6;
+}
+
 /* ---------- UI: story step ---------- */
 function linesFromBox(){ return $("linesBox").value.split("\n").map(s => s.trim()).filter(Boolean); }
 function renderCount(){
@@ -432,8 +447,10 @@ function readFile(f){
       state.title = m ? m[1].trim() : f.name.replace(/\.[^.]+$/, "");
       $("title").value = state.title; renderByline();
     }
+    const preformatted = looksLineByLine(state.raw);
+    state.split = preformatted ? "line" : "sentence"; $("split").value = state.split;
     state.linesEdited = false; resplit();
-    toast("Loaded " + f.name);
+    toast("Loaded " + f.name + (preformatted ? ". It's already one line per row, so lines are kept as written." : ""));
   };
   r.readAsText(f);
 }
