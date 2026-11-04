@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.7.0 — in testing
+
+Stage 8: look and branding.
+
+**Background**
+- Put an image behind the story text: book cover art, a scene, anything you have the rights to use
+- One image for both formats, plus an optional separate image for vertical video
+- Position each format on its own: left–right, up–down and zoom, or drag the preview
+- Darken (so the text stays readable) and optional blur; a plain color is still available
+- The Record screen's live preview shows the background too
+
+**Opening and ending cards**
+- Opening card: title, author, subtitle and an optional cover image, 2–5 seconds (replaces the 3-second title card)
+- Ending card: a headline, a second line or website, and an optional cover image, 3–8 seconds
+- Optional 0.4-second fades on the cards only; the reading itself starts and ends on time, so captions don't move
+- Cards work on clips too, and "Play the card" shows them with their fades
+
+**Exact preview**
+- Review and Export draw their preview with the same code as the export, so what you see is what you get
+
+**Vertical safe area**
+- Vertical videos keep the face bubble, story text, title line and cards out of the edges that TikTok, Reels and Shorts cover with buttons and captions
+- The title line moved from the bottom of vertical videos to just under the face bubble
+- An optional guide shades the covered area in the preview (never exported)
+
+**Images and project files**
+- Images stay on your device. Large images are shrunk locally (backgrounds to 1920 px on the short side, covers to 1600 px); your original files aren't changed
+- Images over 40 MB or 50 megapixels are refused with a clear message
+- Project files now carry the background and card images, so a project opened on another computer keeps its look; older project files still open
+- Presets save the background and cards too
+
 ## 0.6.0 — 2026-11-04
 
 Stage 7: Export screen, Clip Creator, presets and reader cues.
