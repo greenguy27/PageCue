@@ -6,7 +6,7 @@
 <title>PageCue</title>
 <meta name="theme-color" content="#f6f1e7">
 <style>
-/* PageCue v0.3 (stage 4: review + timeline; local launcher). Direction B "Studio".
+/* PageCue v0.4 (stage 5: export, captions, recording recovery). Direction B "Studio".
    One file, no network requests, nothing leaves the device. */
 :root{
   --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
@@ -139,6 +139,9 @@ footer.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:
 .btn.recon .rdot{background:#fff;border-radius:2px}
 .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,253,248,.86);font-family:var(--sans);font-size:120px;font-weight:600;color:var(--accent);z-index:2}
 .countdown small{display:block;font-size:15px;font-weight:400;color:var(--ink2);text-align:center}
+.recover{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:16px 24px 0;padding:14px 18px;border:1px solid #d9b37a;border-radius:12px;background:#fbf1de;color:var(--ink);font-size:14px}
+.recover span{flex:1 1 320px}
+body.phone .recover{margin:10px 12px 0}
 .credit{flex:1 1 100%;margin:0;text-align:center;font-size:13px;color:var(--ink2)}
 .projrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid var(--rule)}
 
@@ -232,6 +235,12 @@ body.phone .toast{top:16px;bottom:auto}
       <button type="button" data-device="phone" aria-pressed="false">Phone</button>
     </div>
   </header>
+
+  <div class="recover" id="recoverBar" role="alert" hidden>
+    <span id="recoverText">PageCue found a recording that didn't finish.</span>
+    <button type="button" class="btn primary" id="recoverGo">Recover it</button>
+    <button type="button" class="btn" id="recoverDrop">Delete it</button>
+  </div>
 
   <!-- ================= STORY ================= -->
   <main id="storyView" class="story">
@@ -376,6 +385,7 @@ body.phone .toast{top:16px;bottom:auto}
             <span class="hint">Mic</span><div class="meter" style="flex-grow:1"><i id="meter"></i></div>
             <button type="button" class="btn" id="camStop" style="height:34px;font-size:13px">Turn off</button>
           </div>
+          <p class="hint" id="roomInfo" style="margin:8px 0 0"></p>
         </div>
       </div>
 
@@ -627,6 +637,7 @@ function next(){
   state.idx++;
   if (state.run && !state.run.done){
     state.run.starts[state.idx] = performance.now() - state.run.t0;
+    if (state.run.mode === "rec") liveTaps();
   }
   renderPrompter();
 }
@@ -634,6 +645,7 @@ function back(){
   if (state.idx === 0) return;
   if (state.run && !state.run.done){
     state.run.starts.length = state.idx;   // drop this line's tap; re-tap to log it again
+    if (state.run.mode === "rec") liveTaps();
   }
   state.idx--;
   renderPrompter();
@@ -715,6 +727,8 @@ async function camStart(){
   const vid = $("cam"); vid.srcObject = stream; vid.hidden = false; $("faceIcon").style.display = "none";
   $("camOff").hidden = true; $("camLive").hidden = false;
   await fillDevices(); startMeter(); renderRun();
+  try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}   // ask the browser not to evict saved takes
+  renderRoom();
 }
 function camStopTracks(){ if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; stopMeter(); }
 function camOff(){
@@ -764,13 +778,17 @@ $("micSel").addEventListener("change", e => { state.micId = e.target.value; save
 /* ---------- recording ---------- */
 let recorder = null, chunks = [], wake = null, take = null, takeURL = null;
 function pickMime(){
-  const c = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  if (window.__rp && typeof window.__rp.forceMime === "string") return window.__rp.forceMime;   // test hook
+  // WebM first: Chrome's MP4 recorder holds the whole take until Stop, so an MP4 take can't be saved
+  // as it records and can't survive a crash. WebM streams a chunk every second. Exports are MP4.
+  const c = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm", "video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4"];
   for (const m of c) if (MediaRecorder.isTypeSupported(m)) return m;
   return "";
 }
 function startCountdown(){
   if (!stream){ toast("Turn on the camera first"); return; }
   if (!window.MediaRecorder){ toast("This browser can't record video. Try Chrome or Edge."); return; }
+  if (pendingRecovery){ toast("First recover or delete the unfinished recording shown at the top."); return; }
   if (take && !confirm(`Record a new take? Take ${take.n} will be replaced. Download it first if you want to keep it.`)) return;
   state.run = null; state.idx = 0; renderPrompter();
   let n = 3; $("cdNum").textContent = n; $("countdown").hidden = false;
@@ -788,8 +806,8 @@ function startRecording(){
   try{ recorder = new MediaRecorder(stream, opts); }
   catch(e){ toast("Couldn't start recording: " + e.message); renderRun(); return; }
   chunks = [];
-  recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-  recorder.onstart = () => beginRun("rec");      // tap times are measured from here
+  recorder.ondataavailable = e => { if (e.data && e.data.size){ chunks.push(e.data); liveChunk(e.data); } };
+  recorder.onstart = () => { beginRun("rec"); liveStart(recorder.mimeType || mime || "video/webm"); };   // tap times are measured from here
   recorder.onstop = finishTake;
   recorder.onerror = e => toast("Recording error: " + ((e.error && e.error.message) || "unknown"));
   recorder.start(1000);
@@ -808,7 +826,9 @@ async function finishTake(){
   const n = take ? take.n + 1 : 1;
   setTake({ n, blob, type, duration: r.total, starts: r.starts.slice(), origStarts: r.starts.slice(), lines: state.lines.slice(), when: Date.now() });
   take.unsafe = !(await idbPut(take));
-  renderTake();
+  // Only drop the crash-safe copy once the finished take is safely stored.
+  if (!take.unsafe) await liveFinish(); else liveRec = null;
+  renderTake(); renderRoom();
   toast(`Take ${n}: ${r.starts.length} of ${state.lines.length} lines timed, ${fmtClock(r.total)}` + (take.unsafe ? ". Download it before closing." : ""));
 }
 function setTake(t){
@@ -850,29 +870,156 @@ $("takeDiscard").addEventListener("click", () => {
   setTake(null); idbDel(); startCountdown();
 });
 
-/* ---------- take storage (IndexedDB keeps one take across reloads) ---------- */
+/* ---------- storage (IndexedDB) ----------
+   "takes"    : the last finished take (video + timing), so a reload doesn't lose it.
+   "sessions" : the take being recorded right now ("live"): its timing, taps and chunk count.
+   "chunks"   : that recording's one-second video chunks, written as they arrive.
+   If the browser or computer dies mid-take, the session and chunks survive and are
+   rebuilt into a take the next time PageCue opens. */
+let dbConn = null;
 function idbOpen(){
+  if (dbConn) return Promise.resolve(dbConn);
   return new Promise((res, rej) => {
     if (!window.indexedDB) return rej(new Error("no IndexedDB"));
-    const q = indexedDB.open("pagecue", 1);
-    q.onupgradeneeded = () => q.result.createObjectStore("takes");
-    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    const q = indexedDB.open("pagecue", 2);
+    q.onupgradeneeded = () => {
+      const db = q.result;
+      for (const s of ["takes", "sessions", "chunks"]) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s);
+    };
+    q.onsuccess = () => { dbConn = q.result; dbConn.onversionchange = () => { dbConn.close(); dbConn = null; }; res(dbConn); };
+    q.onerror = () => rej(q.error);
   });
 }
-async function idbTx(mode, fn){
+async function idbTx(store, mode, fn){
   const db = await idbOpen();
   return new Promise((res, rej) => {
-    const tx = db.transaction("takes", mode), q = fn(tx.objectStore("takes"));
-    tx.oncomplete = () => { db.close(); res(q && q.result); };
-    tx.onerror = tx.onabort = () => { db.close(); rej(tx.error); };
+    const tx = db.transaction(store, mode), q = fn(tx.objectStore(store));
+    tx.oncomplete = () => res(q && q.result);
+    tx.onerror = tx.onabort = () => rej(tx.error || new Error("storage error"));
   });
 }
-async function idbPut(t){
-  try{ const { n, blob, type, duration, starts, origStarts, lines, when } = t; await idbTx("readwrite", st => st.put({ n, blob, type, duration, starts, origStarts, lines, when }, "current")); return true; }
-  catch(e){ return false; }
+function takeRecord(t){
+  const { n, blob, type, duration, starts, origStarts, lines, when, capText, skip, recovered } = t;
+  return { n, blob, type, duration, starts, origStarts, lines, when, capText, skip, recovered };
 }
-async function idbGet(){ try{ return await idbTx("readonly", st => st.get("current")); }catch(e){ return null; } }
-async function idbDel(){ try{ await idbTx("readwrite", st => st.delete("current")); }catch(e){} }
+async function idbPut(t){ try{ await idbTx("takes", "readwrite", st => st.put(takeRecord(t), "current")); return true; }catch(e){ return false; } }
+async function idbGet(){ try{ return await idbTx("takes", "readonly", st => st.get("current")); }catch(e){ return null; } }
+async function idbDel(){ try{ await idbTx("takes", "readwrite", st => st.delete("current")); }catch(e){} }
+
+/* ---------- crash-safe recording ---------- */
+const chunkKey = (sid, i) => sid + ":" + String(i).padStart(7, "0");
+const chunkRange = sid => IDBKeyRange.bound(sid + ":", sid + ":￿");
+let liveRec = null;          // { sid, seq, ok, queue, meta } while recording
+let pendingRecovery = null;  // a session found on startup, waiting for Recover or Discard
+function liveStart(type){
+  const sid = String(Date.now());
+  liveRec = { sid, seq: 0, ok: true, queue: Promise.resolve(),
+    meta: { sid, type, startedAt: Date.now(), n: take ? take.n + 1 : 1, lines: state.lines.slice(), starts: [0], elapsed: 0, chunks: 0, title: state.title } };
+  liveQueue(() => idbTx("sessions", "readwrite", st => st.put(liveRec.meta, "live")));
+  // Some recorders (Chrome's MP4) hand over almost nothing until Stop. If 4 s in we've had
+  // under 50 KB, the take isn't really being saved as it goes: say so, don't pretend.
+  const L = liveRec;
+  setTimeout(() => {
+    if (liveRec !== L || !L.ok || (L.bytes || 0) >= 50 * 1024) return;
+    L.ok = false; clearSession(L.sid);
+    toast("This browser doesn't save the video while it records, so crash protection is off for this take. Download it as soon as you stop.", 9000);
+  }, 4000);
+}
+function liveQueue(job){
+  const L = liveRec; if (!L) return;
+  // Writes run strictly in order; the first failure stops further writes so the saved chunks stay contiguous.
+  L.queue = L.queue.then(() => L.ok ? job() : null).catch(e => { if (L.ok){ L.ok = false; liveFailed(e); } });
+}
+function liveChunk(blob){
+  const L = liveRec; if (!L || !L.ok) return;
+  const i = L.seq++;
+  L.bytes = (L.bytes || 0) + blob.size;
+  const elapsed = state.run ? performance.now() - state.run.t0 : 0;
+  liveQueue(() => idbTx("chunks", "readwrite", st => st.put(blob, chunkKey(L.sid, i))));
+  liveQueue(() => { L.meta.chunks = i + 1; L.meta.elapsed = elapsed; return idbTx("sessions", "readwrite", st => st.put(L.meta, "live")); });
+}
+function liveTaps(){
+  const L = liveRec; if (!L || !L.ok || !state.run) return;
+  L.meta.starts = state.run.starts.slice();
+  liveQueue(() => idbTx("sessions", "readwrite", st => st.put(L.meta, "live")));
+}
+function liveFailed(e){
+  const full = e && (e.name === "QuotaExceededError" || /quota|space/i.test(e.message || ""));
+  toast((full ? "Browser storage is full, so" : "Browser storage stopped working, so") + " this take isn't protected against a crash. Keep going, then download the video as soon as you stop.", 9000);
+}
+async function clearSession(sid){
+  try{
+    await idbTx("chunks", "readwrite", st => st.delete(chunkRange(sid)));
+    await idbTx("sessions", "readwrite", st => st.delete("live"));
+  }catch(e){}
+}
+async function liveFinish(){
+  const L = liveRec; liveRec = null;
+  if (!L) return;
+  try{ await L.queue; }catch(e){}
+  await clearSession(L.sid);
+}
+// Load a blob into a throwaway video element: does it play, and how long is it?
+function probeVideo(blob){
+  return new Promise(res => {
+    const v = document.createElement("video"), url = URL.createObjectURL(blob);
+    let done = false;
+    const end = (ok) => { if (done) return; done = true; const d = v.duration; v.removeAttribute("src"); v.load(); URL.revokeObjectURL(url); res({ ok, duration: isFinite(d) ? d * 1000 : 0 }); };
+    v.muted = true; v.preload = "auto";
+    v.onloadeddata = () => end(true);
+    v.onerror = () => end(false);
+    setTimeout(() => end(v.readyState >= 1), 8000);
+    v.src = url;
+  });
+}
+async function checkRecovery(){
+  let meta = null;
+  try{ meta = await idbTx("sessions", "readonly", st => st.get("live")); }catch(e){ return; }
+  if (!meta) return;
+  let count = 0;
+  try{ count = await idbTx("chunks", "readonly", st => st.count(chunkRange(meta.sid))); }catch(e){}
+  if (!count){ clearSession(meta.sid); return; }
+  pendingRecovery = meta;
+  const when = new Date(meta.startedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  $("recoverText").textContent = `PageCue found a recording that didn't finish: take ${meta.n}${meta.title ? " of " + meta.title : ""}, started ${when}, about ${fmtClock(Math.max(meta.elapsed, count * 1000))} long, ${meta.starts.length} line${meta.starts.length === 1 ? "" : "s"} tapped.`;
+  $("recoverBar").hidden = false;
+}
+async function recoverSession(){
+  const meta = pendingRecovery; if (!meta) return;
+  $("recoverGo").disabled = $("recoverDrop").disabled = true;
+  let parts = [];
+  try{ parts = await idbTx("chunks", "readonly", st => st.getAll(chunkRange(meta.sid))); }catch(e){}
+  if (!parts || !parts.length){ toast("The unfinished recording couldn't be read back."); $("recoverGo").disabled = $("recoverDrop").disabled = false; return; }
+  const blob = new Blob(parts, { type: meta.type || parts[0].type || "video/webm" });
+  const probe = await probeVideo(blob);
+  const duration = Math.max(meta.elapsed || 0, probe.duration || 0, 1000);
+  const starts = meta.starts.filter((s, i) => i === 0 || s < duration - 100);
+  if (take && !confirm(`Recovering replaces take ${take.n} in this browser. Download take ${take.n} first if you want to keep it. Recover now?`)){ $("recoverGo").disabled = $("recoverDrop").disabled = false; return; }
+  setTake({ n: meta.n, blob, type: blob.type, duration, starts, origStarts: starts.slice(), lines: meta.lines, when: meta.startedAt, recovered: true });
+  take.unsafe = !(await idbPut(take));
+  if (!take.unsafe) await clearSession(meta.sid);
+  pendingRecovery = null; $("recoverBar").hidden = true;
+  renderTake();
+  toast(probe.ok ? `Take ${meta.n} recovered: ${fmtClock(duration)}, ${starts.length} lines timed.` : `Take ${meta.n} recovered, but this browser can't play it back. Download it and try another player.`, 7000);
+}
+$("recoverGo").addEventListener("click", recoverSession);
+$("recoverDrop").addEventListener("click", async () => {
+  if (!pendingRecovery || !confirm("Delete the unfinished recording? This can't be undone.")) return;
+  await clearSession(pendingRecovery.sid); pendingRecovery = null; $("recoverBar").hidden = true; toast("Unfinished recording deleted.");
+});
+async function storageRoom(){
+  try{ const e = await navigator.storage.estimate(); return Math.max(0, (e.quota || 0) - (e.usage || 0)); }catch(e){ return null; }
+}
+async function renderRoom(){
+  const room = await storageRoom();
+  if (room == null){ $("roomInfo").textContent = ""; return; }
+  // ~5 Mbps ≈ 37.5 MB a minute; finishing a take briefly needs room for two copies.
+  const min = Math.floor(room / (2 * 37.5 * 1048576));
+  $("roomInfo").textContent = min >= 120 ? "Crash protection is on: takes are saved as you record." :
+    min >= 1 ? `Crash protection is on, with room for about ${min} minute${min === 1 ? "" : "s"} of recording in this browser.` :
+    "This browser has no room left to protect a take against crashes. You can still record; download right after you stop.";
+  $("roomInfo").className = min >= 10 ? "hint" : "warn";
+}
 
 /* ---------- project file (story, lines, timing; never the video) ---------- */
 $("projSave").addEventListener("click", () => {
@@ -1082,9 +1229,9 @@ window.addEventListener("beforeunload", e => {
 
 /* ---------- misc ---------- */
 let toastT = null;
-function toast(msg){
+function toast(msg, ms){
   const t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600);
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), ms || 2600);
 }
 
 /* ---------- start ---------- */
@@ -1094,11 +1241,12 @@ $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
-idbGet().then(t => { if (t && t.blob) setTake(t); });
+idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
+checkRecovery();                                          // and any take a crash interrupted
 // Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
 $("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
-window.__rp = { state, splitStory, md };
+window.__rp = { state, splitStory, md, take: () => take };
 })();
 </script>
 </body>
