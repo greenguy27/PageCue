@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.0 — in testing
+## 0.5.0 — 2026-11-04
 
 Stage 6: retake mode.
 
@@ -14,7 +14,7 @@ Stage 6: retake mode.
 - Cuts are saved while you record; after a crash, recovered takes keep their cuts, and a retake that was still counting down becomes a cut to the end of the take
 
 **New look**
-- Warmer Studio design: logo and tagline, icon tabs, a project menu (edit title and author, save or open a project file), and redesigned Story and Prompter Setup cards
+- Warmer Studio design: a compact one-line header with the logo, icon tabs, a project menu (edit title and author, save or open a project file), and redesigned Story and Prompter Setup cards
 - Footer with an About PageCue box and the support link
 - Optional desk scene on the Story screen (books, mug, plants); drop your own images into `assets/`, or PageCue draws placeholders
 
