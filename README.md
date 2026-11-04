@@ -18,6 +18,18 @@ In development. Not released yet.
 | 4 | Review + timeline fixes | In progress |
 | 5 | Wide + vertical video export | Planned |
 
+## Run it on your computer
+
+Browsers only allow the camera and microphone on a secure address, and a file opened straight from a folder (`file://`) often doesn't count. PageCue includes a tiny launcher that serves it at **http://localhost:8765**, which does. It only listens on your own computer and needs no install.
+
+| Computer | Double-click | Notes |
+|---|---|---|
+| Windows | `Start-PageCue.bat` | Uses the PowerShell that comes with Windows. If SmartScreen asks, choose *More info → Run anyway*. |
+| Mac | `Start-PageCue.command` | Uses Python 3 (run `xcode-select --install` once if it's missing). The first time, right-click → *Open*. |
+| Anything else | `python3 -m http.server 8765 --bind 127.0.0.1` in the PageCue folder | Then open http://localhost:8765 |
+
+Keep the launcher window open while you use PageCue; close it to stop.
+
 ## Support
 
 PageCue is free. If it helps you, you can [buy me a coffee](https://buymeacoffee.com/cer5061k).

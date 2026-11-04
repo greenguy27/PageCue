@@ -6,7 +6,7 @@
 <title>PageCue</title>
 <meta name="theme-color" content="#f6f1e7">
 <style>
-/* PageCue v0.3 (stage 4: review + timeline). Direction B "Studio".
+/* PageCue v0.3 (stage 4: review + timeline; local launcher). Direction B "Studio".
    One file, no network requests, nothing leaves the device. */
 :root{
   --ground:#f6f1e7; --paper:#fffdf8; --band:#efe8da;
@@ -362,6 +362,7 @@ body.phone .toast{top:16px;bottom:auto}
 
       <div class="panel" id="camPanel">
         <h3>Camera and mic</h3>
+        <p class="warn" id="localWarn" hidden style="margin:0">You opened PageCue straight from its folder, and browsers often block or keep re-asking for the camera there. For recording, close this tab and double-click <b>Start-PageCue.bat</b> (Windows) or <b>Start-PageCue.command</b> (Mac) in the PageCue folder. It opens PageCue at http://localhost:8765, where the camera works and your browser remembers your choice. Your saved story doesn't carry over by itself: use <i>Save project file</i> here, then <i>Open project file</i> there.</p>
         <div id="camOff" class="btns">
           <button type="button" class="btn primary" id="camOn">Turn on camera and mic</button>
           <span class="hint">Your browser will ask first. Nothing is uploaded.</span>
@@ -692,7 +693,7 @@ function renderRun(){
 let stream = null, actx = null, meterRAF = 0;
 async function camStart(){
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    toast("The camera isn't available here. Try Chrome or Edge, or open PageCue from its web address."); return;
+    toast("The camera isn't available here. Start PageCue with the Start-PageCue launcher in its folder."); return;
   }
   const phone = state.device === "phone";
   const v = { width: { ideal: phone ? 1080 : 1920 }, height: { ideal: phone ? 1920 : 1080 }, frameRate: { ideal: 30 } };
@@ -704,7 +705,7 @@ async function camStart(){
   catch(e){
     if (state.camId || state.micId){ state.camId = state.micId = ""; save(); return camStart(); } // a saved device went away
     const n = e && e.name;
-    toast(n === "NotAllowedError" ? "Camera or mic blocked. Allow them in the address bar, then try again."
+    toast(n === "NotAllowedError" ? (location.protocol === "file:" ? "Camera blocked. Start PageCue with the Start-PageCue launcher instead of opening the file directly." : "Camera or mic blocked. Allow them in the address bar, then try again.")
       : n === "NotFoundError" ? "No camera or microphone found."
       : n === "NotReadableError" ? "The camera is busy in another app. Close that app and try again."
       : "Couldn't start the camera: " + ((e && e.message) || n));
@@ -1093,7 +1094,9 @@ $("raw").value = state.raw; $("split").value = state.split;
 $("linesBox").value = state.lines.join("\n");
 state.idx = 0; state.run = null; state.step = "story";
 renderByline(); renderCount(); setFmt(state.fmt, true); setDevice(state.device); renderRun();
-idbGet().then(t => { if (t && t.blob) setTake(t); });   // bring back the last take after a reload
+idbGet().then(t => { if (t && t.blob) setTake(t); });
+// Camera and mic need a secure page. A localhost address is; a file opened from a folder often isn't.
+$("localWarn").hidden = !(location.protocol === "file:" || !window.isSecureContext || !navigator.mediaDevices);   // bring back the last take after a reload
 // Expose for testing in the console only; nothing reads it.
 window.__rp = { state, splitStory, md };
 })();

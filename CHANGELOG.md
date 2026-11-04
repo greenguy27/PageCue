@@ -13,6 +13,8 @@ Stage 4: review and timeline.
 - Video settings: story text as one line at a time, or the current line plus the one before; face bubble top left, top right or bottom; circle or rounded square. The record preview follows the same settings
 - Short takes stretch to fill the timeline; long takes scroll and follow the playhead
 - Warns when the take ended before the last lines, or when the lines changed after recording
+- Local launchers (`Start-PageCue.bat` for Windows, `Start-PageCue.command` for Mac) serve PageCue at http://localhost:8765 so the camera and mic work without uploading anything
+- When PageCue is opened straight from its folder, the Record screen explains how to start it with the launcher instead
 
 ## 0.2.0 — in testing
 
