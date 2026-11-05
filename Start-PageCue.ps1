@@ -17,10 +17,26 @@ $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopba
 try {
     $listener.Start()
 } catch {
-    Write-Host "Port $port is already in use. PageCue is probably already running; opening it."
-    try { Start-Process $url } catch { Write-Host "Open $url in your browser." }
-    exit 0
+    # Something already uses the port. Only reuse it if it's serving this same copy of PageCue.
+    $same = $false
+    try {
+        $remote = (Invoke-WebRequest -UseBasicParsing -TimeoutSec 3 -Uri ($url + 'index.html')).RawContentStream.ToArray()
+        $local  = [System.IO.File]::ReadAllBytes([System.IO.Path]::Combine($root, 'index.html'))
+        $same = [System.Linq.Enumerable]::SequenceEqual([byte[]]$remote, [byte[]]$local)
+    } catch { $same = $false }
+    if ($same) {
+        Write-Host "PageCue (this folder) is already running; opening it."
+        try { Start-Process $url } catch { Write-Host "Open $url in your browser." }
+        exit 0
+    }
+    Write-Host ""
+    Write-Host "  Port $port is already in use by something else, probably another copy of PageCue"
+    Write-Host "  from a different folder. Close that PageCue window, then run this launcher again."
+    Write-Host ""
+    Read-Host "Press Enter to close"
+    exit 1
 }
+Write-Host "  Serving: $root"
 
 $types = @{
     '.html' = 'text/html; charset=utf-8'

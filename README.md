@@ -19,6 +19,7 @@ In development. Not released yet.
 | 5 | Wide + vertical video export, captions, recording recovery | Done (0.4.0) |
 | 6 | Retake mode: stumble key, cut markers, edited export | Done (0.5.0) |
 | 7 | Export screen, Clip Creator, presets, reader cues | Done (0.6.0) |
+| 8 | Look and branding: background images, opening and ending cards | Done (0.7.0) |
 
 ## Run it on your computer
 
@@ -48,6 +49,10 @@ Put directions for yourself in square brackets: `[Pause 2 seconds]`, `[Whisper]`
 ## Clips
 
 On the Export screen, choose **A clip**, pick the first and last line, and export just that part: retake cuts are still removed, and the captions match the clip. Name and save clips to export them again later. Presets remember your usual export settings.
+
+## Background and cards
+
+On the Export screen, **Background** puts an image behind your story text (with darkening, blur and per-format positioning), and **Opening card** and **Ending card** add a title card and a closing card, such as your book cover and where to find the book. Images stay on your device and are saved inside the project file. Vertical videos keep everything inside the area that TikTok, Reels and Shorts don't cover.
 
 ## Support
 
