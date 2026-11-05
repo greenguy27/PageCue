@@ -20,6 +20,7 @@ In development. Not released yet.
 | 6 | Retake mode: stumble key, cut markers, edited export | Done (0.5.0) |
 | 7 | Export screen, Clip Creator, presets, reader cues | Done (0.6.0) |
 | 8 | Look and branding: background images, opening and ending cards | Done (0.7.0) |
+| 8.5 | Design pass: one consistent look across every screen | In testing (0.7.5) |
 
 ## Run it on your computer
 
