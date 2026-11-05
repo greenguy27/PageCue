@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.6 — 2026-11-05
+
+Export sync and long-take testing. Recording, retakes, review, clips and the look work exactly as before.
+
+- Exporting wide and vertical together: the second video no longer starts with a brief picture stutter. PageCue now frees each finished export's memory right away and pauses a moment before starting the next format
+- Tested a 10-minute take: the exported video keeps picture and sound together from start to finish, with no drift building up over time
+- Known limit: export records in real time, so if the computer gets busy during an export (other apps, a full disk, an update in the background), the picture can freeze for a moment, usually a frame or two, before catching up. Exporting again on a quieter computer gives a cleaner file
+
 ## 0.7.5 — 2026-11-05
 
 Design pass: one consistent look across every screen. Nothing about recording, retakes, review, clips or export works differently.
