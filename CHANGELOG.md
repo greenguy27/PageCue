@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.5 — 2026-11-05
+
+Design pass: one consistent look across every screen. Nothing about recording, retakes, review, clips or export works differently.
+
+- Record: Camera and mic, Take and Retake key are matching cards with icon headings; Play take, Retake and Download have icons; the bottom bar has clearer Back, Next and Retake buttons
+- Review: Video settings is a card with an icon heading; the timeline, selected line, retake cuts and caption row are restyled; leaf decorations sit at the edges on wide screens
+- Export: Captions and File details are their own sections, like Background and the cards; the summary rows have icons
+- File details shows an estimated size per format before exporting (clearly marked as an estimate) and the real sizes afterward
+- The "Local-first & private" footer, with About PageCue and Support, is on every screen, and steps aside while you're recording
+- Contrast: every text color meets WCAG AA on its background (cue lines on the timeline were darkened to pass)
+- Phone: format choices stack, and the record bar's buttons no longer wrap
+
 ## 0.7.0 — 2026-11-04
 
 Stage 8: look and branding.

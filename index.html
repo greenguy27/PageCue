@@ -377,10 +377,85 @@ body.notake .transport,body.notake #xRangeBox,body.notake #rWarn{display:none!im
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
 .pl.cueline .cue{font-size:.72em}
 .pl.past .cue,.pl.far .cue{opacity:.75}
-.blk.cueblk{font-style:italic;color:var(--gold);background:var(--gold-wash);border-style:dashed}
+.blk.cueblk{font-style:italic;color:#8a6420;background:var(--gold-wash);border-style:dashed}
 .cuetog{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink2);line-height:1.45}
 .cuetog input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent);flex:0 0 auto}
 .cuetog b{color:var(--ink);font-weight:600}
+
+
+/* ================= design pass (0.7.5): one look across every screen ================= */
+:root{ --r-card:16px; --r-ctl:10px; --card-line:#e6dccb; }
+/* cards: every panel, the prompter, review settings and export settings share one treatment */
+.panel,.card,.prompter{background:var(--paper);border:1px solid var(--card-line);border-radius:var(--r-card);box-shadow:var(--shadow)}
+.panel{padding:16px 18px;gap:12px}
+h3.phead{display:flex;align-items:center;gap:10px;margin:0;font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink)}
+.tile.sm{width:34px;height:34px;border-radius:10px}
+.tile.sm .ic{width:19px;height:19px}
+.chead.sm{margin-bottom:2px}
+.chead.sm .tile{width:44px;height:44px;border-radius:12px}
+.chead.sm .tile .ic{width:24px;height:24px}
+.chead.sm h2{font-size:22px}
+.chead.sm p{font-size:14px}
+/* buttons: one look per role */
+.btn{gap:8px}
+.btn .ic{width:18px;height:18px}
+.panel .btn{height:38px;padding:0 14px;font-size:14px}
+.panel .btn .ic{width:16px;height:16px}
+.panel .btns{gap:8px}
+#takeInfo{font-family:var(--serif);font-size:15px;color:var(--ink2)}
+.stat{border-radius:12px;border-color:var(--card-line)}
+.label{color:var(--ink2)}
+/* the record bar */
+footer.bar{background:rgba(255,252,246,.92);border-top:1px solid var(--card-line);box-shadow:0 -6px 20px rgba(80,60,30,.06);gap:10px 12px}
+footer.bar .btn{height:46px;font-size:15px}
+#nextBtn{height:52px;font-size:17px;gap:10px}
+#nextBtn .ic{width:20px;height:20px}
+.btn.rec{background:var(--paper)}
+.btn.rec:not(:disabled):hover{background:#fdf1ef;border-color:var(--rec)}
+.status{font-family:var(--serif);font-size:15px}
+.where{font-family:var(--serif);font-size:15px}
+/* the footer on every screen (Story has its own); it steps aside while recording */
+.appfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;padding:10px 18px 14px;font-family:var(--serif);font-size:14px;color:var(--ink2)}
+.appfoot b{color:var(--ink)}
+.appfoot .sep{width:1px;height:16px;background:var(--rule2);margin:0 6px}
+.appfoot a,.appfoot .link{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.appfoot .ic{width:18px;height:18px}
+body.recording .appfoot{display:none!important}
+/* review */
+.review{position:relative;overflow-x:clip}
+.review>section,.review>aside{position:relative;z-index:1}
+.rset{padding:22px 24px}
+.rset legend{font-size:12px}
+.transport .play{width:48px;height:48px;box-shadow:0 2px 8px rgba(31,95,91,.3)}
+.time{font-size:15px}
+.tl{background:linear-gradient(180deg,var(--band),#f3ecdf);border-top:1px solid var(--card-line);z-index:1;position:relative}
+.selinfo{font-family:var(--serif);font-size:16px}
+.capedit input[type=text]{height:40px;border-radius:var(--r-ctl)}
+.ruler{color:var(--ink2)}
+.track{border-radius:12px;border-color:var(--card-line);background:#fffefb;box-shadow:inset 0 1px 2px rgba(80,60,30,.06)}
+.blk{border-radius:8px;background:#f5eee2;border-color:#e3d7c3;color:var(--ink2)}
+.blk.sel{border-radius:8px;box-shadow:0 2px 6px rgba(31,95,91,.18)}
+.cutchip{border-radius:12px}
+.leaf-l{left:-30px;top:44%;width:96px;opacity:.9}
+.leaf-r{right:-34px;top:30%;width:96px;opacity:.9}
+@media (max-width:1240px){ .leaf-l,.leaf-r{display:none} }
+body.phone .leaf-l,body.phone .leaf-r{display:none}
+/* export */
+.xsec summary span{display:inline-flex;align-items:center;gap:9px}
+.xsec summary .ic{width:19px;height:19px;color:var(--gold)}
+.xsec summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:12px}
+.xsum dt{display:flex;align-items:center;gap:8px}
+.xsum dt .ic{width:16px;height:16px;color:var(--gold)}
+.fdl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:14px}
+.fdl dt{color:var(--ink2)}
+.fdl dd{margin:0;font-family:var(--serif)}
+.xsec .btns{display:flex;flex-wrap:wrap;gap:8px}
+.xsec .btns .btn{height:38px;font-size:14px}
+@media (max-width:560px){ .ftile{flex-basis:100%} }
+body.phone .ftile{flex-basis:100%}
+body.phone footer.bar .btn{white-space:nowrap;font-size:14px;padding:0 10px}
+/* focus and links */
+.link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 
 /* ---------- Phone device mode ---------- */
 body.phone header.top{padding:10px 14px}
@@ -444,6 +519,16 @@ body.phone .toast{top:16px;bottom:auto}
       <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8.5 4v4.5h6V4M8 20v-6h8v6"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
       <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></symbol>
+      <symbol id="i-camera" viewBox="0 0 24 24"><rect x="3" y="6.5" width="13" height="11" rx="2"/><path d="m16 10.5 5-3v9l-5-3"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M10.5 6.5 5 12l5.5 5.5"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+      <symbol id="i-film" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M7.5 4.5v15M16.5 4.5v15M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/></symbol>
+      <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/></symbol>
+      <symbol id="i-cc" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M10.5 10a2 2 0 1 0 0 4M17 10a2 2 0 1 0 0 4"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></symbol>
+      <symbol id="i-key" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11h1M11 11h1M15 11h1M8 14h8"/></symbol>
       <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
     </defs>
   </svg>
@@ -532,7 +617,7 @@ body.phone .toast{top:16px;bottom:auto}
 
     <footer class="storyfoot">
       <svg class="ic gold"><use href="#i-lock"/></svg><b>Local-first &amp; private.</b><span>Your story and recordings never leave this device.</span>
-      <i class="sep"></i><button type="button" class="link" id="aboutBtn">About PageCue</button>
+      <i class="sep"></i><button type="button" class="link aboutLink" id="aboutBtn">About PageCue</button>
       <i class="sep"></i><a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support</a>
     </footer>
 
@@ -542,7 +627,7 @@ body.phone .toast{top:16px;bottom:auto}
     </div>
   </main>
   <dialog id="about" class="about">
-    <h2>PageCue <small>0.7.0</small></h2>
+    <h2>PageCue <small>0.7.5</small></h2>
     <p>A free, private reading prompter for authors. Your story and recordings stay on this device: no uploads, no accounts, no tracking.</p>
     <p>By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a><br>MIT license · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Buy me a coffee</a></p>
     <form method="dialog"><button class="btn primary">Close</button></form>
@@ -550,6 +635,8 @@ body.phone .toast{top:16px;bottom:auto}
 
   <!-- ================= REVIEW (stage 4) ================= -->
   <main id="reviewView" class="review" hidden>
+    <div class="deco leaf-l" aria-hidden="true"><img src="assets/scene-plant-left.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M10 220C30 170 40 120 30 60c25 40 30 100 0 160z"/><path d="M18 200C55 170 85 150 115 140c-25 30-55 50-97 60z"/><path d="M14 160C40 120 70 100 100 92c-18 30-45 52-86 68z" fill="#a3b77c"/></g></svg></div>
+    <div class="deco leaf-r" aria-hidden="true"><img src="assets/scene-plant-right.png" alt="" onerror="this.remove()"><svg class="dph" viewBox="0 0 120 220"><g fill="#8fa66a" stroke="#6f8a4e" stroke-width="1.5"><path d="M110 220C90 170 80 120 90 60c-25 40-30 100 0 160z"/><path d="M102 200C65 170 35 150 5 140c25 30 55 50 97 60z"/><path d="M106 150C80 115 50 98 20 90c18 30 45 50 86 60z" fill="#a3b77c"/></g></svg></div>
     <section class="rprev" aria-label="Preview of the take">
       <div class="head">
         <span class="label">Viewers see</span>
@@ -573,7 +660,8 @@ body.phone .toast{top:16px;bottom:auto}
     </section>
 
     <aside class="card rset" aria-label="Video settings">
-      <h2 style="margin:0;font-family:var(--serif);font-size:20px;font-weight:600">Video settings</h2>
+      <div class="chead sm"><span class="tile"><svg class="ic"><use href="#i-sliders"/></svg></span>
+        <div><h2>Video settings</h2><p>How the story text and your face look on the video.</p></div></div>
       <fieldset>
         <legend class="label">Story text on the video</legend>
         <label><input type="radio" name="txtmode" value="two"> Current line plus the line before</label>
@@ -589,7 +677,7 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
       </fieldset>
       <div style="flex-grow:1"></div>
-      <button type="button" class="btn" id="resetTiming">Reset timing to the take</button>
+      <button type="button" class="btn" id="resetTiming"><svg class="ic"><use href="#i-redo"/></svg>Reset timing to the take</button>
       <button type="button" class="btn primary" id="toExport">Continue to Export<svg class="ic"><use href="#i-arrow"/></svg></button>
     </aside>
 
@@ -662,7 +750,7 @@ body.phone .toast{top:16px;bottom:auto}
         <label class="ftile"><input type="checkbox" id="xTall" checked><svg class="ic"><use href="#i-phone"/></svg><span><b>Vertical 9:16</b><small>1080 × 1920</small></span></label>
       </fieldset>
       <details class="xsec" id="secBg">
-        <summary><span>Background</span><small id="sumBg">Plain color</small></summary>
+        <summary><span><svg class="ic"><use href="#i-sliders"/></svg>Background</span><small id="sumBg">Plain color</small></summary>
         <div class="xsecb">
           <div class="pills" role="group" aria-label="Background type">
             <button type="button" data-bgk="color">Plain color</button><button type="button" data-bgk="image">Image</button>
@@ -688,7 +776,7 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
       </details>
       <details class="xsec" id="secOpen">
-        <summary><span>Opening card</span><small id="sumOpen">Off</small></summary>
+        <summary><span><svg class="ic"><use href="#i-play"/></svg>Opening card</span><small id="sumOpen">Off</small></summary>
         <div class="xsecb">
           <label class="xopt"><input type="checkbox" id="xTitle"> Start with an opening card</label>
           <label class="xrow">Title <input type="text" id="oTitle" autocomplete="off"></label>
@@ -703,7 +791,7 @@ body.phone .toast{top:16px;bottom:auto}
         </div>
       </details>
       <details class="xsec" id="secEnd">
-        <summary><span>Ending card</span><small id="sumEnd">Off</small></summary>
+        <summary><span><svg class="ic"><use href="#i-film"/></svg>Ending card</span><small id="sumEnd">Off</small></summary>
         <div class="xsecb">
           <label class="xopt"><input type="checkbox" id="xEnd"> End with an ending card</label>
           <label class="xrow">Headline <input type="text" id="eHead" placeholder="e.g. Read the full story" autocomplete="off"></label>
@@ -716,11 +804,17 @@ body.phone .toast{top:16px;bottom:auto}
           <button type="button" class="btn" id="ePlay">Play the ending card</button>
         </div>
       </details>
-      <fieldset class="xcap">
-        <legend class="label">Captions</legend>
-        <div class="btns"><button type="button" class="btn" id="capSrt">Download .srt</button><button type="button" class="btn" id="capVtt">Download .vtt</button></div>
-        <p class="hint" style="margin:0">Built from your script and timing, and matched to this export (cuts, clip and title card). Reader cues are left out.</p>
-      </fieldset>
+      <details class="xsec" id="secCap">
+        <summary><span><svg class="ic"><use href="#i-cc"/></svg>Captions</span><small>.srt · .vtt</small></summary>
+        <div class="xsecb">
+          <div class="btns"><button type="button" class="btn" id="capSrt"><svg class="ic"><use href="#i-download"/></svg>Download .srt</button><button type="button" class="btn" id="capVtt"><svg class="ic"><use href="#i-download"/></svg>Download .vtt</button></div>
+          <p class="hint" style="margin:0">Built from your script and timing, and matched to this export (cuts, clip and opening card). Reader cues are left out.</p>
+        </div>
+      </details>
+      <details class="xsec" id="secFile">
+        <summary><span><svg class="ic"><use href="#i-file"/></svg>File details</span><small id="sumFile"></small></summary>
+        <div class="xsecb"><dl class="fdl" id="fileDl"></dl></div>
+      </details>
       <div style="flex-grow:1"></div>
       <button type="button" class="btn primary go" id="xGo"><svg class="ic"><use href="#i-export"/></svg>Export Video</button>
       <div id="xProg" hidden style="display:flex;flex-direction:column;gap:8px">
@@ -759,10 +853,10 @@ body.phone .toast{top:16px;bottom:auto}
       <p class="hint" style="margin:0"><button type="button" class="link" id="toLook">Background and cards…</button> · A preview of the export look. The camera image is mirrored here so it feels natural; the recording is not.</p>
 
       <div class="panel" id="camPanel">
-        <h3>Camera and mic</h3>
+        <h3 class="phead"><span class="tile sm"><svg class="ic"><use href="#i-camera"/></svg></span>Camera and mic</h3>
         <p class="warn" id="localWarn" hidden style="margin:0">You opened PageCue straight from its folder, and browsers often block or keep re-asking for the camera there. For recording, close this tab and double-click <b>Start-PageCue.bat</b> (Windows) or <b>Start-PageCue.command</b> (Mac) in the PageCue folder. It opens PageCue at http://localhost:8765, where the camera works and your browser remembers your choice. Your saved story doesn't carry over by itself: use <i>Save project file</i> here, then <i>Open project file</i> there.</p>
         <div id="camOff" class="btns">
-          <button type="button" class="btn primary" id="camOn">Turn on camera and mic</button>
+          <button type="button" class="btn primary" id="camOn"><svg class="ic"><use href="#i-camera"/></svg>Turn on camera and mic</button>
           <span class="hint">Your browser will ask first. Nothing is uploaded.</span>
         </div>
         <div id="camLive" hidden>
@@ -779,19 +873,19 @@ body.phone .toast{top:16px;bottom:auto}
       </div>
 
       <div class="panel" id="takePanel" hidden>
-        <h3 id="takeTitle">Take 1</h3>
+        <h3 class="phead"><span class="tile sm"><svg class="ic"><use href="#i-film"/></svg></span><span id="takeTitle">Take 1</span></h3>
         <span class="count" id="takeInfo"></span>
         <span class="warn" id="takeWarn" hidden></span>
         <video class="take-player" id="takePlayer" controls playsinline hidden></video>
         <div class="btns">
-          <button type="button" class="btn" id="takePlay">Play take</button>
-          <button type="button" class="btn" id="takeSave">Download video</button>
-          <button type="button" class="btn" id="takeDiscard">Retake</button>
+          <button type="button" class="btn" id="takePlay"><svg class="ic"><use href="#i-play"/></svg>Play take</button>
+          <button type="button" class="btn" id="takeDiscard"><svg class="ic"><use href="#i-redo"/></svg>Retake</button>
+          <button type="button" class="btn" id="takeSave"><svg class="ic"><use href="#i-download"/></svg>Download</button>
         </div>
       </div>
 
       <div class="panel" id="keyPanel">
-        <h3>Retake key</h3>
+        <h3 class="phead"><span class="tile sm"><svg class="ic"><use href="#i-key"/></svg></span>Retake key</h3>
         <span class="hint">Stumbled? Press <kbd id="rkLabel">R</kbd>. PageCue goes back to the start of that line, counts down while it keeps recording, and cuts the slip from the video. Press it again to retry again. Many presentation clickers send B or a period from their "blank screen" button.</span>
         <div class="btns"><button type="button" class="btn" id="rkChange">Change key</button></div>
       </div>
@@ -807,11 +901,17 @@ body.phone .toast{top:16px;bottom:auto}
     <span class="status" id="status"><span class="dot"></span><span>Ready</span></span>
     <span class="where" id="where">Line 1 of 1</span>
     <div class="size"><button type="button" class="btn" id="smaller" aria-label="Smaller text">A−</button><button type="button" class="btn" id="bigger" aria-label="Larger text">A+</button></div>
-    <button type="button" class="btn" id="backBtn">Back a line <kbd>←</kbd></button>
-    <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd></button>
-    <button type="button" class="btn" id="retakeBtn" hidden>Retake line <kbd>R</kbd></button>
+    <button type="button" class="btn" id="backBtn"><svg class="ic"><use href="#i-back"/></svg>Back a line <kbd>←</kbd></button>
+    <button type="button" class="btn primary" id="nextBtn">Next line <kbd>Space</kbd><svg class="ic"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="btn" id="retakeBtn" hidden><svg class="ic"><use href="#i-redo"/></svg>Retake line <kbd>R</kbd></button>
     <button type="button" class="btn" id="runBtn">Practice run</button>
     <button type="button" class="btn rec" id="recBtn" disabled title="Turn on the camera first"><span class="rdot"></span><span>Record</span></button>
+  </footer>
+
+  <footer class="appfoot" id="appFoot" hidden>
+    <svg class="ic gold"><use href="#i-lock"/></svg><b>Local-first &amp; private.</b><span>Your story and recordings never leave this device.</span>
+    <i class="sep"></i><button type="button" class="link aboutLink">About PageCue</button>
+    <i class="sep"></i><a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Support</a>
   </footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -1043,6 +1143,7 @@ function setStep(step){
   $("reviewView").hidden = step !== "review";
   $("exportView").hidden = step !== "export";
   $("bar").hidden = step !== "record";
+  $("appFoot").hidden = step === "story";
   rvPause();
   if (step === "record"){ if (state.idx >= state.lines.length) state.idx = 0; renderPrompter(); renderTake(); applyRecordLook(); }
   if (step === "review" || step === "export") enterReview();
@@ -1077,7 +1178,7 @@ $("projMenu").addEventListener("keydown", e => {
     const items = [...$("projMenu").querySelectorAll("button")], i = items.indexOf(document.activeElement);
     items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus(); }
 });
-$("aboutBtn").addEventListener("click", () => { const d = $("about"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
+document.querySelectorAll(".aboutLink").forEach(b => b.addEventListener("click", () => { const d = $("about"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }));
 
 function setFmt(f, quiet){
   state.fmt = f;
@@ -1174,6 +1275,7 @@ function renderRun(){
     $(id).classList.toggle("rec", rec);
     $(id).lastElementChild.textContent = label;
   }
+  document.body.classList.toggle("recording", rec || !!cd);       // the footer steps aside while recording
   $("runBtn").textContent = on && !rec ? "Stop practice" : "Practice run";
   $("runBtn").classList.toggle("danger", on && !rec);
   $("runBtn").disabled = rec || !!cd;
@@ -2372,6 +2474,7 @@ $("xGo").addEventListener("click", async () => {
       if (r.ok) chk.textContent = `✓ Checked: opens and plays, ${r.w}×${r.h}, ${fmtClock(r.lenMs)}${r.pic ? ", picture and sound" : ""}.`;
       else { chk.className = "xchk bad"; chk.textContent = `⚠ This file may not play everywhere: ${r.problems.join("; ")}. Try exporting again; if it keeps happening, try Chrome or Edge.`; }
     }
+    renderExportInfo();
     const bad = lastChecks.filter(c => !c.ok).length;
     $("xStat").textContent = exportJob && exportJob.cancel ? "Export cancelled." : bad ? `Done, but ${bad === 1 ? "one file" : bad + " files"} didn't pass the check. See below.` : "Done. Every file was checked. Download your videos below.";
   }catch(e){
@@ -2393,7 +2496,8 @@ function renderExportInfo(){
     const t = state.title.trim() || "Untitled story", a = state.author.trim();
     $("xSum").innerHTML = [["Story", a ? `${t} • ${a}` : t], ["Take", "None yet. Record a take to export; your background and cards are saved now."],
       ["Cards", [titleMs() && `opening card ${state.look.open.secs} s`, endMs() && `ending card ${state.look.end.secs} s`].filter(Boolean).join(", ") || "None"],
-      ["Video file", exportCodecLabel()]].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+      ["Video file", exportCodecLabel()]].map(([k, v]) => [k, v]).reduce((h, r) => h + sumRows([r]), "");
+    renderFileDetails(0, 0);
     $("xTime").textContent = "0:00"; return;
   }
   const len = exportMs() + titleMs() + endMs(), w = clipWin();
@@ -2411,7 +2515,21 @@ function renderExportInfo(){
     ["Video file", exportCodecLabel()],
     ["Export time", fmts.length ? `about ${fmtClock(len * fmts.length)} in real time` : "—"]
   ];
-  $("xSum").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+  $("xSum").innerHTML = sumRows(rows);
+  renderFileDetails(len, fmts.length);
+}
+const SUM_ICON = { Story: "i-book", Range: "i-scissors", Length: "i-clock", Lines: "i-list", Formats: "i-laptop", "Video file": "i-film", "Export time": "i-clock", Take: "i-film", Cards: "i-play" };
+const sumRows = rows => rows.map(([k, v]) => `<dt><svg class="ic"><use href="#${SUM_ICON[k] || "i-file"}"/></svg>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+// File details: an estimate before exporting (from the encoder's target bitrate), the real sizes after.
+const EXPORT_BPS = 8000000 + 160000;
+function renderFileDetails(lenMs, nFmts){
+  const est = lenMs / 1000 * EXPORT_BPS / 8 / 1048576;
+  const done = Object.entries(exported || {}).filter(([, e]) => e && e.blob);
+  $("sumFile").textContent = take ? (done.length ? done.map(([f, e]) => `${f === "wide" ? "Wide" : "Vertical"} ${(e.blob.size / 1048576).toFixed(1)} MB`).join(" · ") : `about ${est.toFixed(0)} MB per format`) : "";
+  const rows = [["Video file", exportCodecLabel()], ["Estimated size", take ? `about ${est.toFixed(1)} MB per format (an estimate; the real size depends on the picture)` : "—"],
+    ["Picture", "1920 × 1080 (wide), 1080 × 1920 (vertical), 30 frames a second"], ["Sound", "160 kbps"]];
+  for (const [f, e] of done) rows.push([`${f === "wide" ? "Wide" : "Vertical"} file`, `${(e.blob.size / 1048576).toFixed(1)} MB · ${e.blob.type.split(";")[0]}`]);
+  $("fileDl").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
 }
 ["xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
 $("toExport").addEventListener("click", () => setStep("export"));
