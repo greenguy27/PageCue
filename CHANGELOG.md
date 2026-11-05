@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.5 — in testing
+## 0.7.5 — 2026-11-05
 
 Design pass: one consistent look across every screen. Nothing about recording, retakes, review, clips or export works differently.
 

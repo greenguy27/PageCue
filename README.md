@@ -92,7 +92,7 @@ In development.
 | 0.5 | Retake mode | Done |
 | 0.6 | Export screen, Clip Creator, presets, reader cues | Done |
 | 0.7 | Background images, opening and ending cards | Done |
-| 0.7.5 | Design pass: one consistent look across every screen | In testing |
+| 0.7.5 | Design pass: one consistent look across every screen | Done |
 | 0.8 | Book reading mode: DOCX and EPUB import, chapters | Planned |
 | 0.9 | Voice-follow (experimental, on-device only) | Planned |
 | 1.0 | Public release on GitHub Pages | Planned |
