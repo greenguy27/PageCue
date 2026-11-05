@@ -19,7 +19,7 @@ In development. Not released yet.
 | 5 | Wide + vertical video export, captions, recording recovery | Done (0.4.0) |
 | 6 | Retake mode: stumble key, cut markers, edited export | Done (0.5.0) |
 | 7 | Export screen, Clip Creator, presets, reader cues | Done (0.6.0) |
-| 8 | Look and branding: background images, opening and ending cards | In testing (0.7.0) |
+| 8 | Look and branding: background images, opening and ending cards | Done (0.7.0) |
 
 ## Run it on your computer
 

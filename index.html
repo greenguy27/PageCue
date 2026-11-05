@@ -370,6 +370,9 @@ body.phone .exportv{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
 .xsecb .pills{max-width:320px}
 #xGo{margin-top:4px}
 
+body.notake .transport,body.notake #xRangeBox,body.notake #rWarn{display:none!important}
+.notakenote{margin:0;padding:10px 12px;border:1px solid #d9b37a;border-radius:10px;background:#fbf1de;font-size:14px}
+
 /* reader cues */
 .cue{font-family:var(--sans);font-style:italic;font-weight:500;font-size:.6em;letter-spacing:.02em;color:#8a6420;background:var(--gold-wash);border:1px solid #ecdcbc;border-radius:.4em;padding:.05em .45em;vertical-align:.12em;white-space:nowrap}
 .pl.cueline .cue{font-size:.72em}
@@ -463,7 +466,7 @@ body.phone .toast{top:16px;bottom:auto}
       <button type="button" data-step="story" aria-current="step"><svg class="ic"><use href="#i-book"/></svg>Story</button>
       <button type="button" data-step="record"><svg class="ic"><use href="#i-mic"/></svg>Record</button>
       <button type="button" data-step="review" disabled title="Record a take first"><svg class="ic"><use href="#i-play"/></svg>Review</button>
-      <button type="button" data-step="export" disabled title="Record a take first"><svg class="ic"><use href="#i-export"/></svg>Export</button>
+      <button type="button" data-step="export"><svg class="ic"><use href="#i-export"/></svg>Export</button>
     </nav>
     <div class="seg" role="group" aria-label="Device mode">
       <button type="button" data-device="laptop" aria-pressed="true"><svg class="ic"><use href="#i-laptop"/></svg>Laptop</button>
@@ -539,7 +542,7 @@ body.phone .toast{top:16px;bottom:auto}
     </div>
   </main>
   <dialog id="about" class="about">
-    <h2>PageCue <small>0.7.0 (test build)</small></h2>
+    <h2>PageCue <small>0.7.0</small></h2>
     <p>A free, private reading prompter for authors. Your story and recordings stay on this device: no uploads, no accounts, no tracking.</p>
     <p>By greenguy27 · <a href="https://crbooks.ink" target="_blank" rel="noopener">CRBooks.ink</a><br>MIT license · <a href="https://buymeacoffee.com/cer5061k" target="_blank" rel="noopener">Buy me a coffee</a></p>
     <form method="dialog"><button class="btn primary">Close</button></form>
@@ -621,6 +624,7 @@ body.phone .toast{top:16px;bottom:auto}
     <aside class="card xset" aria-labelledby="xSetH">
       <div class="chead"><span class="tile"><svg class="ic"><use href="#i-export"/></svg></span>
         <div><h2 id="xSetH">Export Settings</h2><p>Make the finished videos and their captions.</p></div></div>
+      <p class="notakenote" id="noTakeNote" hidden>No take yet. Set up your background and cards now; they're saved and used for your next take, and the Record preview shows the background too. Record a take to export.</p>
       <div class="xpreset" id="xPresetBox">
         <label class="label" for="presetSel">Preset</label>
         <div class="prow">
@@ -752,7 +756,7 @@ body.phone .toast{top:16px;bottom:auto}
         <span class="status" id="pStatus"><span class="dot"></span><span>Ready</span></span>
         <span class="count" id="pWhere"></span>
       </div>
-      <p class="hint" style="margin:0">A preview of the export look. The camera image is mirrored here so it feels natural; the recording is not.</p>
+      <p class="hint" style="margin:0"><button type="button" class="link" id="toLook">Background and cards…</button> · A preview of the export look. The camera image is mirrored here so it feels natural; the recording is not.</p>
 
       <div class="panel" id="camPanel">
         <h3>Camera and mic</h3>
@@ -1026,7 +1030,7 @@ $("toRecord").addEventListener("click", () => setStep("record"));
 
 /* ---------- steps and device ---------- */
 function setStep(step){
-  if ((step === "export" || step === "review") && !take){ toast("Record a take first"); return; }
+  if (step === "review" && !take){ toast("Record a take first"); return; }
   if (exportJob && step !== "export"){ toast("Wait for the export to finish, or cancel it"); return; }
   if (step === "record" && !state.lines.length){ toast("Add your story first"); return; }
   if (step !== "record" && (recording() || cd)){ toast("Stop recording first"); return; }
@@ -1380,7 +1384,7 @@ function setTake(t){
   rvLoaded = null;
   const rb = document.querySelector('nav.steps [data-step="review"]');
   rb.disabled = !t; rb.title = t ? "" : "Record a take first";
-  const xb = document.querySelector('nav.steps [data-step="export"]'); xb.disabled = !t; xb.title = rb.title;
+  // Export stays open without a take, so the background and cards can be set up before recording.
   const p = $("takePlayer"); p.pause(); p.removeAttribute("src"); p.load(); p.hidden = true;
   renderTake();
 }
@@ -1693,10 +1697,17 @@ function lineAt(ms){
 function nowMs(){ return (rv.currentTime || 0) * 1000; }
 
 function enterReview(){
-  if (!take){ setStep("record"); return; }
   const pv = document.querySelector(".rprev");                      // one preview, shown on Review or Export
   if (state.step === "export"){ if (pv.parentNode !== $("xPrevSlot")) $("xPrevSlot").appendChild(pv); }
   else if (pv.parentNode !== $("reviewView")) $("reviewView").insertBefore(pv, $("reviewView").firstChild);
+  setNoTake(!take);
+  if (!take){
+    // No take yet: the Export screen is for setting up the look. The preview shows a sample frame from the story.
+    rFmt = state.fmt || "wide"; posFmt = rFmt; applyLook();
+    renderPresets(); renderLookUI(); renderExportInfo(); drawPreview();
+    preloadLook().then(() => { renderLookUI(); drawPreview(); });
+    $("rWarn").hidden = true; return;
+  }
   if (rvLoaded !== takeURL){ rv.src = takeURL; rvLoaded = takeURL; rv.currentTime = 0; }
   rFmt = state.fmt || "wide";
   if (sel >= take.starts.length) sel = 0;
@@ -1709,14 +1720,21 @@ function enterReview(){
   if (missing > 0) w.push(`The take ended before the last ${missing === 1 ? "line" : missing + " lines"}, so ${missing === 1 ? "it isn't" : "they aren't"} on the timeline.`);
   $("rWarn").hidden = !w.length; $("rWarn").textContent = w.join(" ");
 }
+// Without a take, Export only sets up the look: playback, clips, captions and exporting wait for a take.
+function setNoTake(on){
+  document.body.classList.toggle("notake", on);
+  $("xGo").disabled = on; $("capSrt").disabled = on; $("capVtt").disabled = on;
+  $("noTakeNote").hidden = !on;
+}
 let pvCard = null;          // { kind: "open"|"end", t0, last } while a card plays in the preview, or { kind, still: true }
 function drawPreview(){
-  const cvp = $("rcv"); if (!cvp || !take) return;
+  const cvp = $("rcv"); if (!cvp) return;
   const W = rFmt === "wide" ? 1920 : 1080, H = rFmt === "wide" ? 1080 : 1920;
   if (cvp.width !== W || cvp.height !== H){ cvp.width = W; cvp.height = H; }
   const g = cvp.getContext("2d");
   if (pvCard && pvCard.kind === "open") drawOpenAt(g, W, H, rFmt, pvCard.still ? titleMs() / 2 : performance.now() - pvCard.t0);
   else if (pvCard && pvCard.kind === "end") drawEndAt(g, W, H, rFmt, pvCard.still ? endMs() / 2 : performance.now() - pvCard.t0, pvCard.last);
+  else if (!take) drawFrame(g, W, H, rFmt, 0, null);      // sample frame from the story (no take yet)
   else drawFrame(g, W, H, rFmt, nowMs(), rv);
   if (state.safeGuide && rFmt === "tall") drawSafeGuide(g, W, H);
 }
@@ -2026,7 +2044,7 @@ const assetWait = new Map();           // id -> promise while loading
 function assetNow(id){
   if (!id) return null;
   const a = assetCache.get(id); if (a) return a;
-  if (!assetWait.has(id)) assetWait.set(id, loadAsset(id).then(() => { if (state.step === "review" || state.step === "export") renderReview(); }));
+  if (!assetWait.has(id)) assetWait.set(id, loadAsset(id).then(() => { if (state.step === "review" || state.step === "export"){ if (take) renderReview(); else drawPreview(); } }));
   return null;
 }
 async function loadAsset(id){
@@ -2162,8 +2180,15 @@ function drawFrame(g, W, H, fmt, ms, vid){
   g.lineWidth = Math.max(3, W * 0.006); g.strokeStyle = VIDEO.ink; facePath(g, f, L.rounded); g.stroke();
   // story text
   if (ms == null) return;
-  const o = overlayAt(ms), T = L.txt;
-  const txtOf = k => capOf(k) != null ? runsOf(capOf(k), true) : runsOf(stripCues(take.lines[k]), false);
+  const T = L.txt;
+  let o, txtOf;
+  if (take){ o = overlayAt(ms); txtOf = k => capOf(k) != null ? runsOf(capOf(k), true) : runsOf(stripCues(take.lines[k]), false); }
+  else {
+    // No take yet: show the story's opening lines (or a placeholder) so the look can be judged.
+    const SL = state.lines.length ? state.lines : ["Your story's lines appear here as you read.", "This is a sample of the story text on the video."];
+    let k = 0, seen = 0; while (k < SL.length - 1 && (seen < 1 || isCueLine(SL[k]) || isHeading(SL[k]))){ if (!isCueLine(SL[k]) && !isHeading(SL[k])) seen++; if (seen >= 2) break; k++; }
+    o = spokenAt(SL, k); txtOf = i => runsOf(stripCues(SL[i]), false);
+  }
   const nowL = o.now >= 0 ? wrapRuns(g, txtOf(o.now), T.nowPx, 600, SERIF, T.w) : [];
   const prevL = !L.one && o.prev >= 0 ? wrapRuns(g, txtOf(o.prev), T.prevPx, 400, SERIF, T.w) : [];
   const hNow = nowL.length * T.nowPx * 1.3, hPrev = prevL.length * T.prevPx * 1.35, gap = prevL.length && nowL.length ? T.gap : 0;
@@ -2233,7 +2258,7 @@ async function renderVideo(fmt, withTitle, onProgress){
         const te = performance.now() - tEnd;
         drawEndAt(g, W, H, fmt, Math.min(te, eMs), last);
         doneMs = exportMs() + Math.min(te, eMs);
-        if (te >= eMs + 350){ finish(); return; }     // hold the last (black) frame so the picture lasts as long as the sound
+        if (te >= eMs + 700){ finish(); return; }     // hold the last (black) frame: the recorder can drop its final frames on stop, and the fade must survive that
       } else if (ending || switching){
         drawFrame(g, W, H, fmt, lastMs, cur);          // hold the frame: at the end (so picture lasts as long as sound) or while the next player finishes parking
       } else {
@@ -2364,7 +2389,13 @@ function exportCodecLabel(){
   return "Not supported in this browser";
 }
 function renderExportInfo(){
-  if (!take) return;
+  if (!take){
+    const t = state.title.trim() || "Untitled story", a = state.author.trim();
+    $("xSum").innerHTML = [["Story", a ? `${t} • ${a}` : t], ["Take", "None yet. Record a take to export; your background and cards are saved now."],
+      ["Cards", [titleMs() && `opening card ${state.look.open.secs} s`, endMs() && `ending card ${state.look.end.secs} s`].filter(Boolean).join(", ") || "None"],
+      ["Video file", exportCodecLabel()]].map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+    $("xTime").textContent = "0:00"; return;
+  }
   const len = exportMs() + titleMs() + endMs(), w = clipWin();
   $("xTime").textContent = fmtClock(len);
   const fmts = [$("xWide").checked && "Wide 16:9", $("xTall").checked && "Vertical 9:16"].filter(Boolean);
@@ -2384,6 +2415,7 @@ function renderExportInfo(){
 }
 ["xWide", "xTall"].forEach(id => $(id).addEventListener("change", renderExportInfo));
 $("toExport").addEventListener("click", () => setStep("export"));
+$("toLook").addEventListener("click", () => { if (recording() || cd){ toast("Stop recording first"); return; } setStep("export"); $("secBg").open = true; });
 
 /* ---------- look: background and cards (Export screen) ---------- */
 const IMG_MAX_FILE = 40 * 1048576, IMG_MAX_PIXELS = 50e6, IMG_BG_SHORT = 1920, IMG_COVER_LONG = 1600, IMG_TARGET = 1.5 * 1048576, PROJECT_IMG_MAX = 8 * 1048576;
@@ -2460,7 +2492,7 @@ function applyRecordLook(){
 }
 function lookChanged(){
   save(); if (presetId){ presetId = ""; renderPresets(); }
-  renderLookUI(); renderExportInfo(); if (take && !(pvCard && !pvCard.still)) drawPreview();
+  renderLookUI(); renderExportInfo(); if (!(pvCard && !pvCard.still)) drawPreview();
 }
 document.querySelectorAll("[data-bgk]").forEach(x => x.addEventListener("click", () => { state.look.bg.kind = x.dataset.bgk; lookChanged(); }));
 document.querySelectorAll("[data-posf]").forEach(x => x.addEventListener("click", () => { posFmt = x.dataset.posf; if (rFmt !== posFmt){ rFmt = posFmt; applyLook(); } renderLookUI(); drawPreview(); }));
@@ -2499,10 +2531,12 @@ cardField("eSecs", "end", "secs", t => +t.value); cardField("eFade", "end", "fad
   drawPreview();
 }));
 async function playCard(kind){
-  if (!take) return;
   rvPause(); await preloadLook();
   let last = null;
-  if (kind === "end"){       // fade in over the reading's last frame, as the export does
+  if (kind === "end" && !take){
+    const W = rFmt === "wide" ? 1920 : 1080, H = rFmt === "wide" ? 1080 : 1920;
+    last = document.createElement("canvas"); last.width = W; last.height = H; pvCard = null; drawFrame(last.getContext("2d"), W, H, rFmt, 0, null);
+  } else if (kind === "end"){       // fade in over the reading's last frame, as the export does
     const segs = exportSegments(); const endAt = segs.length ? segs[segs.length - 1][1] - 40 : 0;
     rv.currentTime = Math.max(0, endAt) / 1000; await once(rv, "seeked", 4000).catch(() => {});
     const W = rFmt === "wide" ? 1920 : 1080, H = rFmt === "wide" ? 1080 : 1920;

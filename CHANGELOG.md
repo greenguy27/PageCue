@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 — in testing
+## 0.7.0 — 2026-11-04
 
 Stage 8: look and branding.
 
@@ -24,6 +24,14 @@ Stage 8: look and branding.
 - Vertical videos keep the face bubble, story text, title line and cards out of the edges that TikTok, Reels and Shorts cover with buttons and captions
 - The title line moved from the bottom of vertical videos to just under the face bubble
 - An optional guide shades the covered area in the preview (never exported)
+
+**Set up the look before recording**
+- The Export step opens before you've recorded anything, so you can choose the background and cards first; the preview shows a sample frame from your story, and exporting unlocks once you have a take
+- The Record screen has a "Background and cards…" link, and its preview shows the background
+
+**Launchers**
+- The Mac and Windows launchers only reuse a running PageCue if it's this folder's copy; if another copy holds the port, they say so instead of opening the wrong version
+- The Mac launcher shows which folder it's serving and stops the browser from showing an old cached page
 
 **Images and project files**
 - Images stay on your device. Large images are shrunk locally (backgrounds to 1920 px on the short side, covers to 1600 px); your original files aren't changed
