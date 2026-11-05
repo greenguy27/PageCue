@@ -2317,6 +2317,7 @@ async function renderVideo(fmt, withTitle, onProgress){
   // each section plays exactly like an uncut export (picture and sound from one element).
   const mk = () => { const v = document.createElement("video"); v.playsInline = true; v.preload = "auto"; v.src = takeURL; return v; };
   const P = [mk(), mk()];
+  if (window.__rpDiag) P.forEach(v => { if (v.requestVideoFrameCallback){ const cb = (now, md) => { v._shown = md.mediaTime * 1000; v.requestVideoFrameCallback(cb); }; v.requestVideoFrameCallback(cb); } });
   await Promise.all(P.map(v => once(v, "loadeddata")));
   const ac = new (window.AudioContext || window.webkitAudioContext)(); await ac.resume().catch(() => {});
   const dest = ac.createMediaStreamDestination();
@@ -2346,6 +2347,7 @@ async function renderVideo(fmt, withTitle, onProgress){
       rec.onstop = () => {
         out.getTracks().forEach(t => t.stop()); ac.close().catch(() => {});
         P.forEach(v => { v.removeAttribute("src"); v.load(); });
+        cv.width = cv.height = last.width = last.height = 0;     // free the frame buffers now, not at the next export
         if (err) reject(err); else if (job.cancel) resolve(null); else resolve(new Blob(parts, { type: rec.mimeType || mime || "video/webm" }));
       };
       if (rec.state !== "inactive") rec.stop(); else rec.onstop();
@@ -2389,7 +2391,9 @@ async function renderVideo(fmt, withTitle, onProgress){
           }
         } else {
           lastMs = ms;
+          const d0 = performance.now();
           drawFrame(g, W, H, fmt, ms, cur);
+          if (window.__rpDiag) (job.frames = job.frames || []).push([Math.round(d0 - t0), Math.round(ms), si, cur._shown != null ? Math.round(cur._shown) : -1, +(performance.now() - d0).toFixed(1)]);
           doneMs = segs.slice(0, si).reduce((a, sg) => a + sg[1] - sg[0], 0) + Math.max(0, ms - segs[si][0]);
         }
       }
@@ -2452,12 +2456,13 @@ $("xGo").addEventListener("click", async () => {
   const withTitle = titleMs() > 0;
   try{
     for (const [k, fmt] of fmts.entries()){
+      if (k) await new Promise(r => setTimeout(r, 1000));     // let the browser finish tidying up after the last file, so the next one starts smoothly
       const name = fmt === "wide" ? "Wide 16:9" : "Vertical 9:16";
       const blob = await renderVideo(fmt, withTitle, p => {
         $("xBar").style.width = Math.round(((k + p) / fmts.length) * 100) + "%";
         $("xStat").textContent = `Exporting ${name} (${k + 1} of ${fmts.length}): ${Math.round(p * 100)}%`;
       });
-      lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [] });
+      lastExportLog.push({ fmt, switches: (exportJob && exportJob.log) || [], frames: (exportJob && exportJob.frames) || [] });
       if (!blob) break;   // cancelled
       const expectMs = exportMs() + titleMs() + endMs();
       if (exported[fmt]) URL.revokeObjectURL(exported[fmt].url);
